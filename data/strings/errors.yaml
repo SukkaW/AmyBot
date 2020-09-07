@@ -1,0 +1,15 @@
+parse_console_template: |-
+  ParseError. Could not parse value `{{VALUE}}` for keyword `{{KEYWORD}}` with reason: {{EXCEPTION}}
+
+usage_template: |-
+  ParseError. Could not parse value `{{VALUE}}` for keyword `{{KEYWORD}}`.
+  ----
+  __Reason__: {{EXCEPTION}}
+  __Correct Usage__: `{{PREFIX}}{{COMMAND}} {{ARGS}}`
+  ----
+  See `{{PREFIX}}help {{COMMAND}}` for details.
+
+int_reasons:
+  empty: No integer supplied. Did you accidentally include a space?
+  not_int: Not an integer.
+  negative: Value is negative.

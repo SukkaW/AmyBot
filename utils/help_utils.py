@@ -1,0 +1,47 @@
+from discord.ext import commands
+import utils, yaml
+
+# Override for partial matching
+class PartialHelp(commands.DefaultHelpCommand):
+	async def command_callback(self, ctx, *, name=None):
+		bot= ctx.bot
+		mapping= self.get_bot_mapping()
+
+		if name is None or len(name) < 3: return await self.send_default_help(mapping)
+
+		# Find cogs with matching names
+		cogs= [bot.cogs[x] for x in bot.cogs.keys() if name.lower() in x.lower()]
+		cmds= [bot.all_commands[x] for x in bot.all_commands if name.lower() in x.lower()]
+
+		if not cogs and not cmds:
+			return await self.send_default_help(mapping)
+		else:
+			return await self.send_specific_help(mapping, cogs, cmds)
+
+	# No cog name / command name supplied
+	async def send_default_help(self, mapping):
+		HELP_STRINGS= yaml.safe_load(open(utils.HELP_STRING_FILE))
+		COG_STRINGS= yaml.safe_load(open(utils.COG_STRING_FILE))
+
+		reps= {
+			"COGS": [x for x in mapping if x is not None],
+			"PREFIX": self.clean_prefix,
+			"COG_STRINGS": COG_STRINGS
+		}
+
+		ret= utils.render(template=HELP_STRINGS['default_help_template'], dct=reps)
+		await self.get_destination().send(ret)
+
+	async def send_specific_help(self, mapping, cogs, commands):
+		HELP_STRINGS= yaml.safe_load(open(utils.HELP_STRING_FILE))
+		COG_STRINGS= yaml.safe_load(open(utils.COG_STRING_FILE))
+
+		reps= {
+			"COGS": cogs,
+			"COMMANDS": commands,
+			"PREFIX": self.clean_prefix,
+			"COG_STRINGS": COG_STRINGS
+		}
+
+		ret= utils.render(template=HELP_STRINGS['specific_help_template'], dct=reps)
+		await self.get_destination().send(ret)
