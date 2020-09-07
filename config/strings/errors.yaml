@@ -1,0 +1,42 @@
+# Templates for keyword parsing errors
+usage_template: |-
+  ParseError. Could not parse value `{{VALUE}}` for keyword `{{KEYWORD}}`.
+  ----
+  __Reason__: {{EXCEPTION}}
+  __Correct Usage__: `{{PREFIX}}{{COMMAND}} {{ARGS}}`
+  ----
+  See `{{PREFIX}}help {{COMMAND}}` for details.
+
+parse_console_template: |-
+  ParseError. Could not parse value `{{VALUE}}` for keyword `{{KEYWORD}}` with reason: {{EXCEPTION}}
+
+int_reasons:
+  empty: No integer supplied. Did you accidentally include a space?
+  not_int: Not an integer.
+  negative: Value is negative.
+
+
+# Miscellaneous ----
+uncaught_template: |-
+  Unexpected error. <@113843036965830657>
+  ```py
+  @ MESSAGE:
+  {{MESSAGE}}
+
+  @ EXCEPTION:
+  {{EXCEPTION}}
+  ```
+
+tmp_not_found_template: |-
+  Typo in template name `{{NAME}}`
+  Valid template names: `[{{", ".join(AVAILABLE)}}]`
+
+no_equip_match_template: |-
+  No equips found.
+  ```yaml
+  Search parameters:
+      name: {{NAME}}
+      {% for kw in KEYWORDS %}
+      {{kw}}: {{KEYWORDS[kw]}}
+      {% endfor %}
+  ```

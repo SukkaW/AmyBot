@@ -1,0 +1,17 @@
+Auction:
+    description: Shows data from Super's and Kedama's auctions.
+    commands:
+        auction:
+            description: Show price + stats of past equips
+            args: "equip_name [optional: keywords]"
+            keywords: [year, link, min, max, rare, norare, seller, buyer]
+    keywords:
+        "year": Equips sold prior to this year are ignored (eg \"... 2019\")
+        "link": Show equip links (eg \"... link\")
+        "min":  Equips below this price are ignored (eg \"... min100k\")
+        "max":  Equips above this price are ignored (eg \"... max5m\")
+        "rare": Show only equips with rare suffixes / prefixes (eg \"... rare\")
+        "norare": Show only equips without rare suffixes / prefixes (eg \"... norare\")
+        "seller": Show seller name (eg \"... seller\")
+        "buyer": Show buyer name (eg \"... buyer\")
+        #"thread": Show auction thread link

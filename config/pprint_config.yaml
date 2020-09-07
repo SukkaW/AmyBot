@@ -1,0 +1,20 @@
+auction:
+  headers:
+    year: "# Auction / MM-YY"
+    price: Price
+    level: Level
+    stats: Percentiles
+    seller: Seller
+    buyer: Buyer
+
+  default_cols: [price, level, stats]
+
+  # optional columns
+  # key should be keyword name, value should be key name for eq_data
+  keyword_cols: { sell: seller, buy: buyer}
+
+  # DO NOT include these in the above default / keyword lists -- already handled in auction_cog._item_to_cols()
+  special_cols: [year, link, thread]
+
+  stat_col_width: 20
+  page_limit: 2

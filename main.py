@@ -1,7 +1,7 @@
 from discord.ext import commands
 from utils.help_utils import PartialHelp
-from utils.command_utils import PartialCommand
-import utils, json, cogs
+from utils.cog_utils import PartialCommand
+import utils, json, cogs, yaml
 
 BOT_CONFIG= json.load(open(utils.BOT_CONFIG_FILE))
 
@@ -15,6 +15,7 @@ class AmyBot(commands.Bot):
 		# act = discord.Activity(name=f"{self.prefix}help for commands", type=discord.ActivityType.playing)
 		# await self.change_presence(activity=act)
 
+	# @ TODO: partial matching for aliases?
 	# Override process_commands to allow for partial command name matching
 	async def process_commands(self, message):
 		if message.author.bot:
@@ -33,6 +34,21 @@ class AmyBot(commands.Bot):
 		if ctx.command is not None:
 			await self.invoke(ctx)
 
+	async def on_command_error(self, ctx, e):
+		import traceback, sys
+
+		if isinstance(e, commands.CommandInvokeError):
+			err= e.original
+		else: err= e
+
+		ERROR_STRINGS= yaml.safe_load(open(utils.ERROR_STRING_FILE))
+
+		text= "\n".join(traceback.format_tb(err.__traceback__)) + "\n" + str(e)
+		uncaught= utils.render(ERROR_STRINGS['uncaught_template'], dict(EXCEPTION=text[-1400:], MESSAGE=ctx.message.content[:400]))
+		await ctx.send(uncaught)
+
+		traceback.print_tb(err.__traceback__)
+		sys.stderr.write(str(e))
 
 bot= AmyBot(BOT_CONFIG['prefix'], case_insensitive=True)
 bot.add_cog(cogs.AuctionCog())
