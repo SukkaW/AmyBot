@@ -1,1 +1,1 @@
-from .cog_utils import *
+from .utils import PartialCommand

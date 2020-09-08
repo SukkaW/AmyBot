@@ -46,22 +46,33 @@ def _check(cmd, cog, perm_dict, flags, ctx, is_dm=False):
 	if is_dm: keys= ['user']
 	else: keys= ['user', 'role', 'channel']
 
+	silent= not perm_dict['vocal_fail']
+	details= perm_dict['details']
+
+
 	# make if missing
 	if cog not in perm_dict: perm_dict[cog]= copy.deepcopy(default_dict)
 	if cmd not in perm_dict[cog]: perm_dict[cog][cmd]= copy.deepcopy(default_dict)
 
 	# cmd checks
-	for dct in [perm_dict[cog][cmd], perm_dict[cog], perm_dict]: # loop levels
+	for i,dct in enumerate([perm_dict[cog][cmd], perm_dict[cog], perm_dict]): # loop levels
 		for e in dct['exceptions']: # loop exception list
-			if all(chks[k](e) for k in keys): # if applicable exception, return exception value
-				if (tmp:=flag_chk(e['value'])) is not None:
-					return tmp
+			if all(chks[k](e) for k in keys): # check user / role / channel id listed in expception
 
-		# check "everyone" flag for current level
+				# if allowed return True, if fail raise PermissionFailure, else move to next level
+				tmp= flag_chk(e['value'])
+				if tmp is True:
+					return tmp
+				elif tmp is False:
+					raise PermissionFailure(cmd, cog, exception=e, level=i, is_dm=is_dm, silent=silent, details=details)
+				else: pass
+
+		# if no matching exceptions, check "everyone" flag for current level
 		if (tmp:=flag_chk(dct['everyone'])) is not None:
+			if tmp is False: raise PermissionFailure(cmd, cog, level=i, everyone=True, is_dm=is_dm, silent=silent, details=details)
 			return tmp
 
-	return False
+	raise PermissionFailure(cmd, cog, level=PermissionFailure.DEFAULT_LEVEL, is_dm=is_dm, silent=silent, details=details)
 
 
 def _is_global_admin(ctx, GLOBALS):
@@ -71,5 +82,28 @@ def _is_global_admin(ctx, GLOBALS):
 	return False
 
 class PermissionFailure(commands.CheckFailure):
-	def __init__(self):
-		pass
+	SERVER_LEVEL= 2
+	COG_LEVEL= 1
+	COMMAND_LEVEL= 0
+	DEFAULT_LEVEL= -1
+
+	# Init with everyone set to True if the permission failure was due to the perm_dict's everyone key being false.
+	def __init__(self, command, cog, level, exception=None, everyone=False, is_dm=False, silent=True, details=False):
+		self.cog= cog
+		self.command= command
+		self.exception= exception
+		self.level= level
+		self.everyone= everyone
+		self.is_dm= is_dm
+		self.silent= silent
+		self.details= details
+
+	def render(self):
+		STRINGS= utils.load_yaml(utils.ERROR_STRING_FILE)
+
+		if self.level == self.DEFAULT_LEVEL:
+			return utils.render(STRINGS['default_perm_error'], self.__dict__)
+		if self.level == self.SERVER_LEVEL:
+			return utils.render(STRINGS['server_perm_error'], self.__dict__)
+		else:
+			return utils.render(STRINGS['command_or_cog_perm_error'], self.__dict__)

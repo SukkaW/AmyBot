@@ -5,15 +5,13 @@ import utils, traceback, sys
 # mixin for globally handling errors
 class ErrorHandler:
 	async def on_command_error(self, ctx, e):
-		if isinstance(e, commands.CheckFailure):
+		if isinstance(e, PermissionFailure):
 			return await self.handle_permission_error(ctx, e)
 		else:
 			return await self.handle_other_error(ctx, e)
 
 	async def handle_permission_error(self, ctx, e):
-		# @ TODO
-		print("failed", ctx.message.content)
-		pass
+		await ctx.send(e.render())
 
 	# Unexpected errors
 	async def handle_other_error(self, ctx, e):

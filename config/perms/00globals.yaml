@@ -23,6 +23,10 @@ help_string: &help |-
   *pass - the next level of exceptions will be checked. If there is no next level, the command will fail.
   (Remember that exceptions are checked in the order of command-level -> cog-level -> server-level!!)
 
+  If "vocal_fail" mode is enabled, a failed-permissions message will be sent to the user. If "details" is also enabled,
+  the reason (eg exception entry) will also be printed.
+
+admins: {}
 
 flags: &flags
   ALLOW: &allow 1
@@ -30,6 +34,9 @@ flags: &flags
   FAIL: &fail -1
 
 dm:
+  vocal_fail: true
+  details: true
+
   everyone: *allow
   exceptions: []
   none:
@@ -47,15 +54,13 @@ dm:
       exceptions: []
 
 
-
-admins:
-
-
-
 default_perms:
   help_string: *help
 
   flags: *flags
+
+  vocal_fail: true
+  details: false
 
   everyone: *fail
   exceptions: []

@@ -1,24 +1,25 @@
-import utils.cog_utils as cmd
+import utils.parse_utils as Parse
 from utils.pprint_utils import Column, pprint, break_tables
-from utils.cog_utils import auction_utils as auct
+from utils.cog_utils import auction_utils as Auct
+from utils.cog_utils import PartialCommand
 from discord.ext import commands
 import utils
 
 
 # Keyword stuff
-base_keys= { "min": cmd.to_pos_int, "max": cmd.to_pos_int, "year": cmd.to_pos_int,
+base_keys= { "min": Parse.to_pos_int, "max": Parse.to_pos_int, "year": Parse.to_pos_int,
 			 "sell": None, "buy": None,
-			 "link": cmd.to_bool, "thread": cmd.to_bool, "rare": cmd.to_bool, "norare": cmd.to_bool
+			 "link": Parse.to_bool, "thread": Parse.to_bool, "rare": Parse.to_bool, "norare": Parse.to_bool
 			 }
 base_aliases= {"year":["date"]} # alternative keyword names
 base_reps= {"year20":["20"]} # replace value with key (before checking names / aliases)
 
 class AuctionCog(commands.Cog, name="Auction"):
 
-	@commands.command(name="auction", short="auc", cls=cmd.PartialCommand)
+	@commands.command(name="auction", short="auc", cls=PartialCommand)
 	async def equip_search(self, ctx):
 		# get keywords
-		parsed= await cmd.handle_keywords(ctx=ctx, keys=base_keys, aliases=base_aliases, reps=base_reps)
+		parsed= await Parse.handle_keywords(ctx=ctx, keys=base_keys, aliases=base_aliases, reps=base_reps)
 		if not parsed: return # Unexpected error in keyword parsing (that's been handled)
 
 		keywords= parsed['keywords']
@@ -27,14 +28,14 @@ class AuctionCog(commands.Cog, name="Auction"):
 		has_link_col= ("link" in keywords and keywords['link']) or ("thread" in keywords and keywords['thread'])
 
 		# get sales table for each matching item
-		items= auct.find_items(clean_query, keywords)
+		items= Auct.find_items(clean_query, keywords)
 		if not items:
-			return await cmd.handle_general_error(ctx, "no_equip_match", name=clean_query, keywords=keywords)
+			return await Parse.handle_general_error(ctx, "no_equip_match", name=clean_query, keywords=keywords)
 
 		# convert table to string
 		tables= [] # strings
 		for eq_name in items:
-			tables.append(auct.to_table(eq_name, items[eq_name], keywords=keywords))
+			tables.append(Auct.to_table(eq_name, items[eq_name], keywords=keywords))
 
 		# merge tables
 		CONFIG= utils.load_yaml(utils.PPRINT_CONFIG)['auction']

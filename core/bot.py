@@ -3,7 +3,7 @@ from utils.help_utils import PartialHelp
 from utils.cog_utils import PartialCommand
 from utils.error_utils import ErrorHandler
 
-
+# @TODO: logging
 class AmyBot(commands.Bot, ErrorHandler):
 	def __init__(self, prefix, *args, **kwargs):
 		super().__init__(command_prefix=prefix, *args, **kwargs)

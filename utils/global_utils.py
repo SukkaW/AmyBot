@@ -12,7 +12,7 @@ HELP_STRING_FILE= STRING_DIR + "help.yaml"
 ERROR_STRING_FILE= STRING_DIR + "errors.yaml"
 COG_STRING_FILE= STRING_DIR + "cog_descriptions.yaml"
 
-GLOBAL_PERMS_FILE= PERMS_DIR + "globals.yaml"
+GLOBAL_PERMS_FILE= PERMS_DIR + "00globals.yaml"
 
 PPRINT_CONFIG= CONFIG_DIR + "pprint_config.yaml"
 AUCTION_FILE= DATA_DIR + "merged_auction_data.json"

@@ -1,11 +1,6 @@
 from discord.ext import commands
 import utils
 
-class PartialCommand(commands.Command):
-	def __init__(self, func, short, *args, **kwargs):
-		self.short= short
-		super().__init__(func, *args, **kwargs)
-
 
 async def handle_general_error(ctx, error_name, **kwargs):
 	ERROR_STRINGS= utils.load_yaml(utils.ERROR_STRING_FILE)
