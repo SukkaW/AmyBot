@@ -1,4 +1,4 @@
 discord.py
 requests
 jinja2
-pyyaml
+ruamel.yaml

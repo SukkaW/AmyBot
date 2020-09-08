@@ -43,6 +43,7 @@ class Column:
 					self.__dict__['data'][i]= self.data[i][:self.max_width-3] + "..."
 
 
+# @ todo: comment this
 def pprint(columns, prefix="", suffix="", code=None, v_sep="|", h_sep="-", v_pad=1):
 	ret= ""
 

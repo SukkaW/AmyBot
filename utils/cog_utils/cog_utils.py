@@ -1,5 +1,5 @@
 from discord.ext import commands
-import json, utils, yaml
+import utils
 
 class PartialCommand(commands.Command):
 	def __init__(self, func, short, *args, **kwargs):
@@ -8,7 +8,7 @@ class PartialCommand(commands.Command):
 
 
 async def handle_general_error(ctx, error_name, **kwargs):
-	ERROR_STRINGS= yaml.safe_load(open(utils.ERROR_STRING_FILE))
+	ERROR_STRINGS= utils.load_yaml(utils.ERROR_STRING_FILE)
 
 	name= error_name.replace("_template", "")
 	template_name= f"{error_name}_template"
@@ -83,12 +83,12 @@ def parse_keywords(query, keywords, aliases=None, reps=None):
 	return ret
 
 def render_parse_error(ctx, parse_error):
-	COG_STRINGS= yaml.safe_load(open(utils.COG_STRING_FILE))
-	ERROR_STRINGS= yaml.safe_load(open(utils.ERROR_STRING_FILE))
+	COG_STRINGS= utils.load_yaml(utils.COG_STRING_FILE)
+	ERROR_STRINGS= utils.load_yaml(utils.ERROR_STRING_FILE)
 
 	reps= {
 		"PREFIX": ctx.prefix,
-		"COMMAND": ctx.invoked_with,
+		"COMMAND": ctx.command.name,
 		"ARGS": COG_STRINGS[ctx.command.cog.qualified_name]['commands'][ctx.command.name]['args'],
 		"VALUE": parse_error.value,
 		"KEYWORD": parse_error.keyword,
@@ -121,7 +121,7 @@ class ParseError(Exception):
 		self.exception= exception
 
 	def __str__(self):
-		STRINGS= yaml.safe_load(open(utils.ERROR_STRING_FILE))
+		STRINGS= utils.load_yaml(utils.ERROR_STRING_FILE)
 		reps= {
 			"VALUE": self.value,
 			"KEYWORD": self.keyword,
@@ -157,7 +157,7 @@ def price_to_int(x):
 	return to_int(ix)
 
 def to_int(val):
-	STRINGS= yaml.safe_load(open(utils.ERROR_STRING_FILE))
+	STRINGS= utils.load_yaml(utils.ERROR_STRING_FILE)
 
 	if val.strip() == "":
 		raise Exception(STRINGS['int_reasons']['empty'])
@@ -166,7 +166,7 @@ def to_int(val):
 	except ValueError: raise Exception(STRINGS['int_reasons']['not_int'])
 
 def to_pos_int(val):
-	STRINGS= yaml.safe_load(open(utils.ERROR_STRING_FILE))
+	STRINGS= utils.load_yaml(utils.ERROR_STRING_FILE)
 
 	ret= price_to_int(val)
 	if ret < 0: raise Exception(STRINGS['int_reasons']['negative'])

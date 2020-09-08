@@ -6,6 +6,8 @@ auction:
     stats: Percentiles
     seller: Seller
     buyer: Buyer
+    link: ""
+    forum: ""
 
   default_cols: [price, level, stats]
 
