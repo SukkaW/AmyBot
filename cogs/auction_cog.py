@@ -35,10 +35,10 @@ class AuctionCog(commands.Cog, name="Auction"):
 		# convert table to string
 		tables= [] # strings
 		for eq_name in items:
-			tables.append(Auct.to_table(eq_name, items[eq_name], keywords=keywords))
+			tables.append(Auct.to_table("auction", eq_name, items[eq_name], keywords=keywords))
 
 		# merge tables
-		CONFIG= utils.load_yaml(utils.PPRINT_CONFIG)['auction']
+		CONFIG= utils.load_yaml(utils.AUCTION_CONFIG)['auction']
 		pages= break_tables(tables, max_len=1900)
 		if not has_link_col:
 			pages= [f"```py\n{x}\n```" for x in pages]
@@ -53,3 +53,8 @@ class AuctionCog(commands.Cog, name="Auction"):
 			pages[CONFIG['page_limit']-1]+= f"{nl}{omitted} {pg} omitted. Please DM for the full print-out."
 		for x in pages[:CONFIG['page_limit']]:
 			await ctx.send(x)
+
+
+	@commands.command(name="bought", short="bou", cls=PartialCommand)
+	async def bought(self, ctx):
+		pass

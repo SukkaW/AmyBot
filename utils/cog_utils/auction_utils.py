@@ -1,7 +1,7 @@
 import utils.cog_utils as cmd
 from utils.pprint_utils import Column, pprint
 from utils.misc_utils import contains
-import json, utils
+import json, utils, itertools
 
 """ NOTE: find_items and to_table should be able to handle the same keywords """
 # 	@TODO: keys - thread
@@ -48,50 +48,60 @@ def find_items(name, keywords=None):
 	return ret
 
 
+# @ todo: what if multiple base_keys point to same eq_data key
 # convert equip results to a table (string) to print
-# certain columns are only printed if a relevant keyword is passed in
-# supported keys: 	sell, buy, link
-#    (no effect): 	min, max, year, rare, norare
-def to_table(eq_name, eq_list, keywords):
+# certain columns are only printed if a relevant keyword is passed in (see key_maps)
+def to_table(cmd, eq_name, eq_list, keywords):
 	# inits
-	CONFIG= utils.load_yaml(utils.PPRINT_CONFIG)['auction']
+	CONFIG= utils.load_yaml(utils.AUCTION_CONFIG)
 	eq_list.sort(reverse=True, key=lambda x: int(x['price']))
 
-	header_dict= CONFIG['headers']
-	default_cols= CONFIG['default_cols']
-	keyword_cols= CONFIG['keyword_cols']
+	header_dict= CONFIG[cmd]['headers']
+	default_cols= CONFIG[cmd]['default_cols']
+	special_cols= ['thread', 'link', 'year'] # these have to be added last for formatting reasons
+	key_maps= CONFIG['key_maps']
 
-	has_link= "link" in keywords and keywords['link']
-	has_thread= "thread" in keywords and keywords['thread']
+	has_link= ("link" in keywords and keywords['link']) or "link" in default_cols
+	has_thread= ("thread" in keywords and keywords['thread']) or "thread" in default_cols
+	has_date= ("year" in keywords or "date" in default_cols) # year is trigger for keywords but date is key for eq_data
 
+
+	# @TODO: handle key-errors
 	# get data for cols to print
-	cols= []
-	col_names= default_cols + [keyword_cols[x] for x in keyword_cols if x in keywords]
-	for x in col_names:
-		# @TODO: handle key-errors
+	cols= default_cols + [CONFIG['key_maps'][x] for x in keywords if x in CONFIG['key_maps']]
+	for x,y in default_cols:
+		if x in special_cols: continue # these are handled later
 
+		# create col
 		data= [eq[x] for eq in eq_list]
 		c= Column(data=data, header=header_dict[x])
 
-		if x == "stats": c.max_width= CONFIG['stat_col_width']
-		if x == "price": c.data= [str(cmd.int_to_price(x)) for x in c.data]
+		# special formatting
+		if x == "stats":
+			c.max_width= CONFIG['stat_col_width']
+		if x == "price":
+			c.data= [str(cmd.int_to_price(x)) for x in c.data]
 
 		cols.append(c)
 
 	# add date col
-	data= []
-	for x in eq_list:
-		data.append(f"#{x['type'][0].upper()}{x['auction_number']} / {x['date'][1]}-{x['date'][2]}")
-	cols.append(Column(data=data, header=header_dict['year']))
+	if has_date:
+		data= []
+		for x in eq_list:
+			data.append(f"#{x['type'][0].upper()}{x['auction_number']} / {x['date'][1]}-{x['date'][2]}")
+		cols.append(Column(data=data, header=header_dict['year']))
 
 	# add link col
 	if has_link:
 		cols.append(Column(data=[x['link'] for x in eq_list], header=header_dict['link'], is_link=True))
 
+	# add thread col
+	# @TODO
+
 	if has_link or has_thread:
 		return pprint(columns=cols, prefix=f"**{eq_name}**", code="") # add single ticks
-
-	return pprint(columns=cols, prefix=f"@ {eq_name}", code=None) # we'll add code-blocks later
+	else:
+		return pprint(columns=cols, prefix=f"@ {eq_name}", code=None) # we'll add code-blocks later
 
 
 if __name__ == "__main__":

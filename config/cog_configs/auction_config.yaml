@@ -1,0 +1,34 @@
+# modify header dict to change names of each col
+# modify default_cols list to modify columns shown by default
+#   - entries should be a key from the headers dict
+#   - columns are shown in same order they appear (except for year / link / thread, which have a predefined position for formatting reasons)
+
+headers:
+  date: "# Auction / MM-YY"
+  price: Price
+  level: Level
+  stats: Percentiles
+  seller: Seller
+  buyer: Buyer
+  link: ""
+  forum: ""
+
+auction: # auction command
+  default_cols: [price, level, stats, date]
+  stat_col_width: 20
+  page_limit: 2
+
+
+# ____ Do-not-modify section ____
+
+# mapping from name of key in auction_cog.base_keys to name of key in equip data file (utils.AUCTION_FILE)
+# keywords in query that aren't listed here will not produce an additional column
+key_maps:
+  year: date
+  price: price
+  level: level
+  sell: seller
+  buy: buyer
+  link: link
+  forum: forum
+
