@@ -94,7 +94,6 @@ no_equip_match_template: |-
   No equips found.
   ```yaml
   Search parameters:
-      name: {{NAME}}
       {% for kw in KEYWORDS %}
       {{kw}}: {{KEYWORDS[kw]}}
       {% endfor %}

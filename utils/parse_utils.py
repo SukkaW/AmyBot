@@ -1,8 +1,81 @@
-from utils.error_utils import GenericError
 import utils
 
+class KeywordList:
+	def __init__(self, keywords):
+		self.keywords= keywords
 
-def parse_keywords(query, keywords, aliases=None, reps=None):
+	def __iter__(self):
+		return (x for x in self.keywords)
+
+	def __getitem__(self, key):
+		for x in self.keywords:
+			if key.lower() in [x.name] + x.aliases:
+				return x
+
+	def __contains__(self, item):
+		for x in self.keywords:
+			if isinstance(item,str) and item.lower() in [x.name] + x.aliases:
+				return True
+			if isinstance(item,Keyword) and item in self.keywords:
+				return True
+		return False
+
+	def __delitem__(self, instance):
+		for x in self.keywords:
+			if x.name == instance:
+				tmp= x
+				break
+		else: return
+		self.keywords.remove(tmp)
+
+class Keyword:
+	def __init__(self, name, parsing_function=None, aliases=None):
+		self.name= name
+		self.__dict__['value']= None
+		self.has_value= False
+
+		if parsing_function is None: # default parsed value type is string
+			self.parsing_function= lambda x: str(x)
+		else:
+			self.parsing_function= parsing_function
+
+		if aliases is None:
+			self.aliases= []
+		else:
+			self.aliases= aliases
+
+	# force lower-case
+	def __setattr__(self, key, value):
+		if key in ['name']:
+			self.__dict__[key]= value.lower()
+		elif key in ['aliases']:
+			self.__dict__[key]= [x.lower() for x in value]
+		elif key in ['value']:
+			self.__dict__['has_value']= True
+			self.__dict__['value']= value
+		else:
+			self.__dict__[key]= value
+
+	def __bool__(self):
+		return bool(self.value) and self.has_value
+
+	def __str__(self): # for debug purposes
+		return self.name
+
+	# split key and val (eg min30k --> 30k) and apply parsing function
+	def get_val(self, string):
+		to_chk= [self.name] + self.aliases
+		to_chk.sort(key=lambda x: len(x), reverse=True) # check longest first
+
+		for x in to_chk:
+			if string.startswith(x):
+				tmp= string.replace(x,"",1)
+				self.value= self.parsing_function(tmp)
+				return self.value
+
+		return None
+
+def parse_keywords(query, keywords):
 	"""
 	Converts string such as "blah keywordval" into { "keyword": val }.
 
@@ -12,57 +85,23 @@ def parse_keywords(query, keywords, aliases=None, reps=None):
 	:param reps: Dictionary of x : list y. Replace all substrings in query that are outlined in list y with string x.
 	:return: Dictionary containing query with keywords removed and dictionary of keyword : parsed value
 	"""
-	ret= {"keywords": {}, "clean_query": None}
-
-	# perform replacements (start-only)
-	split= [x.lower() for x in query.split()]
-	if reps:
-		for x in reps:
-			for y in reps[x]:
-				for i in range(len(split)):
-					if split[i].startswith(y): split[i]= split[i].replace(y,x)
-
 	# inits
-	inds= [] # track matching words to remove later
-	keywords= {k.lower() : v for k,v in keywords.items()}
-	aliases= {k.lower() : [x.lower() for x in v] for k,v in aliases.items()}
+	split= [x.lower() for x in query.split()]
+	inds= [] # marks words in query to remove later
 
 	# search for keywords
+	# if duplicate keywords in query, only last value used
 	for k in keywords:
-		match= None
-
-		# Look for matching keyword
 		for i,x in enumerate(split):
-			if x.startswith(k):
-				match= (i,x,k)
-			elif k in aliases:
-				for a in aliases[k]:
-					if x.startswith(a):
-						match= (i,x,a)
-						break
-
-			if match: break
-
-		# Parse value with callable supplied by keywords[k]
-		if match and match[0] not in inds:
-			val= match[1].replace(match[2],"")
-			if keywords[k] is not None:
-				try:
-					val= keywords[k](val)
-				except Exception as e:
-					raise ParseError(keyword=k, value=val, exception=e)
-
-			inds.append(match[0])
-			ret['keywords'][k]= val
+			if k.get_val(x):
+				inds.append(i)
 
 	# clean up query
-	inds.sort(reverse=True) # remove largest indices first
-	tmp= query.split()
+	inds.sort(reverse=True)
 	for i in inds:
-		del tmp[i]
-	ret['clean_query']= " ".join(tmp)
+		split.pop(i)
 
-	return ret
+	return " ".join(split), keywords
 
 class ParseError(Exception):
 	def __init__(self, keyword=None, value=None, exception=None):

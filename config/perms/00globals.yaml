@@ -52,6 +52,12 @@ dm:
     auction:
       everyone: 0
       exceptions: []
+    bought:
+      everyone: 0
+      exceptions: []
+    sold:
+      everyone: 0
+      exceptions: []
 
 
 default_perms:

@@ -42,11 +42,16 @@ class Column:
 				if len(self.data[i]) > self.max_width:
 					self.__dict__['data'][i]= self.data[i][:self.max_width-3] + "..."
 
+# Basically a list of columns
+class Table:
+	def __init__(self, columns):
+		self.columns= columns
 
 # @ todo: comment this
 def pprint(columns, prefix="", suffix="", code=None, v_sep="|", h_sep="-", v_pad=1):
 	ret= ""
 
+	columns= columns.columns if isinstance(columns, Table) else columns
 	padding= "".join([" "]*v_pad)
 	v_sep= padding + v_sep + padding
 
@@ -68,8 +73,12 @@ def pprint(columns, prefix="", suffix="", code=None, v_sep="|", h_sep="-", v_pad
 		if single_tick: tmp= f"`{tmp}`"
 		ret+= tmp + "\n"
 
-		h_sep_length= sum(x.max_width for x in not_link) + len(not_link)*len(v_sep)
-		if h_sep: ret+= "".join(["-"]*h_sep_length) + "\n" # horizontal divider
+		# horiz separator for header
+		if h_sep:
+			h_sep_length= sum(x.max_width for x in not_link) + len(not_link)*len(v_sep)
+			h_sep= "".join(["-"]*h_sep_length)
+			if single_tick: h_sep= f"`{h_sep}`"
+			ret+= h_sep + "\n" # horizontal divider
 
 		# data
 		for i in range(len(not_link[0])):
@@ -88,13 +97,16 @@ def pprint(columns, prefix="", suffix="", code=None, v_sep="|", h_sep="-", v_pad
 	return ret
 
 
-# Combines list of strings into a new list of "pages" such that each page
+# Groups strings into a new list of "pages" such that each page
 #    has length < max_len
 #    has either exactly 0 or greater than no_orphan lines of each string
-def get_pages(messages, max_len=1900, no_orphan=4, join_char="\n"):
+def get_pages(strings, max_len=1900, no_orphan=4, join_char="\n"):
 	# inits
+	if not isinstance(strings, list):
+		strings= [strings]
+
 	pages= []
-	split= [x.split("\n") for x in messages]
+	split= [x.split("\n") for x in strings]
 
 	jlen= len(join_char)
 	def page_len(lst): # calculate length of a page, accounting for join_char length
@@ -122,6 +134,7 @@ def get_pages(messages, max_len=1900, no_orphan=4, join_char="\n"):
 
 	if pg: pages.append(pg)
 	return [join_char.join(x) for x in pages]
+
 
 
 if __name__ == "__main__":

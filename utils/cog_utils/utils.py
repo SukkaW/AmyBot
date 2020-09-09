@@ -8,13 +8,13 @@ class PartialCommand(commands.Command):
 
 # @ todo: check max length (2000)
 # send to discord, enforcing a page limit and optionally wrapping in code blocks
-def send_pages(ctx, pages, code=None, page_limit_server=2, page_limit_dm=None, has_link=False, prefix="", suffix=""):
+async def send_pages(ctx, pages, code=None, page_limit_server=2, page_limit_dm=None, has_link=False, prefix="", suffix=""):
 	# code blocks
 	if code:
 		pages= [f"```{code}\n{x}\n```" for x in pages]
 
 	# append "# pages omitted" warning
-	limit= page_limit_server if ctx.guild is None else page_limit_dm
+	limit= page_limit_server if ctx.guild is not None else page_limit_dm
 	if len(pages) > limit:
 		STRINGS= utils.load_yaml(utils.PPRINT_STRING_FILE)
 		dct= {

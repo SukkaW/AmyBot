@@ -32,7 +32,7 @@ class ErrorHandler:
 		sys.stderr.write(str(e))
 
 # error whose render() method automatically selects an appropriate template based on name
-class GenericError:
+class TemplatedError:
 	def __init__(self, error_name, **kwargs):
 		self.error_name= error_name
 		self.kwargs= kwargs
@@ -47,4 +47,4 @@ class GenericError:
 			available= [x for x in ERROR_STRINGS if x.endswith("template")]
 			return utils.render(ERROR_STRINGS['tmp_not_found_template'], dict(NAME=name, AVAILABLE=available))
 
-		await ctx.send(utils.render(ERROR_STRINGS[template_name], self.kwargs))
+		return utils.render(ERROR_STRINGS[template_name], self.kwargs)

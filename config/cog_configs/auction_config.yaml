@@ -5,7 +5,7 @@
 
 # ____ Cog settings ____
 
-headers:
+equip_headers:
   date: "# Auction / MM-YY"
   price: Price
   level: Level
@@ -14,27 +14,70 @@ headers:
   buyer: Buyer
   link: ""
   forum: ""
+  name: Equip Name
+
+summary_headers:
+    #col headers
+    equip_category: ""
+    total_count: Count
+    total_credits: Credits
+
+    # row headers
+    total: ">Total<"
 
 # ____ Command settings ____
 
 auction:
   default_cols: [price, level, stats, date]
-  stat_col_width: 20
+  stat_col_width: 40
   page_limit_server: 2
   page_limit_dm: 999
 
 bought:
+  default_cols: [name, price, level, stats, date]
+  stat_col_width: 40
+  page_limit_server: 2
+  page_limit_dm: 999
+
+  # keys are row names for user summary
+  # equips containing at least one value in list will be added to that category
+  groups:
+    1H: [axe, club, rapier, shortsword, wakizashi]
+    2H: [estoc, longsword, mace, katana]
+    Staff: [oak, redwood, willow, katalox]
+    Shield: [buckler, kite, force]
+    Cloth: [cotton, phase]
+    Light: [leather, leather]
+    Heavy: [plate, power]
+
+sold:
+  default_cols: [name, price, level, stats, date]
+  stat_col_width: 20
+  page_limit_server: 2
+  page_limit_dm: 999
+
+  # keys are row names for user summary
+  # equips containing at least one value in list will be added to that category
+  groups:
+    1H: [axe, club, rapier, shortsword, wakizashi]
+    2H: [estoc, longsword, mace, katana]
+    Staff: [oak, redwood, willow, katalox]
+    Shield: [buckler, kite, force]
+    Cloth: [cotton, phase]
+    Light: [leather, leather]
+    Heavy: [plate, power]
+
+
 
 # ____ Do-not-modify section ____
 
-# mapping from name of key in auction_cog.base_keys to name of key in equip data file (utils.AUCTION_FILE)
-# keywords in query that aren't listed here will not produce an additional column
-key_maps:
-  year: date
-  price: price
-  level: level
-  sell: seller
-  buy: buyer
+# keywords in query --> keys in data dict
+key_map:
+  min: price
+  max: price
+  date: date
+  name: name
+  seller: seller
+  buyer: buyer
   link: link
-  forum: forum
-
+  thread: thread
