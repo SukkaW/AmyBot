@@ -1,7 +1,7 @@
 import utils.parse_utils as Parse
-from utils.pprint_utils import Column, pprint, break_tables
-from utils.cog_utils import auction_utils as Auct
-from utils.cog_utils import PartialCommand
+from utils.pprint_utils import Column, pprint, get_pages
+from utils.cog_utils import PartialCommand, send_pages, auction_utils as Auct
+from utils.error_utils import GenericError
 from discord.ext import commands
 import utils
 
@@ -15,46 +15,46 @@ base_aliases= {"year":["date"]} # alternative keyword names
 base_reps= {"year20":["20"]} # replace value with key (before checking names / aliases)
 
 class AuctionCog(commands.Cog, name="Auction"):
+	@staticmethod
+	def get_equips(query):
+		# get keywords
+		parsed= await Parse.parse_keywords(query=query, keywords=base_keys, aliases=base_aliases, reps=base_reps)
+
+		# search equips
+		return Auct._find_equips(parsed['clean_query'], parsed['keywords'])
 
 	@commands.command(name="auction", short="auc", cls=PartialCommand)
 	async def equip_search(self, ctx):
-		# get keywords
-		parsed= await Parse.handle_keywords(ctx=ctx, keys=base_keys, aliases=base_aliases, reps=base_reps)
-		if not parsed: return # Unexpected error in keyword parsing (that's been handled)
-
-		keywords= parsed['keywords']
-		clean_query= parsed['clean_query']
-
-		has_link_col= ("link" in keywords and keywords['link']) or ("thread" in keywords and keywords['thread'])
-
-		# get sales table for each matching item
-		items= Auct.find_items(clean_query, keywords)
-		if not items:
-			return await Parse.handle_general_error(ctx, "no_equip_match", name=clean_query, keywords=keywords)
+		# search equips
+		equips= self.get_equips(ctx.query)
 
 		# convert table to string
 		tables= [] # strings
-		for eq_name in items:
-			tables.append(Auct.to_table("auction", eq_name, items[eq_name], keywords=keywords))
-
-		# merge tables
-		CONFIG= utils.load_yaml(utils.AUCTION_CONFIG)['auction']
-		pages= break_tables(tables, max_len=1900)
-		if not has_link_col:
-			pages= [f"```py\n{x}\n```" for x in pages]
+		for eq_name in equips:
+			tables.append(Auct.to_table("auction", eq_name, equips[eq_name], keywords=equips))
 
 		# send results
-		if len(pages) > CONFIG['page_limit'] and True:
-			omitted= len(pages) - CONFIG['page_limit']
+		CONFIG= utils.load_yaml(utils.AUCTION_CONFIG)['auction']
+		pages= get_pages(tables, max_len=1900)
+		has_link= ("link" in equips and equips['link']) or ("thread" in equips and equips['thread'])
+		send_pages(ctx, pages, has_link=has_link, code="py",
+				   page_limit_dm=CONFIG['page_limit_dm'], page_limit_server=CONFIG['page_limit_server'])
 
-			# @ TODO: template
-			nl= '\n' if has_link_col else ''
-			pg= 'page' if omitted == 1 else 'pages'
-			pages[CONFIG['page_limit']-1]+= f"{nl}{omitted} {pg} omitted. Please DM for the full print-out."
-		for x in pages[:CONFIG['page_limit']]:
-			await ctx.send(x)
-
-
-	@commands.command(name="bought", short="bou", cls=PartialCommand)
+	@commands.command(name="bought", short="auc", cls=PartialCommand)
 	async def bought(self, ctx):
-		pass
+		# search equips
+		equips= self.get_equips(ctx.query)
+
+		# tally stats
+		types= {
+			"1h": ["Axe", "Club", "Rapier", "Shortsword", "Wakizashi"],
+			"2h": ["Estoc", "Longsword", "Mace", "Katana"],
+			"staff": ["Oak", "Redwood", "Willow", "Katalox"],
+			"shield": ["Buckler", "Kite", "Force"],
+			"cotton": ["Cotton"],
+			"phase": ["Phase"],
+			"leather": ["Leather"],
+			"shade": ["Shade"],
+			"plate": ["Plate"],
+			"power": ["Power"],
+		}

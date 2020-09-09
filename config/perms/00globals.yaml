@@ -30,7 +30,7 @@ admins: {}
 
 flags: &flags
   ALLOW: &allow 1
-  PASS: &pass 0
+  PASS: 0
   FAIL: &fail -1
 
 dm:
@@ -40,7 +40,7 @@ dm:
   everyone: *allow
   exceptions: []
   none:
-    everyone: *pass
+    everyone: 0
     exceptions: []
 
     help:
@@ -66,5 +66,5 @@ default_perms:
   exceptions: []
 
   none:
-    everyone: *pass
+    everyone: 0
     exceptions: []

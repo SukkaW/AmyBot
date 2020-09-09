@@ -1,1 +1,1 @@
-from .utils import PartialCommand
+from .utils import PartialCommand, send_pages

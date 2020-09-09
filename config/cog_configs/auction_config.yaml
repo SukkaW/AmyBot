@@ -3,6 +3,8 @@
 #   - entries should be a key from the headers dict
 #   - columns are shown in same order they appear (except for year / link / thread, which have a predefined position for formatting reasons)
 
+# ____ Cog settings ____
+
 headers:
   date: "# Auction / MM-YY"
   price: Price
@@ -13,11 +15,15 @@ headers:
   link: ""
   forum: ""
 
-auction: # auction command
+# ____ Command settings ____
+
+auction:
   default_cols: [price, level, stats, date]
   stat_col_width: 20
-  page_limit: 2
+  page_limit_server: 2
+  page_limit_dm: 999
 
+bought:
 
 # ____ Do-not-modify section ____
 

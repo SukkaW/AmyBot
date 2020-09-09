@@ -1,17 +1,18 @@
 from discord.ext import commands
 from utils.perm_utils import PermissionFailure
+from utils.parse_utils import ParseError
 import utils, traceback, sys
 
 # mixin for globally handling errors
 class ErrorHandler:
 	async def on_command_error(self, ctx, e):
 		if isinstance(e, PermissionFailure):
-			return await self.handle_permission_error(ctx, e)
+			return await ctx.send(e.render())
+		elif isinstance(e, ParseError):
+			return await ctx.send(e.render(ctx))
+		# @TODO: generic error
 		else:
 			return await self.handle_other_error(ctx, e)
-
-	async def handle_permission_error(self, ctx, e):
-		await ctx.send(e.render())
 
 	# Unexpected errors
 	async def handle_other_error(self, ctx, e):
@@ -29,3 +30,21 @@ class ErrorHandler:
 		await ctx.send(uncaught)
 		traceback.print_tb(err.__traceback__)
 		sys.stderr.write(str(e))
+
+# error whose render() method automatically selects an appropriate template based on name
+class GenericError:
+	def __init__(self, error_name, **kwargs):
+		self.error_name= error_name
+		self.kwargs= kwargs
+
+	def render(self, ctx):
+		ERROR_STRINGS= utils.load_yaml(utils.ERROR_STRING_FILE)
+
+		name= self.error_name.replace("_template", "")
+		template_name= f"{self.error_name}_template"
+
+		if template_name not in ERROR_STRINGS:
+			available= [x for x in ERROR_STRINGS if x.endswith("template")]
+			return utils.render(ERROR_STRINGS['tmp_not_found_template'], dict(NAME=name, AVAILABLE=available))
+
+		await ctx.send(utils.render(ERROR_STRINGS[template_name], self.kwargs))

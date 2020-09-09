@@ -1,7 +1,8 @@
 import utils.cog_utils as cmd
 from utils.pprint_utils import Column, pprint
 from utils.misc_utils import contains
-import json, utils, itertools
+from utils.error_utils import GenericError
+import json, utils
 
 """ NOTE: find_items and to_table should be able to handle the same keywords """
 # 	@TODO: keys - thread
@@ -11,9 +12,11 @@ def is_rare(name):
 	rares= ["Slaughter", "Savage", "Mystic", "Shielding", "Charged", "Frugal", "Radiant"]
 	return any(x.lower() in name.lower() for x in rares)
 
+
+# Returns dict -- each key is an equip name -- each value is a list of dicts (sale data)
 # supported keys: 	min, max, year, sell, buy, rare, norare
 #	 (no effect):   link
-def find_items(name, keywords=None):
+def _find_equips(name, keywords=None):
 	# inits
 	ret= {}
 	data= json.load(open(utils.AUCTION_FILE))
@@ -45,19 +48,20 @@ def find_items(name, keywords=None):
 					ret[eq_name]= []
 				ret[eq_name].append(eq)
 
+	if not ret: raise GenericError("no_equip_match", name=name, keywords=keywords)
 	return ret
 
 
 # @ todo: what if multiple base_keys point to same eq_data key
 # convert equip results to a table (string) to print
 # certain columns are only printed if a relevant keyword is passed in (see key_maps)
-def to_table(cmd, eq_name, eq_list, keywords):
+def to_table(cmd, eq_name, eq_list, keywords, default_col_name="default_cols"):
 	# inits
 	CONFIG= utils.load_yaml(utils.AUCTION_CONFIG)
 	eq_list.sort(reverse=True, key=lambda x: int(x['price']))
 
 	header_dict= CONFIG[cmd]['headers']
-	default_cols= CONFIG[cmd]['default_cols']
+	default_cols= CONFIG[cmd][default_col_name]
 	special_cols= ['thread', 'link', 'year'] # these have to be added last for formatting reasons
 	key_maps= CONFIG['key_maps']
 
@@ -105,21 +109,17 @@ def to_table(cmd, eq_name, eq_list, keywords):
 
 
 if __name__ == "__main__":
-	from utils import cog_utils
+	from utils import pprint_utils, parse_utils
 	from cogs import auction_cog
-	from utils import pprint_utils
 
 	query= "peerl surtr 2019 link"
-	try:
-		parsed= cog_utils.parse_keywords(query,
-										   keywords=auction_cog.base_keys,
-										   aliases=auction_cog.base_aliases,
-										   reps=auction_cog.base_reps)
-	except cog_utils.ParseError as e:
-		print(e)
-	else:
-		items= find_items(parsed['clean_query'], parsed['keywords'])
-		tables= [to_table(x, items[x], keywords=parsed['keywords']) for x in items]
-		pages= pprint_utils.break_tables(tables, max_len=1950)
+	parsed= parse_utils.parse_keywords(query,
+									   keywords=auction_cog.base_keys,
+									   aliases=auction_cog.base_aliases,
+									   reps=auction_cog.base_reps)
 
-		for x in pages: print(f"```py\n{x}\n```")
+	items= _find_equips(parsed['clean_query'], parsed['keywords'])
+	tables= [to_table("auction", x, items[x], keywords=parsed['keywords']) for x in items]
+	pages= pprint_utils.get_pages(tables, max_len=1950)
+
+	for x in pages: print(f"```py\n{x}\n```")

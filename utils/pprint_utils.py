@@ -88,29 +88,33 @@ def pprint(columns, prefix="", suffix="", code=None, v_sep="|", h_sep="-", v_pad
 	return ret
 
 
-def break_tables(tables, max_len=1900, no_orphan=4, join_char="\n"):
+# Combines list of strings into a new list of "pages" such that each page
+#    has length < max_len
+#    has either exactly 0 or greater than no_orphan lines of each string
+def get_pages(messages, max_len=1900, no_orphan=4, join_char="\n"):
+	# inits
 	pages= []
-	split= [x.split("\n") for x in tables]
+	split= [x.split("\n") for x in messages]
 
-	page_len= lambda pg: sum(len(x) for x in pg) + len(pg)
 	jlen= len(join_char)
+	def page_len(lst): # calculate length of a page, accounting for join_char length
+		return sum(len(x) for x in lst) + len(lst)*jlen
 
 	pg= []
-	for i in range(len(split)):
+	for i in range(len(split)): # loop each message
 		tbl= split[i]
 
-		for j in range(len(tbl)):
+		for j in range(len(tbl)): # loop each line in message
 			line= tbl[j]
 
-			if j == 0: # if at new table, look ahead to make sure no orphans
-				lines_next= pg[i : i+no_orphan]
-				length_next= sum(len(x) for x in lines_next) + len(lines_next)*jlen
-				if page_len(pg) + length_next <= max_len:
-					pg.append(line)
-				else:
-					pages.append(pg)
-					pg= [line]
-			elif page_len(pg) + len(line) + jlen <= max_len:
+			# if new_page, check if enough space for adding no_orphan lines to current page
+			next_len= page_len(pg) + page_len(pg[i : i+no_orphan])
+			will_orphan= (j == 0 and next_len <= max_len)
+
+			# check if enough space for current line
+			will_exceed= (page_len(pg) + len(line) + jlen <= max_len)
+
+			if will_orphan or will_exceed:
 				pg.append(line)
 			else:
 				pages.append(pg)

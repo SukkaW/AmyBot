@@ -1,18 +1,5 @@
-from discord.ext import commands
+from utils.error_utils import GenericError
 import utils
-
-
-async def handle_general_error(ctx, error_name, **kwargs):
-	ERROR_STRINGS= utils.load_yaml(utils.ERROR_STRING_FILE)
-
-	name= error_name.replace("_template", "")
-	template_name= f"{error_name}_template"
-
-	if template_name not in ERROR_STRINGS:
-		available= [x for x in ERROR_STRINGS if x.endswith("template")]
-		return utils.render(ERROR_STRINGS['tmp_not_found_template'], dict(NAME=name, AVAILABLE=available))
-
-	await ctx.send(utils.render(ERROR_STRINGS[template_name], kwargs))
 
 
 def parse_keywords(query, keywords, aliases=None, reps=None):
@@ -77,31 +64,6 @@ def parse_keywords(query, keywords, aliases=None, reps=None):
 
 	return ret
 
-def render_parse_error(ctx, parse_error):
-	COG_STRINGS= utils.load_yaml(utils.COG_STRING_FILE)
-	ERROR_STRINGS= utils.load_yaml(utils.ERROR_STRING_FILE)
-
-	reps= {
-		"PREFIX": ctx.prefix,
-		"COMMAND": ctx.command.name,
-		"ARGS": COG_STRINGS[ctx.command.cog.qualified_name]['commands'][ctx.command.name]['args'],
-		"VALUE": parse_error.value,
-		"KEYWORD": parse_error.keyword,
-		"EXCEPTION": str(parse_error.exception)
-	}
-
-	return utils.render(ERROR_STRINGS['usage_template'], reps)
-
-# Parses for keywords, but also handles errors.
-async def handle_keywords(ctx, keys, aliases=None, reps=None):
-	try:
-		tmp= parse_keywords(ctx.query, keys, aliases=aliases, reps=reps)
-		return tmp
-	except ParseError as e:
-		text= render_parse_error(ctx, e)
-		await ctx.send(f"{text}")
-		return False
-
 class ParseError(Exception):
 	def __init__(self, keyword=None, value=None, exception=None):
 		"""
@@ -115,6 +77,21 @@ class ParseError(Exception):
 		self.value= value
 		self.exception= exception
 
+	def render(self, ctx):
+		COG_STRINGS= utils.load_yaml(utils.COG_STRING_FILE)
+		ERROR_STRINGS= utils.load_yaml(utils.ERROR_STRING_FILE)
+
+		reps= {
+			"PREFIX": ctx.prefix,
+			"COMMAND": ctx.command.name,
+			"ARGS": COG_STRINGS[ctx.command.cog.qualified_name]['commands'][ctx.command.name]['args'],
+			"VALUE": self.value,
+			"KEYWORD": self.keyword,
+			"EXCEPTION": str(self.exception)
+		}
+
+		return utils.render(ERROR_STRINGS['usage_template'], reps)
+
 	def __str__(self):
 		STRINGS= utils.load_yaml(utils.ERROR_STRING_FILE)
 		reps= {
@@ -127,7 +104,7 @@ class ParseError(Exception):
 
 # ---- Parsing Functions ----
 # Invalid values should raise an Exception with a reason supplied to the constructor
-# Don't capitalize first word because this string is inserted in the message printed by ParseError
+# These exceptions are then wrapped into a ParseError
 
 def int_to_price(x, numDec=1):
 	sx= str(x)

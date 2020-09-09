@@ -12,6 +12,7 @@ BOT_CONFIG_FILE= CONFIG_DIR + "bot_config.json"
 HELP_STRING_FILE= STRING_DIR + "help.yaml"
 ERROR_STRING_FILE= STRING_DIR + "errors.yaml"
 COG_STRING_FILE= STRING_DIR + "cog_descriptions.yaml"
+PPRINT_STRING_FILE= STRING_DIR + "pprint.yaml"
 
 GLOBAL_PERMS_FILE= PERMS_DIR + "00globals.yaml"
 

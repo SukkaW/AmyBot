@@ -16,7 +16,7 @@ int_reasons:
   negative: Value is negative.
 
 
-# Permission errors
+# Permission errors ----
 default_perm_error: |- # For when no exceptions are matched and no "everyone" flags are tripped.
   {% if IS_DM %}
   Error. No commands currently allowed in DMs.
@@ -33,9 +33,8 @@ server_perm_error: |-
   {# .......................................................................................... #}
   {# Details #}
   {% if DETAILS %}
-  ----
-  Details:
   ```yaml
+  # Details:
   {% if EXCEPTION %}
   {{'{:10}'.format("reason:")}}Triggered the following exception at the server-level.
   {{'{:10}'.format("")}}{{EXCEPTION}}
@@ -63,9 +62,8 @@ command_or_cog_perm_error: |-
   {% endif %}
   {# ........................................Details............................... #}
   {% if DETAILS %}
-  ----
-  Details:
   ```yaml
+  # Details:
   {{'{:10}'.format("command:")}}{{COMMAND}}
   {{'{:10}'.format("cog:")}}{{COG}}
   {% if EXCEPTION %}
