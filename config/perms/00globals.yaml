@@ -34,7 +34,7 @@ flags: &flags
   FAIL: &fail -1
 
 dm:
-  vocal_fail: true
+  vocal_fail: false # @todo: true when for real
   details: true
 
   everyone: *allow
@@ -65,7 +65,7 @@ default_perms:
 
   flags: *flags
 
-  vocal_fail: true
+  vocal_fail: false # @todo: true when for real
   details: false
 
   everyone: *fail

@@ -1,4 +1,5 @@
 from discord.ext import commands
+from discord.errors import Forbidden
 from utils.perm_utils import PermissionFailure
 from utils.parse_utils import ParseError
 import utils, traceback, sys
@@ -6,11 +7,14 @@ import utils, traceback, sys
 # mixin for globally handling errors
 class ErrorHandler:
 	async def on_command_error(self, ctx, e):
+		if isinstance(e, Forbidden):
+			pass # @ todo: handle no send perms
 		if isinstance(e, PermissionFailure):
 			return await ctx.send(e.render())
 		elif isinstance(e, ParseError):
 			return await ctx.send(e.render(ctx))
-		# @TODO: generic error
+		elif isinstance(e, TemplatedError):
+			return await ctx.send(e.render(ctx))
 		else:
 			return await self.handle_other_error(ctx, e)
 
@@ -31,7 +35,7 @@ class ErrorHandler:
 		traceback.print_tb(err.__traceback__)
 		sys.stderr.write(str(e))
 
-# error whose render() method automatically selects an appropriate template based on name
+# Auto-selects a template from utils.ERROR_STRING_FILE based on error_name
 class TemplatedError:
 	def __init__(self, error_name, **kwargs):
 		self.error_name= error_name

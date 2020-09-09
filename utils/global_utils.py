@@ -13,6 +13,7 @@ HELP_STRING_FILE= STRING_DIR + "help.yaml"
 ERROR_STRING_FILE= STRING_DIR + "errors.yaml"
 COG_STRING_FILE= STRING_DIR + "cog_descriptions.yaml"
 PPRINT_STRING_FILE= STRING_DIR + "pprint.yaml"
+NAME_STRING_FILE= STRING_DIR + "cog_command_names.yaml"
 
 GLOBAL_PERMS_FILE= PERMS_DIR + "00globals.yaml"
 

@@ -26,9 +26,9 @@ default_perm_error: |- # For when no exceptions are matched and no "everyone" fl
 
 server_perm_error: |-
   {% if EVERYONE %}
-  That command has been disabled at the server level.
+  Error. That command has been disabled at the server level.
   {% else %}
-  You are not allowed to use this commandd.
+  Error. You are not allowed to use this commandd.
   {% endif %}
   {# .......................................................................................... #}
   {# Details #}

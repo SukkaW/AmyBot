@@ -1,10 +1,42 @@
 from discord.ext import commands
+import utils.pprint_utils as Pprint
 import utils
 
 class PartialCommand(commands.Command):
 	def __init__(self, func, short, *args, **kwargs):
 		self.short= short
 		super().__init__(func, *args, **kwargs)
+
+
+async def pageify_and_send(ctx, strings, CONFIG, has_link=False, max_len=1900):
+	# group strings into pages
+	pages= Pprint.get_pages(strings, max_len=max_len)
+
+	# send pages
+	await send_pages(ctx, pages, has_link=has_link, code="py" if not has_link else None,
+					 page_limit_dm=CONFIG['page_limit_dm'],
+					 page_limit_server=CONFIG['page_limit_server'])
+
+def check_for_link(keywords, CONFIG):
+		return keywords['link'] \
+			   or keywords['thread'] \
+			   or 'thread' in CONFIG['default_cols'] \
+			   or 'link' in CONFIG['default_cols']
+
+
+def stringify_tables(tables, has_link=False, header_func=None):
+	# convert tables to strings
+	table_strings= []
+	for x in tables:
+		if has_link:
+			prefix= f"**{header_func(x)}**" if header_func is not None else ""
+			table_strings.append(Pprint.pprint(x, prefix=prefix, code="")) # add single ticks
+		else:
+			prefix= f"@ {header_func(x)}" if header_func is not None else ""
+			table_strings.append(Pprint.pprint(x, prefix=prefix, code=None)) # we'll add code-blocks later
+
+	return table_strings
+
 
 # @ todo: check max length (2000)
 # send to discord, enforcing a page limit and optionally wrapping in code blocks

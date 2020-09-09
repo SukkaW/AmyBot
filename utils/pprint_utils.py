@@ -1,20 +1,16 @@
+# @todo clean up Column.setattr
 class Column:
-	def __init__(self, data, header="", is_link=False, max_width=None):
-		self.data= [str(x) for x in data]
-		self.orig_data= [str(x) for x in data]
-		self.header= header
+	def __init__(self, data, header="", trailer="", is_link=False, max_width=None):
+		self.header= str(header)
+		self.trailer= str(trailer)
 		self.is_link= is_link # If true, column will not use a header nor be code-wrapped
 
-		self.max_width= max(len(header), max([len(str(x)) for x in data])) # get max_width from data
-		self._limit_request= max_width
-		if self._limit_request is not None: self.max_width= min(int(self._limit_request), self.max_width) # reduce max_width if specified
+		self.max_width= None # so the ide stops complaining
+		self.__dict__['max_width']= max(len(self.header), len(self.trailer), max([len(str(x)) for x in data])) # get max_width from data
+		self._limit_request= self.max_width
 
-		for i in range(len(self.data)):
-			if len(self.data[i]) > self.max_width:
-				self.data[i]= self.data[i][:self.max_width-3] + "..."
-
-		self._is_init= True
-
+		self.data= []
+		self.orig_data= data
 
 	def __iter__(self):
 		return self.data
@@ -25,22 +21,31 @@ class Column:
 	def __getitem__(self, ind):
 		return self.data[ind]
 
+	# @todo: handle modifications to specific data indices (eg Column.data[1]) via data wrapper class
 	def __setattr__(self, key, value):
-		self.__dict__[key]= value
-
-
-		if "_is_init" in self.__dict__ and self.__dict__['_is_init']:
-			if key == "max_width":
+		if key in ['data', 'orig_data', 'max_width']:
+			if key in ['orig_data', 'data']:
+				if not value:
+					self.__dict__['orig_data']= []
+					self.__dict__['data']= self.__dict__['orig_data'].copy()
+					return
+				else:
+					self.__dict__['orig_data']= [str(x) for x in value]
+					self.__dict__['data']= self.__dict__['orig_data'].copy()
+			elif key == "max_width":
+				if value is None: return
 				self.__dict__['_limit_request']= value
 
 			# recalculate max width and truncations
-			self.__dict__['max_width']= max(len(self.header), max([len(str(x)) for x in self.data]))
+			self.__dict__['max_width']= max(len(self.header), len(self.trailer), max([len(str(x)) for x in self.data]))
 			if self._limit_request is not None:
 				self.__dict__['max_width']= min(int(self._limit_request), self.max_width)
 
 			for i in range(len(self.orig_data)):
 				if len(self.data[i]) > self.max_width:
 					self.__dict__['data'][i]= self.data[i][:self.max_width-3] + "..."
+		else:
+			self.__dict__[key]= value
 
 # Basically a list of columns
 class Table:
@@ -65,32 +70,45 @@ def pprint(columns, prefix="", suffix="", code=None, v_sep="|", h_sep="-", v_pad
 	if code and not single_tick: ret+= f"```{code}\n"
 	if prefix: ret+= prefix + "\n"
 
+	# horiz separator for header
+	if h_sep:
+		h_sep_length= sum(x.max_width for x in not_link) + len(not_link)*len(v_sep)
+		h_sep= "".join(["-"]*h_sep_length)
+		if single_tick: h_sep= f"`{h_sep}`"
+
+	# headers
 	if any(x.header for x in columns):
-		# headers
 		tmp= ""
 		for col in not_link:
 			tmp+= col.header.ljust(col.max_width) + v_sep
 		if single_tick: tmp= f"`{tmp}`"
+
+		ret+= tmp + "\n"
+		if h_sep: ret+= h_sep + "\n"
+
+	# data
+	for i in range(len(not_link[0])):
+		tmp= ""
+		for col in not_link:
+			tmp+= col[i].ljust(col.max_width) + v_sep
+		if single_tick: tmp= f"`{tmp}`"
+
+		for col in is_link:
+			tmp+= col[i].ljust(col.max_width) + padding + padding
+
 		ret+= tmp + "\n"
 
-		# horiz separator for header
-		if h_sep:
-			h_sep_length= sum(x.max_width for x in not_link) + len(not_link)*len(v_sep)
-			h_sep= "".join(["-"]*h_sep_length)
-			if single_tick: h_sep= f"`{h_sep}`"
-			ret+= h_sep + "\n" # horizontal divider
+	# trailers
+	if any(x.trailer for x in columns):
+		tmp= ""
+		if h_sep: ret+= h_sep + "\n"
 
-		# data
-		for i in range(len(not_link[0])):
-			tmp= ""
-			for col in not_link:
-				tmp+= col[i].ljust(col.max_width) + v_sep
-			if single_tick: tmp= f"`{tmp}`"
+		for col in not_link:
+			tmp+= col.trailer.ljust(col.max_width) + v_sep
+		if single_tick: tmp= f"`{tmp}`"
 
-			for col in is_link:
-				tmp+= col[i].ljust(col.max_width) + padding + padding
+		ret+= tmp + "\n"
 
-			ret+= tmp + "\n"
 
 	if suffix: ret+= suffix + "\n"
 	if code and not single_tick: ret+= f"\n```"

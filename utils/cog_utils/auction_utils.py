@@ -26,8 +26,10 @@ def find_equips(keyword_list):
 		"min": lambda x: int(x['price']) >= keyword_list['min'].value,
 		"max": lambda x: int(x['price']) <= keyword_list['max'].value,
 		"date": lambda x: int(x['date'][2]) >= keyword_list['date'].value,
-		"seller": lambda x: x['seller'].lower() == keyword_list['sell'].value.lower(),
-		"buyer": lambda x: x['buyer'].lower() == keyword_list['buy'].value.lower(),
+		# "seller": lambda x: x['seller'].lower() == keyword_list['seller'].value.lower(),
+		# "buyer": lambda x: x['buyer'].lower() == keyword_list['buyer'].value.lower(),
+		"seller": lambda x: contains(to_search=x['seller'], to_find=keyword_list['seller'].value),
+		"buyer": lambda x: contains(to_search=x['buyer'], to_find=keyword_list['buyer'].value),
 		'name': lambda x: contains(to_search=x['name'], to_find=keyword_list['name'].value),
 		"rare": lambda x: is_rare(x['name'].value),
 		"norare": lambda x: not is_rare(x['name'].value)
@@ -44,7 +46,7 @@ def find_equips(keyword_list):
 	return ret
 
 
-# @ todo: what if multiple base_keys point to same eq_data key
+# @todo: can maybe refactor chunks of to_table into reusable functions
 # convert equip results to a table (string) to print
 # certain columns are only printed if a relevant keyword is passed in (see key_maps)
 def to_table(command, eq_list, keyword_list, default_col_name="default_cols"):
@@ -87,7 +89,8 @@ def to_table(command, eq_list, keyword_list, default_col_name="default_cols"):
 	if 'date' in col_names:
 		data= []
 		for x in eq_list:
-			data.append(f"#{x['type'][0].upper()}{x['auction_number']} / {x['date'][1]}-{x['date'][2]}") # todo: template
+			tmp= utils.render(CONFIG['date_template'],x)
+			data.append(tmp)
 		cols.append(Column(data=data, header=header_dict['date']))
 
 	# add link col
@@ -99,19 +102,38 @@ def to_table(command, eq_list, keyword_list, default_col_name="default_cols"):
 
 	return Table(cols)
 
+def get_summary_table(eq_list):
+	# inits
+	CONFIG= utils.load_yaml(utils.AUCTION_CONFIG)
+	groups= CONFIG['summary_groups']
+	header_dict= CONFIG['summary_headers']
+
+	values,counts= [],[]
+	for x in groups:
+		values.append(0)
+		counts.append(0)
+
+		for y in eq_list:
+			if contains(to_search=y['name'], to_find=x):
+				counts[-1]+= 1
+				values[-1]+= int(y['price'])
+
+	total_count= sum(counts)
+	total_value= int_to_price(sum(values))
+	vals= [int_to_price(x) for x in values]
+	cnts= counts
+
+	return Table([
+		Column(data=groups, header=header_dict['equip_category'], trailer=header_dict['total']),
+		Column(data=cnts, header=header_dict['total_count'], trailer=total_count),
+		Column(data=vals, header=header_dict['total_credits'], trailer=total_value),
+	])
+
+
 
 if __name__ == "__main__":
 	from utils import pprint_utils, parse_utils
 	from cogs import auction_cog
 
 	query= "peerl surtr 2019 link"
-	parsed= parse_utils.parse_keywords(query,
-									   keywords=auction_cog.base_keys,
-									   aliases=auction_cog.base_aliases,
-									   reps=auction_cog.base_reps)
-
-	items= find_equips(parsed['clean_query'], parsed['keywords'])
-	tables= [to_table("auction", x, items[x], keyword_list=parsed['keywords']) for x in items]
-	pages= pprint_utils.get_pages(tables, max_len=1950)
-
-	for x in pages: print(f"```py\n{x}\n```")
+	# @todo: auction test

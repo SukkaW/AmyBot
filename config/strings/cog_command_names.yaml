@@ -1,0 +1,17 @@
+# REQUIRES BOT RESTART TO APPLY
+
+auction:
+  cog_name: Auction
+  commands:
+
+    auction:
+      name: auction
+      short: auc
+
+    bought:
+      name: bought
+      short: bou
+
+    sold:
+      name: sold
+      short: sol

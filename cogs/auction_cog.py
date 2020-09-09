@@ -1,9 +1,11 @@
 from utils.parse_utils import Keyword, KeywordList, to_pos_int, to_bool, parse_keywords
 from utils.pprint_utils import pprint, get_pages
-from utils.cog_utils import PartialCommand, send_pages, auction_utils as Auct
+from utils.cog_utils import PartialCommand, pageify_and_send, check_for_link, stringify_tables
+import utils.cog_utils.auction_utils as Auct
 from discord.ext import commands
 import utils, copy
 
+COG_NAMES= utils.load_yaml(utils.NAME_STRING_FILE)['auction']
 
 # Keyword stuff
 base_keys= KeywordList([
@@ -21,10 +23,12 @@ base_keys= KeywordList([
 	Keyword("norare", to_bool),
 ])
 
-class AuctionCog(commands.Cog, name="Auction"):
-	@commands.command(name="auction", short="auc", cls=PartialCommand)
+class AuctionCog(commands.Cog, name=COG_NAMES['cog_name']):
+
+	@commands.command(**COG_NAMES['commands']['auction'], cls=PartialCommand)
 	async def equip_search(self, ctx):
-		equips,keywords= self._search_and_categorize(ctx.query, "name")
+		tmp= self._search_and_categorize(ctx.query, "name")
+		equips, keywords= tmp['cats'], tmp['keywords']
 		CONFIG= utils.load_yaml(utils.AUCTION_CONFIG)['auction']
 
 		# get tables
@@ -36,20 +40,11 @@ class AuctionCog(commands.Cog, name="Auction"):
 			tables.append(tbl)
 
 		# convert tables to strings
-		has_link= keywords['link'] or keywords['thread'] \
-				  or 'thread' in CONFIG['default_cols'] or 'link' in CONFIG['default_cols']
-		if has_link:
-			table_strings= [pprint(x, prefix=f"**{x.eq_name}**", code="") for x in tables] # add single ticks
-		else:
-			table_strings= [pprint(x, prefix=f"@ {x.eq_name}", code=None) for x in tables] # we'll add code-blocks later
+		has_link= check_for_link(keywords, CONFIG)
+		table_strings= stringify_tables(tables=tables, has_link=has_link, header_func=lambda x: x.eq_name)
 
-		# group strings into pages
-		pages= get_pages(table_strings, max_len=1900)
-
-		# send pages
-		await send_pages(ctx, pages, has_link=has_link, code="py" if not has_link else None,
-						 page_limit_dm=CONFIG['page_limit_dm'],
-						 page_limit_server=CONFIG['page_limit_server'])
+		# group into pages and send
+		return await pageify_and_send(ctx, strings=table_strings, CONFIG=CONFIG, has_link=has_link)
 
 
 	async def transaction(self, ctx, type_):
@@ -57,36 +52,34 @@ class AuctionCog(commands.Cog, name="Auction"):
 
 		# inits
 		key_name= None
-		CONFIG= utils.load_yaml(utils.AUCTION_CONFIG)
+		CONFIG= utils.load_yaml(utils.AUCTION_CONFIG)[type_]
 		if type_ == "bought": key_name= "buyer"
 		elif type_ == "sold": key_name= "seller"
 
 		# get users auction history
-		equips,keywords= self._search_and_categorize(ctx.query, key_name)
-		equips= list(equips.values())[0]
+		# _search_and_categorize returns multiple results -- if no exact match for username, pick any result
+		tmp= self._search_and_categorize(ctx.query, key_name)
+		keywords= tmp['keywords']
+		for x in tmp['cats']:
+			if x.lower() == keywords[key_name].value.lower():
+				user, equips= x, tmp['cats'][x]
+				break
+		else: user, equips= list(tmp['cats'].items())[0]
 
-		# get equip table
-		del keywords[CONFIG['key_map'][key_name]]
+		# get tables
+		del keywords[key_name] # the seller / buyer will be the same for this entire table so don't need col for it
 		eq_table= Auct.to_table(type_, eq_list=equips, keyword_list=keywords)
-
+		summary_table= Auct.get_summary_table(equips)
 
 		# convert tables to strings
-		has_link= keywords['link'] or keywords['thread'] \
-				  or 'thread' in CONFIG[type_]['default_cols'] or 'link' in CONFIG[type_]['default_cols']
-		if has_link:
-			# add single ticks
-			table_string= pprint(eq_table, code="")
-		else:
-			# we'll add code-blocks later
-			table_string= pprint(eq_table, code=None)
+		has_link= check_for_link(keywords, CONFIG)
+		table_strings= []
 
-		# group strings into pages
-		pages= get_pages(table_string, max_len=1900)
+		table_strings+= stringify_tables(tables=[summary_table], has_link=has_link, header_func=lambda _: f"{user}\n")
+		table_strings+= ["\n"] + stringify_tables(tables=[eq_table], has_link=has_link)
 
-		# send pages
-		await send_pages(ctx, pages, has_link=has_link, code="py" if not has_link else None,
-			  		     page_limit_dm=CONFIG[type_]['page_limit_dm'],
-					     page_limit_server=CONFIG[type_]['page_limit_server'])
+		# group into pages and send
+		return await pageify_and_send(ctx, strings=table_strings, CONFIG=CONFIG, has_link=has_link)
 
 
 	def _search_and_categorize(self, query, key_name):
@@ -98,17 +91,17 @@ class AuctionCog(commands.Cog, name="Auction"):
 		eq_list= Auct.find_equips(keywords)
 
 		# categorize
-		dct= {}
+		cats= {}
 		for x in eq_list:
-			if x[key_name] not in dct:
-				dct[x[key_name]]= []
-			dct[x[key_name]].append(x)
+			if x[key_name] not in cats:
+				cats[x[key_name]]= []
+			cats[x[key_name]].append(x)
 
-		return dct,keywords
+		return dict(cats=cats, keywords=keywords, clean_query=clean_query)
 
 
-	@commands.command(name="bought", short="bou", cls=PartialCommand)
+	@commands.command(**COG_NAMES['commands']['bought'], cls=PartialCommand)
 	async def bought(self, ctx): return await self.transaction(ctx, "bought")
 
-	@commands.command(name="sold", short="sol", cls=PartialCommand)
+	@commands.command(**COG_NAMES['commands']['sold'], cls=PartialCommand)
 	async def sold(self, ctx): return await self.transaction(ctx, "sold")

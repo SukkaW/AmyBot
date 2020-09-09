@@ -2,6 +2,7 @@ from discord.ext import commands
 import utils
 
 # @ todo: check aliases
+# @ todo: check hidden
 # Override for partial matching
 class PartialHelp(commands.DefaultHelpCommand):
 
