@@ -48,13 +48,13 @@ auction:
   page_limit_server: 2
   page_limit_dm: 999
 
-bought:
+buyer: # special subcommand for auction
   default_cols: [name, price, stats, level, date]
   stat_col_width: 40
   page_limit_server: 2
   page_limit_dm: 999
 
-sold:
+seller: # special subcommand for auction
   default_cols: [name, price, stats, level, date]
   stat_col_width: 20
   page_limit_server: 2

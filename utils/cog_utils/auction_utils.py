@@ -21,6 +21,13 @@ def find_equips(keyword_list):
 	ret= []
 	data= json.load(open(utils.AUCTION_FILE))
 
+	# if bool, then don't use it as filtering criteria
+	def contains_maybe(to_search, to_find):
+		if isinstance(to_search, bool) or isinstance(to_find, bool):
+			return True
+		else:
+			return contains(to_search=to_search, to_find=to_find)
+
 	# if keyword passed in, use it to filter results
 	checks= {
 		"min": lambda x: int(x['price']) >= keyword_list['min'].value,
@@ -28,9 +35,9 @@ def find_equips(keyword_list):
 		"date": lambda x: int(x['date'][2]) >= keyword_list['date'].value,
 		# "seller": lambda x: x['seller'].lower() == keyword_list['seller'].value.lower(),
 		# "buyer": lambda x: x['buyer'].lower() == keyword_list['buyer'].value.lower(),
-		"seller": lambda x: contains(to_search=x['seller'], to_find=keyword_list['seller'].value),
-		"buyer": lambda x: contains(to_search=x['buyer'], to_find=keyword_list['buyer'].value),
-		'name': lambda x: contains(to_search=x['name'], to_find=keyword_list['name'].value),
+		"seller": lambda x: contains_maybe(to_search=x['seller'], to_find=keyword_list['seller'].value),
+		"buyer": lambda x: contains_maybe(to_search=x['buyer'], to_find=keyword_list['buyer'].value),
+		'name': lambda x: contains_maybe(to_search=x['name'], to_find=keyword_list['name'].value),
 		"rare": lambda x: is_rare(x['name'].value),
 		"norare": lambda x: not is_rare(x['name'].value)
 	}

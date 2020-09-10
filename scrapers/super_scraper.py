@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 import utils, aiohttp, json, asyncio, glob, os, re
 
 class SuperScraper:
+	SCRAPE_DELAY= 3
 	HOME_BASE_LINK= r"https://reasoningtheory.net/"
 	THREAD_BASE_LINK= r"https://forums.e-hentai.org/index.php?showtopic="
 	DEFAULT_CACHE= {
@@ -24,10 +25,11 @@ class SuperScraper:
 
 
 	@classmethod
-	async def scrape(cls, delay=3):
+	async def scrape(cls):
 		# inits
 		CACHE= utils.load_json_with_default(utils.SUPER_CACHE_FILE, default=cls.DEFAULT_CACHE)
 
+		# keep-alive because https://github.com/aio-libs/aiohttp/issues/3904#issuecomment-632661245
 		async with aiohttp.ClientSession(headers={'Connection': 'keep-alive'}) as session:
 			# check for new auctions
 			home_html= await get_html(cls.HOME_BASE_LINK, session)
@@ -63,7 +65,7 @@ class SuperScraper:
 
 				# pause between pulls
 				if (num,name,date) is not new_aucs[-1] and did_pull:
-					await asyncio.sleep(delay)
+					await asyncio.sleep(cls.SCRAPE_DELAY)
 
 			# update cache
 			if new_aucs:
@@ -155,7 +157,7 @@ class SuperScraper:
 					else:
 						result= cls._parse_equip_row(row)
 						if result: ret["equips"].append(result)
-				except ParseFail as e:
+				except SuperParseFail as e:
 					ret['fails'].append(f"{e.stat} - {str(e)}")
 
 		return ret
@@ -214,7 +216,7 @@ class SuperScraper:
 		if match:
 			level,stats= match.group(1,2)
 		else:
-			raise ParseFail("level_stats", tr)
+			raise SuperParseFail("level_stats", tr)
 
 		match= cls.EQUIP_REGEX['price_buyer'].fullmatch(cols[3].get_text())
 		if match:
@@ -251,7 +253,7 @@ class SuperAuction:
 	def __init__(self, number):
 		pass
 
-class ParseFail(Exception):
+class SuperParseFail(Exception):
 	def __init__(self, stat, tr):
 		self.stat= stat
 		self.tr= tr

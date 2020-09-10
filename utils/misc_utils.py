@@ -30,7 +30,7 @@ def load_json_with_default(path, default=None):
 
 	# load json, using default if necessary
 	if os.path.exists(path):
-		return json.load(open(path))
+		return json.load(open(path, encoding='utf-8'))
 	else:
 		json.dump(default, open(path, "w"), indent=2)
 		return default

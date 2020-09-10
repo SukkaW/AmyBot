@@ -138,17 +138,17 @@ def get_pages(strings, max_len=1900, no_orphan=4, join_char="\n"):
 			line= tbl[j]
 
 			# if new_page, check if enough space for adding no_orphan lines to current page
-			next_len= page_len(pg) + page_len(pg[i : i+no_orphan])
-			will_orphan= (j == 0 and next_len <= max_len)
+			next_len= page_len(pg) + page_len(tbl[:no_orphan])
+			will_orphan= (j == 0 and next_len > max_len)
 
 			# check if enough space for current line
-			will_exceed= (page_len(pg) + len(line) + jlen <= max_len)
+			will_exceed= (page_len(pg) + len(line) + jlen > max_len)
 
 			if will_orphan or will_exceed:
-				pg.append(line)
-			else:
 				pages.append(pg)
 				pg= [line]
+			else:
+				pg.append(line)
 
 	if pg: pages.append(pg)
 	return [join_char.join(x) for x in pages]

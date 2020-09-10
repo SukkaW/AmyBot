@@ -55,12 +55,12 @@ async def send_pages(ctx, pages, code=None, page_limit_server=2, page_limit_dm=N
 			"HAS_LINK": has_link
 		}
 		omit_string= utils.render(STRINGS['omit_template'], dct)
-		pages[-1]+= omit_string
+		pages[limit-1]+= omit_string
 
 	# prefix / suffix
 	pages[0]= prefix + pages[0]
 	pages[-1]= pages[-1] + suffix
 
 	# send
-	for x in pages:
+	for x in pages[:limit]:
 		await ctx.send(x)

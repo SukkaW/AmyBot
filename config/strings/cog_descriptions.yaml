@@ -12,6 +12,6 @@ Auction:
         "max":  Equips above this price are ignored (eg \"... max5m\")
         "rare": Show only equips with rare suffixes / prefixes (eg \"... rare\")
         "norare": Show only equips without rare suffixes / prefixes (eg \"... norare\")
-        "seller": Show seller name (eg \"... seller\")
-        "buyer": Show buyer name (eg \"... buyer\")
+        "seller": Show equips with this seller (eg \"... sellerfrotag\")
+        "buyer": Show equips with this buyer (eg \"... buyerfrotag\")
         #"thread": Show auction thread link

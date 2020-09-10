@@ -29,6 +29,15 @@ class KeywordList:
 		else: return
 		self.keywords.remove(tmp)
 
+	def to_query(self):
+		ret= []
+
+		has_val= [x for x in self.keywords if x.has_value]
+		for x in has_val:
+			ret.append(f"{x.name.lower()}" if isinstance(x,bool) else f"{x.name.lower()}{str(x.value).upper()}")
+
+		return " ".join(ret)
+
 class Keyword:
 	def __init__(self, name, parsing_function=None, aliases=None):
 		self.name= name
@@ -160,7 +169,7 @@ def int_to_price(x, numDec=1):
 	return sx
 
 def price_to_int(x):
-	x= str(x)
+	x= str(x).replace(",","").replace("c","")
 
 	ix = (x.lower().replace("k", "000").replace("m", "000000"))
 	if "." in x:
@@ -191,6 +200,10 @@ def to_pos_int(val):
 def to_bool(val, empty=True):
 	if str(val) == "": return empty
 	else: return bool(val)
+
+def to_potential_string(val, empty=True):
+	if str(val) == "": return empty
+	else: return val
 
 # hacky-workaround for parsing the alias "20" properly
 # eg any in [date2019, 2019, year2019] will parse to 2019

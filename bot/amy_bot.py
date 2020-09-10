@@ -35,7 +35,9 @@ class AmyBot(commands.Bot, ErrorHandler):
 		ctx.query= ctx.query[1].strip() if len(ctx.query) > 1 else ""
 
 		if ctx.command is not None:
-			await self.invoke(ctx)
+			async with ctx.typing():
+				await self.invoke(ctx)
+			pass # for Lady Luck's blessing in ending the "typing..." curse
 
 	async def on_command_error(self, ctx, e):
 		return await ErrorHandler.on_command_error(self, ctx, e)
@@ -47,7 +49,7 @@ class AmyBot(commands.Bot, ErrorHandler):
 # hotfix to limit to hv_server members because this will share a discord key with other bot
 def get_hv_checks(client):
 	test_id= 395741640372912138
-	hv_id= 603053441157169155
+	hv_id= 584871596586565643#603053441157169155
 
 	def check_hv_server(ctx):
 		return ctx.guild is None or ctx.guild.id in [hv_id, test_id]
