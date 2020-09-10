@@ -15,6 +15,8 @@ class ErrorHandler:
 			return await ctx.send(e.render(ctx))
 		elif isinstance(e, TemplatedError):
 			return await ctx.send(e.render(ctx))
+		elif isinstance(e, commands.CheckFailure):
+			pass # @ todo: silent logging for checkfailure
 		else:
 			return await self.handle_other_error(ctx, e)
 
@@ -36,7 +38,7 @@ class ErrorHandler:
 		sys.stderr.write(str(e))
 
 # Auto-selects a template from utils.ERROR_STRING_FILE based on error_name
-class TemplatedError:
+class TemplatedError(commands.CommandError):
 	def __init__(self, error_name, **kwargs):
 		self.error_name= error_name
 		self.kwargs= kwargs

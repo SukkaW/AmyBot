@@ -37,7 +37,7 @@ def find_equips(keyword_list):
 	checks= [checks[x] for x in checks if x in keyword_list and keyword_list[x].has_value]
 
 	# get items containing [name] and passing all keyword checks
-	if not checks: raise Exception#raise TemplatedError("no_keywords", keywords=keyword_list) # @todo
+	if not checks: raise TemplatedError("no_keywords", keywords=keyword_list)
 	for x in data:
 		if all(chk(x) for chk in checks):
 			ret.append(x)

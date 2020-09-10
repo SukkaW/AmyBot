@@ -34,7 +34,7 @@ flags: &flags
   FAIL: &fail -1
 
 dm:
-  vocal_fail: false # @todo: true when for real
+  vocal_fail: true
   details: true
 
   everyone: *allow
@@ -44,7 +44,7 @@ dm:
     exceptions: []
 
     help:
-      everyone: *fail
+      everyone: 0
       exceptions: []
   Auction:
     everyone: 0
@@ -65,7 +65,7 @@ default_perms:
 
   flags: *flags
 
-  vocal_fail: false # @todo: true when for real
+  vocal_fail: true
   details: false
 
   everyone: *fail

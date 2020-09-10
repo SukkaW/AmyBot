@@ -1,3 +1,4 @@
+from discord.ext.commands import CommandError
 import utils
 
 class KeywordList:
@@ -59,8 +60,9 @@ class Keyword:
 	def __bool__(self):
 		return bool(self.value) and self.has_value
 
-	def __str__(self): # for debug purposes
-		return self.name
+	# for debug purposes
+	def __str__(self):
+		return f"Keyword [{self.name}] {'has value [{}]'.format(self.value) if self.has_value else 'has no value.'}"
 
 	# split key and val (eg min30k --> 30k) and apply parsing function
 	def get_val(self, string):
@@ -103,7 +105,7 @@ def parse_keywords(query, keywords):
 
 	return " ".join(split), keywords
 
-class ParseError(Exception):
+class ParseError(CommandError):
 	def __init__(self, keyword=None, value=None, exception=None):
 		"""
 		Error when parsing a string value.
@@ -168,22 +170,34 @@ def price_to_int(x):
 	return to_int(ix)
 
 def to_int(val):
-	STRINGS= utils.load_yaml(utils.ERROR_STRING_FILE)
 
 	if val.strip() == "":
+		STRINGS= utils.load_yaml(utils.ERROR_STRING_FILE)
 		raise Exception(STRINGS['int_reasons']['empty'])
 
-	try: return int(val)
-	except ValueError: raise Exception(STRINGS['int_reasons']['not_int'])
+	try:
+		return int(val)
+	except ValueError:
+		STRINGS= utils.load_yaml(utils.ERROR_STRING_FILE)
+		raise Exception(STRINGS['int_reasons']['not_int'])
 
 def to_pos_int(val):
-	STRINGS= utils.load_yaml(utils.ERROR_STRING_FILE)
-
 	ret= price_to_int(val)
-	if ret < 0: raise Exception(STRINGS['int_reasons']['negative'])
+	if ret < 0:
+		STRINGS= utils.load_yaml(utils.ERROR_STRING_FILE)
+		raise Exception(STRINGS['int_reasons']['negative'])
 	return ret
 
 def to_bool(val, empty=True):
 	if str(val) == "": return empty
 	else: return bool(val)
 
+# hacky-workaround for parsing the alias "20" properly
+# eg any in [date2019, 2019, year2019] will parse to 2019
+def to_date(val):
+	if val.startswith("20"): pass
+	else: val= "20" + val
+
+	return to_pos_int(val)
+
+def get_date_key(): return Keyword("date", to_date, aliases=["year", "20", "year20"])

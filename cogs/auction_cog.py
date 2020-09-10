@@ -1,4 +1,4 @@
-from utils.parse_utils import Keyword, KeywordList, to_pos_int, to_bool, parse_keywords
+from utils.parse_utils import Keyword, KeywordList, get_date_key, to_pos_int, to_bool, parse_keywords
 from utils.pprint_utils import pprint, get_pages
 from utils.cog_utils import PartialCommand, pageify_and_send, check_for_link, stringify_tables
 import utils.cog_utils.auction_utils as Auct
@@ -11,7 +11,7 @@ COG_NAMES= utils.load_yaml(utils.NAME_STRING_FILE)['auction']
 base_keys= KeywordList([
 	Keyword("min", to_pos_int),
 	Keyword("max", to_pos_int),
-	Keyword("date", to_pos_int, aliases=["year", "20", "year20"]),
+	get_date_key(),
 
 	Keyword("name", aliases=["name"]),
 	Keyword("seller", aliases=["sell"]),
@@ -82,7 +82,8 @@ class AuctionCog(commands.Cog, name=COG_NAMES['cog_name']):
 		return await pageify_and_send(ctx, strings=table_strings, CONFIG=CONFIG, has_link=has_link)
 
 
-	def _search_and_categorize(self, query, key_name):
+	@staticmethod
+	def _search_and_categorize(query, key_name):
 		# get search parameters
 		clean_query,keywords= parse_keywords(query=query, keywords=copy.deepcopy(base_keys))
 		keywords[key_name].value= clean_query

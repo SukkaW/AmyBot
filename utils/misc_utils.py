@@ -1,3 +1,4 @@
+import os, json
 from ruamel.yaml import YAML
 
 # Checks that all words in to_find are contained in to_search
@@ -16,3 +17,20 @@ def load_yaml(path):
 
 def dump_yaml(data, path):
 	return YAML().dump(data, open(path, "w"))
+
+
+# yamls are assumed to be pre-existing because they contain templates, but...
+# thats not assumed for jsons to make it easy to manually delete cache and force re-parsing
+def load_json_with_default(path, default=None):
+	if default is None: default= {}
+
+	# make parent dirs if not exists
+	if not os.path.exists(os.path.dirname(path)):
+		os.makedirs(os.path.dirname(path))
+
+	# load json, using default if necessary
+	if os.path.exists(path):
+		return json.load(open(path))
+	else:
+		json.dump(default, open(path, "w"), indent=2)
+		return default

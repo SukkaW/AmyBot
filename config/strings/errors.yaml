@@ -94,7 +94,14 @@ no_equip_match_template: |-
   No equips found.
   ```yaml
   Search parameters:
-      {% for kw in KEYWORDS %}
-      {{kw}}: {{KEYWORDS[kw]}}
+      {% for kw in KEYWORDS if kw.has_value%}
+      {{kw.name}}: {{kw.value}}
+      {% else %}
+      (none)
       {% endfor %}
   ```
+
+no_keywords_template: "todo no_keywords_template" #@todo
+
+bad_response_template: |-
+  ResponseError. Accessing "{{LINK}}" failed with reason "{{response.reason}} ({{response.status}})"
