@@ -1,5 +1,5 @@
 from utils.parse_utils import price_to_int
-from utils.scraper_utils import get_html, to_epoch
+from utils.scraper_utils import get_html, to_epoch, get_session
 from bs4 import BeautifulSoup
 import utils, aiohttp, asyncio, re, copy
 
@@ -15,64 +15,65 @@ class MarketScraper:
 
 	@classmethod
 	async def scrape(cls):
-		async with aiohttp.ClientSession(headers={'Connection': 'keep-alive'}) as session:
-			# inits
-			DATA= utils.load_json_with_default(utils.MARKET_ITEM_FILE)
-			CACHE= utils.load_json_with_default(utils.MARKET_CACHE_FILE, default=cls.DEFAULT_CACHE)
-			invalid_list= CACHE['invalid']
-			CACHE['invalid']= set(CACHE['invalid'])
+		# inits
+		DATA= utils.load_json_with_default(utils.MARKET_ITEM_FILE)
+		CACHE= utils.load_json_with_default(utils.MARKET_CACHE_FILE, default=cls.DEFAULT_CACHE)
+		invalid_list= CACHE['invalid']
+		CACHE['invalid']= set(CACHE['invalid'])
 
-			target_page_number= 1
-			target_index= None
+		target_page_number= 1
+		target_index= None
+
+		async with get_session() as session:
 			html= await get_html(cls.BASE_LINK, session)
 
 
-			# Loop logic:
-			# 1. add results for current page to data
-			# 2. calculate target_index
-			# 3. check if done
-			#       (target_index >= num_results OR target_index >= a pending entry index)
-			# 4. move to page containing target_index
-			#       (the target index may shift off-page by the time we visit the page due to new purchases, but doesnt matter, we'll get it eventually)
-			# 5. go to step 1
-			while True:
-				# step 1
-				result= cls.get_entries(html, target_page_number)
-				DATA.update(result['entries'])
-				total= result['total']
-				CACHE['invalid'] |= result['invalid_indices']
-				invalid_list+= list(result)
+		# Loop logic:
+		# 1. add results for current page to data
+		# 2. calculate target_index
+		# 3. check if done
+		#       (target_index >= num_results OR target_index >= a pending entry index)
+		# 4. move to page containing target_index
+		#       (the target index may shift off-page by the time we visit the page due to new purchases, but doesnt matter, we'll get it eventually)
+		# 5. go to step 1
+		while True:
+			# step 1
+			result= cls.get_entries(html, target_page_number)
+			DATA.update(result['entries'])
+			total= result['total']
+			CACHE['invalid'] |= result['invalid_indices']
+			invalid_list+= list(result)
 
-				# step 2
-				if target_index is None:
-					target_index= 1 # one-indexed from oldest
-				while str(target_index) in DATA or target_index in CACHE['invalid']:
-					target_index+= 1
+			# step 2
+			if target_index is None:
+				target_index= 1 # one-indexed from oldest
+			while str(target_index) in DATA or target_index in CACHE['invalid']:
+				target_index+= 1
 
-				# step 3
-				if result['pending_indices'] and target_index >= min(result['pending_indices']):
-					break
-				if target_index >= total:
-					break
+			# step 3
+			if result['pending_indices'] and target_index >= min(result['pending_indices']):
+				break
+			if target_index >= total:
+				break
 
-				# step 4
-				target_page_number= cls.get_target_page(target_index, total)
-				html= await get_html(cls.BASE_LINK + str(target_page_number), session)
+			# step 4
+			target_page_number= cls.get_target_page(target_index, total)
+			html= await get_html(cls.BASE_LINK + str(target_page_number), session)
 
-				# be nice to lestion
-				# print(f"\r{len(DATA.keys())} / {total}...", end="")
-				await asyncio.sleep(cls.SCRAPE_DELAY)
+			# be nice to lestion
+			# print(f"\r{len(DATA.keys())} / {total}...", end="")
+			await asyncio.sleep(cls.SCRAPE_DELAY)
 
-				# intermediate save
-				tmp= copy.deepcopy(CACHE)
-				tmp['invalid']= invalid_list
-				utils.dump_json(tmp, utils.MARKET_CACHE_FILE)
-				utils.dump_json(DATA, utils.MARKET_ITEM_FILE)
-
-			# final save
-			CACHE['invalid']= list(CACHE['invalid'])
-			utils.dump_json(CACHE, utils.MARKET_CACHE_FILE)
+			# intermediate save
+			tmp= copy.deepcopy(CACHE)
+			tmp['invalid']= invalid_list
+			utils.dump_json(tmp, utils.MARKET_CACHE_FILE)
 			utils.dump_json(DATA, utils.MARKET_ITEM_FILE)
+
+		# final save
+		CACHE['invalid']= list(CACHE['invalid'])
+		utils.dump_json(CACHE, utils.MARKET_CACHE_FILE)
+		utils.dump_json(DATA, utils.MARKET_ITEM_FILE)
 
 
 	# page_number should be 1-indexed from newest

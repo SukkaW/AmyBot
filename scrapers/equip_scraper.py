@@ -1,6 +1,6 @@
-from utils.scraper_utils import get_html
+from utils.scraper_utils import get_html, get_session
 from bs4 import BeautifulSoup
-import aiohttp, json, utils
+import aiohttp, json, utils, asyncio
 
 """
 For pulling the equip-stat ranges from https://reasoningtheory.net/viewranges \
@@ -9,6 +9,7 @@ as well as the raw stat values from .../equip/{ID}/(KEY) links
 
 class EquipScraper:
 	DATA_LINK= "https://reasoningtheory.net/viewranges"
+	LOGIN_FAIL_STRING= "You must be logged on to visit the HentaiVerse."
 
 	# get equip ranges and save as json
 	@classmethod
@@ -19,28 +20,48 @@ class EquipScraper:
 			utils.dump_json(data, utils.RANGES_FILE)
 			return data
 
+	@staticmethod
+	async def do_hv_login(session=None):
+		CONFIG= utils.load_json_with_default(utils.BOT_CONFIG_FILE,default=False)
+		if session is None:
+			session= get_session()
+		session.get(CONFIG['hv_login_link'])
+		return session
+
 	@classmethod
-	async def scrape_raw_stats(cls, link):
-		with aiohttp.ClientSession() as session:
-			# get page
+	async def scrape_raw_stats(cls, link, session=None, max_tries=3, try_delay=3):
+		if session is None:
+			session= cls.do_hv_login()
+
+		# get equip page
+		async with session:
 			html= get_html(link, session)
-			soup= BeautifulSoup(html, 'html.parser')
 
-			# get name and main stats
-			name= soup.find(id="showequip").find("div").get_text(" ")
-			stats= cls._get_main_stats(soup.find(class_="ex"))
+			tries= 1
+			while cls.LOGIN_FAIL_STRING in html and tries < max_tries:
+				await asyncio.sleep(try_delay)
+				html= get_html(link, session)
+				tries+= 1
+			if cls.LOGIN_FAIL_STRING in html:
+				raise Exception(f"Failed to retrieve equip page after {max_tries} tries with delay {try_delay}s: {link}")
 
-			# get attack damage (weapons)
-			adb= soup.find(lambda x: 'class' in x.attrs and x['class'] in [["eq","et"], ["eq","es"]]).findAll(lambda x: "title" in x.attrs, recursive=False)
-			if adb: stats['Attack Damage']= float(adb[0]['title'].replace("Base: ", ""))
+		soup= BeautifulSoup(html, 'html.parser')
 
-			# get special stats
-			for ep in soup.findAll(class_="ep"):
-				cat= ep.find("div").text
-				stats[cat]= cls._get_other_stats(ep)
+		# get name and main stats
+		name= soup.find(id="showequip").find("div").get_text(" ")
+		stats= cls._get_main_stats(soup.find(class_="ex"))
 
-			# clean up stats and return
-			return name,cls._clean_stat_dict(stats)
+		# get attack damage (weapons)
+		adb= soup.find(lambda x: 'class' in x.attrs and x['class'] in [["eq","et"], ["eq","es"]]).findAll(lambda x: "title" in x.attrs, recursive=False)
+		if adb: stats['Attack Damage']= float(adb[0]['title'].replace("Base: ", ""))
+
+		# get special stats
+		for ep in soup.findAll(class_="ep"):
+			cat= ep.find("div").text
+			stats[cat]= cls._get_other_stats(ep)
+
+		# clean up stats and return
+		return name,cls._clean_stat_dict(stats)
 
 
 	@staticmethod

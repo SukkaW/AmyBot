@@ -2,20 +2,11 @@ from utils.parse_utils import int_to_price
 from utils.pprint_utils import Column, Table
 from utils.misc_utils import contains
 from utils.error_utils import TemplatedError
-import json, utils
+import json, utils, datetime
 
-""" NOTE: find_items and to_table should be able to handle the same keywords """
-# 	@TODO: keys - thread
-
-# Potentially valuable suffix / prefixes
-def is_rare(name):
-	rares= ["Slaughter", "Savage", "Mystic", "Shielding", "Charged", "Frugal", "Radiant"]
-	return any(x.lower() in name.lower() for x in rares)
-
+""" NOTE: find_equips and to_table should be able to handle the same keywords """
 
 # Returns dict -- each key is an equip name -- each value is a list of dicts (sale data)
-# supported keys: 	min, max, year, sell, buy, rare, norare
-#	 (no effect):   link
 def find_equips(keyword_list):
 	# inits
 	ret= []
@@ -28,13 +19,14 @@ def find_equips(keyword_list):
 		else:
 			return contains(to_search=to_search, to_find=to_find)
 
+	# check timestamp is after jan 1st of that year
+	check_date= lambda timestamp,year: timestamp >= datetime.datetime(year,1,1).timestamp()
+
 	# if keyword passed in, use it to filter results
 	checks= {
 		"min": lambda x: int(x['price']) >= keyword_list['min'].value,
 		"max": lambda x: int(x['price']) <= keyword_list['max'].value,
-		"date": lambda x: int(x['date'][2]) >= keyword_list['date'].value,
-		# "seller": lambda x: x['seller'].lower() == keyword_list['seller'].value.lower(),
-		# "buyer": lambda x: x['buyer'].lower() == keyword_list['buyer'].value.lower(),
+		"date": lambda x: check_date(x['date'], keyword_list['date'].value),
 		"seller": lambda x: contains_maybe(to_search=x['seller'], to_find=keyword_list['seller'].value),
 		"buyer": lambda x: contains_maybe(to_search=x['buyer'], to_find=keyword_list['buyer'].value),
 		'name': lambda x: contains_maybe(to_search=x['name'], to_find=keyword_list['name'].value),
@@ -105,9 +97,11 @@ def to_table(command, eq_list, keyword_list, default_col_name="default_cols"):
 		cols.append(Column(data=[x['link'] for x in eq_list], header=header_dict['link'], is_link=True))
 
 	# add thread col
-	# @TODO
+	if 'thread' in col_names:
+		cols.append(Column(data=[x['thread'] for x in eq_list], header=header_dict['thread'], is_link=True))
 
 	return Table(cols)
+
 
 def get_summary_table(eq_list):
 	# inits
@@ -136,6 +130,11 @@ def get_summary_table(eq_list):
 		Column(data=vals, header=header_dict['total_credits'], trailer=total_value),
 	])
 
+
+# Potentially valuable suffix / prefixes
+def is_rare(name):
+	rares= ["Slaughter", "Savage", "Mystic", "Shielding", "Charged", "Frugal", "Radiant"]
+	return any(x.lower() in name.lower() for x in rares)
 
 
 if __name__ == "__main__":

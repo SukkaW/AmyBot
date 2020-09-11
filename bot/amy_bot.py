@@ -2,6 +2,9 @@ from discord.ext import commands
 from utils.help_command_utils import PartialHelp
 from utils.cog_utils import PartialCommand
 from utils.error_utils import ErrorHandler
+from utils.perm_utils import check_perms
+from cogs import UpdateCog, AuctionCog
+
 
 # @TODO: logging
 class AmyBot(commands.Bot, ErrorHandler):
@@ -9,13 +12,12 @@ class AmyBot(commands.Bot, ErrorHandler):
 		super().__init__(command_prefix=prefix, *args, **kwargs)
 		self.help_command= PartialHelp()
 
+		# load cogs and checks
+		self.add_cog(AuctionCog())
+		self.add_check(check_perms)
+
 		# hotfix to limit to hv_server members, will remove later
 		for x in get_hv_checks(self): self.add_check(x)
-
-	async def on_ready(self):
-		print('Logged in as', self.user.name, self.user.id)
-		# act = discord.Activity(name=f"{self.prefix}help for commands", type=discord.ActivityType.playing)
-		# await self.change_presence(activity=act)
 
 
 	# @ TODO: partial matching for aliases?
@@ -24,6 +26,7 @@ class AmyBot(commands.Bot, ErrorHandler):
 		if message.author.bot:
 			return
 
+		# check for partial names
 		ctx= await self.get_context(message)
 		if ctx.invoked_with and ctx.command is None:
 			for cmd in self.all_commands:
@@ -31,17 +34,19 @@ class AmyBot(commands.Bot, ErrorHandler):
 					ctx.command= self.all_commands[cmd]
 					break
 
+		# get query (eg !auction blah --> blah)
 		ctx.query= message.content.split(maxsplit=1)
 		ctx.query= ctx.query[1].strip() if len(ctx.query) > 1 else ""
 
+		# start command and send "typing..." message
 		if ctx.command is not None:
 			async with ctx.typing():
 				await self.invoke(ctx)
-			pass # for Lady Luck's blessing in ending the "typing..." curse
 
+
+	# handle errors during command
 	async def on_command_error(self, ctx, e):
 		return await ErrorHandler.on_command_error(self, ctx, e)
-
 
 
 

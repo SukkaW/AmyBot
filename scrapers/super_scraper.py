@@ -29,7 +29,6 @@ class SuperScraper:
 		# inits
 		CACHE= utils.load_json_with_default(utils.SUPER_CACHE_FILE, default=cls.DEFAULT_CACHE)
 
-		# keep-alive because https://github.com/aio-libs/aiohttp/issues/3904#issuecomment-632661245
 		async with aiohttp.ClientSession(headers={'Connection': 'keep-alive'}) as session:
 			# check for new auctions
 			home_html= await get_html(cls.HOME_BASE_LINK, session)
@@ -52,11 +51,13 @@ class SuperScraper:
 			for num,name,date in new_aucs:
 				out_path= utils.SUPER_HTML_DIR + name + ".html"
 
-				did_pull= False
 				if not os.path.exists(out_path):
-					did_pull= True
+					await asyncio.sleep(cls.SCRAPE_DELAY)
+
+					auc_html= await get_html(cls.HOME_BASE_LINK + name, session)
+					if "Auction ended" not in auc_html: continue # ignore ongoing
+
 					with open(out_path, "w", encoding='utf-8') as f:
-						auc_html= await get_html(cls.HOME_BASE_LINK + name, session)
 						f.write(auc_html)
 
 				tmp= name.replace("itemlist","")
@@ -64,9 +65,6 @@ class SuperScraper:
 				CACHE['num_map'][tmp]= num
 				CACHE['date_map'][tmp]= date
 
-				# pause between pulls
-				if (num,name,date) is not new_aucs[-1] and did_pull:
-					await asyncio.sleep(cls.SCRAPE_DELAY)
 
 			# update cache
 			if new_aucs:
@@ -118,6 +116,9 @@ class SuperScraper:
 
 			for x in equips:
 				if x['id'] not in CACHE['parsed']['equips']:
+					# reordering for visual consistency
+					x= { y:x[y] for y in ["name","price","level","stats","seller","buyer","auction_number","link","thread","id"] }
+
 					EQUIP_DATA.append(x)
 					CACHE['parsed']['equips'].add(x['id'])
 
@@ -130,6 +131,8 @@ class SuperScraper:
 		for x in ['files', 'equips', 'items']:
 			CACHE['parsed'][x]= list(CACHE['parsed'][x])
 		utils.dump_json(CACHE, utils.SUPER_CACHE_FILE)
+
+		return ITEM_DATA, EQUIP_DATA
 
 
 	@classmethod

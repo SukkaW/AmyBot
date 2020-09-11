@@ -1,6 +1,6 @@
 import utils.parse_utils as Parse
 from utils.parse_utils import Keyword, parse_keywords
-from utils.cog_utils import PartialCommand, pageify_and_send, check_for_link, stringify_tables
+from utils.cog_utils import PartialCommand, pageify_and_send, check_for_link, stringify_tables, PartialCog
 import utils.cog_utils.auction_utils as Auct
 from discord.ext import commands
 import utils, copy
@@ -23,7 +23,7 @@ base_keys= Parse.KeywordList([
 	Keyword("norare", Parse.to_bool),
 ])
 
-class AuctionCog(commands.Cog, name=COG_NAMES['cog_name']):
+class AuctionCog(PartialCog, name=COG_NAMES['cog_name']):
 
 	@commands.command(**COG_NAMES['commands']['auction'], cls=PartialCommand)
 	async def auction(self, ctx):
@@ -47,7 +47,7 @@ class AuctionCog(commands.Cog, name=COG_NAMES['cog_name']):
 			return await self.equip_search(ctx)
 		else:
 			type_= "buyer" if buy.has_value else "seller"
-			eq_list= Auct.find_equips(keywords)
+			eq_list= await Auct.find_equips(keywords)
 			cats= self._categorize(eq_list=eq_list, key_name=type_)
 
 			# if specific buyer or specific seller, use special printout

@@ -23,7 +23,7 @@ class KedamaScraper:
 	THREAD_BASE_LINK= r"https://forums.e-hentai.org/index.php?showtopic="
 
 	_eq_regex= r"\[href=(.*)\]\[eq_name=(.*)\]" # [href=...][eq_name=Legendary...] --- not part of original, comes from elem.replace_with
-	_lvl_stat_regex= r"\((?:Lv)?[\s.]*(\d+|Unassigned).*\)" # (Lv.406, EDB 65%, Agi 78%, Evd 25%)
+	_lvl_stat_regex= r"\((?:Lv)?[\s.]*(\d+|Unassigned),?\s*(?:(.*?))?\)" # (Lv.406, EDB 65%, Agi 78%, Evd 25%)
 	_seller_regex= r"(?:\(seller:\s*(.*?)\))?" # (seller: rokyroky)
 	_buyer_price_regex= r"(?:(.*) (\d+.?\d*[mkc])\s*#\d+)" # magiclamp 250k #9
 	EQUIP_REGEX= re.compile(r"\s*".join([_eq_regex, _lvl_stat_regex, _seller_regex, _buyer_price_regex]))
@@ -124,6 +124,7 @@ class KedamaScraper:
 			# auction number (eg 146 in "[Auction] Kedama's Auction #146")
 			auc_num= soup.find(class_="maintitle").find("td").get_text().strip()
 			auc_num= re.search(r"#([^\s]+)", auc_num).group(1)
+			auc_num= auc_num.replace(",","").zfill(3)
 
 			# thread link
 			thread_link= cls.THREAD_BASE_LINK + os.path.basename(file).replace(".html","")
@@ -138,6 +139,10 @@ class KedamaScraper:
 				x['auction_number']= auc_num
 				x['thread']= thread_link
 
+			# reordering to be visually consistent
+			eq= [{ y:x[y] for y in ["name","price","level","stats","seller","buyer","auction_number","link","thread"] } for x in eq]
+			# it= [{ y:x[y] for y in ["name","price","level","stats","seller","buyer","auction_number","thread","link"] } for x in eq]
+
 			EQUIPS+= eq
 			ITEMS+= it
 
@@ -151,6 +156,8 @@ class KedamaScraper:
 		utils.dump_json(ITEMS, utils.KEDAMA_ITEM_FILE)
 		utils.dump_json(DEBUG, utils.KEDAMA_DEBUG_FILE)
 
+		return ITEMS,EQUIPS
+
 
 	@classmethod
 	def _parse_lines(cls, lines):
@@ -162,16 +169,16 @@ class KedamaScraper:
 		}
 
 		for l in lines:
-			if (tmp := cls.EQUIP_REGEX.search(l)):
-				link,name,level,seller,buyer,price= tmp.groups()
+			if tmp := cls.EQUIP_REGEX.search(l):
+				link,name,level,stats,seller,buyer,price= tmp.groups()
 
 				level= cls._clean_level(level)
 				price= price_to_int(price)
 				if seller is None: seller= "SakiRaFubuKi"
 
-				ret['equips'].append(dict(link=link,name=name,level=level,seller=seller,buyer=buyer,price=price))
+				ret['equips'].append(dict(name=name,price=price,level=level,stats=stats,seller=seller,buyer=buyer,link=link))
 
-			elif (tmp := cls.ITEM_REGEX.search(l)):
+			elif tmp := cls.ITEM_REGEX.search(l):
 				quant,name,seller,buyer,price= tmp.groups()
 
 				quant= int(quant)

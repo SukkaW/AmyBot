@@ -19,7 +19,10 @@ NAME_STRING_FILE= STRING_DIR + "cog_command_names.yaml"
 GLOBAL_PERMS_FILE= PERMS_DIR + "00globals.yaml"
 
 AUCTION_CONFIG= COG_CONFIG_DIR + "auction_config.yaml"
-AUCTION_FILE= DATA_DIR + "auc_data.json"
+AUCTION_FILE= DATA_DIR + "merged_auction_data.json"
+
+ITEM_CONFIG= COG_CONFIG_DIR + "item_config.yaml"
+ITEM_FILE= DATA_DIR + "merged_item_data.json"
 
 SUPER_DIR= CACHE_DIR + "super/"
 SUPER_HTML_DIR= SUPER_DIR + "html/"
@@ -38,3 +41,5 @@ KEDAMA_EQUIP_FILE= KEDAMA_DIR + "equips.json"
 KEDAMA_ITEM_FILE= KEDAMA_DIR + "items.json"
 
 RANGES_FILE= DATA_DIR + "ranges.json"
+
+UPDATE_LOG= CACHE_DIR + "update_log.json"

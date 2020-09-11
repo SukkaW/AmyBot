@@ -2,7 +2,6 @@ from discord.ext import commands
 import utils
 
 # @ todo: check aliases
-# @ todo: check hidden
 # Override for partial matching
 class PartialHelp(commands.DefaultHelpCommand):
 
@@ -13,13 +12,19 @@ class PartialHelp(commands.DefaultHelpCommand):
 
 		if name is None or len(name) < 3: return await self.send_default_help(mapping)
 
-		# find matching names
-		cogs= [bot.cogs[x] for x in bot.cogs.keys() if name.lower() in x.lower()]
+		# find matching cog names
+		cogs= []
+		for x in bot.cogs:
+			if name.lower() in x.lower() and not bot.cogs[x].hidden:
+				cogs.append(bot.cogs[x])
 
+		# find matching commands
 		cmds= []
 		for x in bot.all_commands:
-			cmds= [bot.all_commands[x] for x in bot.all_commands if name.lower() in x.lower()]
+			if name.lower() in x.lower() and not bot.all_commands[x].hidden:
+				cmds.append(bot.all_commands[x])
 
+		# return main help message if no matches, else show help info for the matches
 		if not cogs and not cmds:
 			return await self.send_default_help(mapping)
 		else:

@@ -1,5 +1,5 @@
 from utils.error_utils import TemplatedError
-import datetime
+import datetime, aiohttp
 
 async def get_html(link, session):
 	async with session.get(link) as resp:
@@ -7,6 +7,10 @@ async def get_html(link, session):
 			raise TemplatedError("bad_response", link=link, response=resp)
 		else:
 			return await resp.text(encoding='utf-8')
+
+def get_session():
+	# keep-alive because https://github.com/aio-libs/aiohttp/issues/3904#issuecomment-632661245
+	return aiohttp.ClientSession(headers={'Connection': 'keep-alive'})
 
 def to_epoch(year, month, day, hour=0, minute=0):
 	args= [int(x) for x in [year,month,day,hour,minute]]
