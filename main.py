@@ -9,7 +9,6 @@ bot= AmyBot(BOT_CONFIG['prefix'], case_insensitive=True)
 
 # load cogs and checks
 bot.add_cog(AuctionCog())
-
 bot.add_check(check_perms)
 
 # run

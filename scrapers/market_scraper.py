@@ -1,14 +1,14 @@
 from utils.parse_utils import price_to_int
-from utils.scraper_utils import get_html
+from utils.scraper_utils import get_html, to_epoch
 from bs4 import BeautifulSoup
-import utils, aiohttp, json, asyncio, re, datetime, copy
+import utils, aiohttp, asyncio, re, copy
+
 
 class MarketScraper:
 	SCRAPE_DELAY= 10
-	RESULTS_PER_PAGE= 100
+	RESULTS_PER_PAGE= 100 # fixed by site
 	BASE_LINK= r"https://hvmarket.xyz/all_transactions?page="
 	PAGE_INFO_REGEX= re.compile(r"\((\d+).*total\)")
-
 	DEFAULT_CACHE= {
 		"invalid": []
 	}
@@ -18,20 +18,22 @@ class MarketScraper:
 		async with aiohttp.ClientSession(headers={'Connection': 'keep-alive'}) as session:
 			# inits
 			DATA= utils.load_json_with_default(utils.MARKET_ITEM_FILE)
-			CACHE= utils.load_json_with_default(utils.MARKET_CACHE, default=cls.DEFAULT_CACHE)
+			CACHE= utils.load_json_with_default(utils.MARKET_CACHE_FILE, default=cls.DEFAULT_CACHE)
+			invalid_list= CACHE['invalid']
 			CACHE['invalid']= set(CACHE['invalid'])
 
 			target_page_number= 1
 			target_index= None
 			html= await get_html(cls.BASE_LINK, session)
 
+
 			# Loop logic:
-			# 1. add results for current page
+			# 1. add results for current page to data
 			# 2. calculate target_index
 			# 3. check if done
-			#       (target_index > num_results-1 OR target_index >= a pending entry index)
+			#       (target_index >= num_results OR target_index >= a pending entry index)
 			# 4. move to page containing target_index
-			#       (the index may shift off-page by the time we visit the page, but we'll keep trying)
+			#       (the target index may shift off-page by the time we visit the page due to new purchases, but doesnt matter, we'll get it eventually)
 			# 5. go to step 1
 			while True:
 				# step 1
@@ -39,16 +41,18 @@ class MarketScraper:
 				DATA.update(result['entries'])
 				total= result['total']
 				CACHE['invalid'] |= result['invalid_indices']
+				invalid_list+= list(result)
 
 				# step 2
-				if target_index is None: target_index= 1 # one-indexed from oldest
+				if target_index is None:
+					target_index= 1 # one-indexed from oldest
 				while str(target_index) in DATA or target_index in CACHE['invalid']:
 					target_index+= 1
 
 				# step 3
 				if result['pending_indices'] and target_index >= min(result['pending_indices']):
 					break
-				if target_index > total-1:
+				if target_index >= total:
 					break
 
 				# step 4
@@ -56,19 +60,19 @@ class MarketScraper:
 				html= await get_html(cls.BASE_LINK + str(target_page_number), session)
 
 				# be nice to lestion
-				print(f"\r{len(DATA.keys())} / {total}...", end="")
+				# print(f"\r{len(DATA.keys())} / {total}...", end="")
 				await asyncio.sleep(cls.SCRAPE_DELAY)
 
-				# save
+				# intermediate save
 				tmp= copy.deepcopy(CACHE)
-				tmp['invalid']= list(tmp['invalid'])
-				json.dump(tmp, open(utils.MARKET_CACHE, "w", encoding='utf-8'), indent=2)
-				json.dump(DATA, open(utils.MARKET_ITEM_FILE, "w", encoding='utf-8'), indent=2)
+				tmp['invalid']= invalid_list
+				utils.dump_json(tmp, utils.MARKET_CACHE_FILE)
+				utils.dump_json(DATA, utils.MARKET_ITEM_FILE)
 
 			# final save
 			CACHE['invalid']= list(CACHE['invalid'])
-			json.dump(CACHE, open(utils.MARKET_CACHE, "w", encoding='utf-8'), indent=2)
-			json.dump(DATA, open(utils.MARKET_ITEM_FILE, "w", encoding='utf-8'), indent=2)
+			utils.dump_json(CACHE, utils.MARKET_CACHE_FILE)
+			utils.dump_json(DATA, utils.MARKET_ITEM_FILE)
 
 
 	# page_number should be 1-indexed from newest
@@ -108,13 +112,10 @@ class MarketScraper:
 		rep= lambda x: x.replace(r"/shop_search?player_name=", "")
 		pti= lambda x: price_to_int(x)
 
-		def to_epoch(hour_minute, day_month_year):
+		def te(hour_minute, day_month_year): # to epoch
 			s1= day_month_year.split("-")
 			s2= hour_minute.split(":")
-			split= list(reversed(s1)) + s2
-			split= [int(x) for x in split]
-			split[0]+= 2000
-			return datetime.datetime(*split).timestamp()
+			return to_epoch(*(list(reversed(s1)) + s2))
 
 		# do parsing
 		cols= row.find_all("td")
@@ -125,10 +126,11 @@ class MarketScraper:
 			"quantity": pti(gt(cols[3])),
 			"unit_price": pti(gt(cols[4])),
 			"seller": rep(cols[5].find('a')['href']),
-			"time": to_epoch(gt(cols[6]), gt(cols[7]))
+			"time": te(gt(cols[6]), gt(cols[7]))
 		}
 
 
+	# get total results from pagination string at bottom of page
 	@classmethod
 	def get_pagination_info(cls, html):
 		soup= BeautifulSoup(html, 'html.parser')

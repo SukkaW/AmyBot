@@ -28,10 +28,13 @@ SUPER_EQUIP_FILE= SUPER_DIR + "equips.json"
 SUPER_ITEM_FILE= SUPER_DIR + "items.json"
 
 MARKET_DIR= CACHE_DIR + "hvmarket/"
-MARKET_CACHE= MARKET_DIR + "cache.json"
+MARKET_CACHE_FILE= MARKET_DIR + "cache.json"
 MARKET_ITEM_FILE= MARKET_DIR + "items.json"
 
 KEDAMA_DIR= CACHE_DIR + "kedama/"
-KEDAMA_CACHE= KEDAMA_DIR + "cache.json"
+KEDAMA_HTML_DIR= KEDAMA_DIR + "html/"
+KEDAMA_DEBUG_FILE= KEDAMA_DIR + "debug.json"
 KEDAMA_EQUIP_FILE= KEDAMA_DIR + "equips.json"
 KEDAMA_ITEM_FILE= KEDAMA_DIR + "items.json"
+
+RANGES_FILE= DATA_DIR + "ranges.json"

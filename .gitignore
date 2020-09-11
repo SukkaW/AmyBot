@@ -1,5 +1,3 @@
 /venv/
 /.idea/
-/data/super/*.html
-!/data/super/itemlist191666.html
 /config/bot_config.json

@@ -31,6 +31,17 @@ def load_json_with_default(path, default=None):
 	# load json, using default if necessary
 	if os.path.exists(path):
 		return json.load(open(path, encoding='utf-8'))
-	else:
+	elif default is not False:
 		json.dump(default, open(path, "w"), indent=2)
 		return default
+	else:
+		raise Exception(f"No default supplied and file does not exist: {path}")
+
+
+def dump_json(data, path):
+	# make parent dirs if not exists
+	if not os.path.exists(os.path.dirname(path)):
+		os.makedirs(os.path.dirname(path))
+
+	# dont use \u characters
+	json.dump(data, open(path,"w",encoding='utf-8'), ensure_ascii=False, indent=2)

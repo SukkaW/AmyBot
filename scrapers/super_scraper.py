@@ -1,4 +1,4 @@
-from utils.scraper_utils import get_html
+from utils.scraper_utils import get_html, to_epoch
 from utils.parse_utils import price_to_int
 from bs4 import BeautifulSoup
 import utils, aiohttp, json, asyncio, glob, os, re
@@ -11,7 +11,7 @@ class SuperScraper:
 		"seen": [],
 		"parsed": dict(files=[], items=[], equips=[]),
 		"num_map": {}, # itemlist name --> auction_number
-		"date_map": {}, # itemlist name --> date string MM-DD-YY
+		"date_map": {}, # itemlist name --> epoch timestamp
 		"fails": [] # parsing fails
 	}
 	ITEM_REGEX= {
@@ -37,8 +37,9 @@ class SuperScraper:
 
 			rows= home_soup.find("tbody").find_all("tr")
 			auc_names= [r.find("a", href=lambda x: x and "itemlist" in x)['href'] for r in rows]
-			auc_nums= [r.find("td").get_text() for r in rows]
+			auc_nums= [r.find("td").get_text().zfill(3) for r in rows]
 			auc_dates= [r.find_all("td")[1].get_text() for r in rows]
+			auc_dates= [cls._to_epoch(x) for x in auc_dates]
 			assert len(auc_names) == len(auc_nums) == len(auc_dates)
 
 			# get uncached pages
@@ -70,7 +71,7 @@ class SuperScraper:
 			# update cache
 			if new_aucs:
 				CACHE['seen'].sort(reverse=True)
-				json.dump(CACHE, open(utils.SUPER_CACHE_FILE, "w", encoding='utf-8'), indent=2)
+				utils.dump_json(CACHE, utils.SUPER_CACHE_FILE)
 
 		# true if new auctions found
 		return bool(new_aucs)
@@ -106,7 +107,7 @@ class SuperScraper:
 			for x in items + equips:
 				tmp= auc_name.replace("itemlist","")
 				x['auction_number']= CACHE['num_map'][tmp]
-				x['auction_date']= CACHE['date_map'][tmp].split("-")
+				x['date']= CACHE['date_map'][tmp]
 				x['thread']= cls.THREAD_BASE_LINK + tmp
 				x['id']= f"{x['auction_number']}_{x['id']}"
 
@@ -123,12 +124,12 @@ class SuperScraper:
 			CACHE['fails']+= fails
 			CACHE['parsed']['files'].add(auc_name)
 
-		json.dump(ITEM_DATA, open(utils.SUPER_ITEM_FILE, "w"), indent=2)
-		json.dump(EQUIP_DATA, open(utils.SUPER_EQUIP_FILE, "w"), indent=2)
+		utils.dump_json(ITEM_DATA, utils.SUPER_ITEM_FILE)
+		utils.dump_json(EQUIP_DATA, utils.SUPER_EQUIP_FILE)
 
 		for x in ['files', 'equips', 'items']:
 			CACHE['parsed'][x]= list(CACHE['parsed'][x])
-		json.dump(CACHE, open(utils.SUPER_CACHE_FILE, "w"), indent=2)
+		utils.dump_json(CACHE, utils.SUPER_CACHE_FILE)
 
 
 	@classmethod
@@ -249,9 +250,12 @@ class SuperScraper:
 			"id": id_
 		}
 
-class SuperAuction:
-	def __init__(self, number):
-		pass
+	# MM-DD-YY --> epoch timestamp
+	@staticmethod
+	def _to_epoch(date):
+		s= [int(x) for x in date.split("-")]
+		return to_epoch(s[2], s[0], s[1])
+
 
 class SuperParseFail(Exception):
 	def __init__(self, stat, tr):
