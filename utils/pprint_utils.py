@@ -7,7 +7,7 @@ class Column:
 
 		self.max_width= None # so the ide stops complaining
 		self.__dict__['max_width']= max(len(self.header), len(self.trailer), max([len(str(x)) for x in data])) # get max_width from data
-		self._limit_request= self.max_width
+		self._limit_request= None
 
 		self.data= []
 		self.orig_data= data
@@ -30,8 +30,8 @@ class Column:
 					self.__dict__['data']= self.__dict__['orig_data'].copy()
 					return
 				else:
-					self.__dict__['orig_data']= [str(x) for x in value]
-					self.__dict__['data']= self.__dict__['orig_data'].copy()
+					self.__dict__['orig_data']= value
+					self.__dict__['data']= [str(x) for x in value]
 			elif key == "max_width":
 				if value is None: return
 				self.__dict__['_limit_request']= value
@@ -41,9 +41,11 @@ class Column:
 			if self._limit_request is not None:
 				self.__dict__['max_width']= min(int(self._limit_request), self.max_width)
 
-			for i in range(len(self.orig_data)):
-				if len(self.data[i]) > self.max_width:
-					self.__dict__['data'][i]= self.data[i][:self.max_width-3] + "..."
+			if self._limit_request:
+				for i in range(len(self.orig_data)):
+					if len(self.data[i]) > self._limit_request:
+						self.__dict__['data'][i]= self.data[i][:self.max_width-3] + "..."
+
 		else:
 			self.__dict__[key]= value
 
@@ -67,7 +69,7 @@ def pprint(columns, prefix="", suffix="", code=None, v_sep="|", h_sep="-", v_pad
 	assert all([len(columns[0]) - len(x) == 0 for x in columns[1:]]) # check all columns same length
 	assert len(not_link) > 0
 
-	if code and not single_tick: ret+= f"```{code}\n"
+	if code is not None and not single_tick: ret+= f"```{code}\n"
 	if prefix: ret+= prefix + "\n"
 
 	# horiz separator for header
@@ -111,7 +113,7 @@ def pprint(columns, prefix="", suffix="", code=None, v_sep="|", h_sep="-", v_pad
 
 
 	if suffix: ret+= suffix + "\n"
-	if code and not single_tick: ret+= f"\n```"
+	if code is not None and not single_tick: ret+= f"\n```"
 	return ret
 
 
@@ -152,16 +154,3 @@ def get_pages(strings, max_len=1900, no_orphan=4, join_char="\n"):
 
 	if pg: pages.append(pg)
 	return [join_char.join(x) for x in pages]
-
-
-
-if __name__ == "__main__":
-	import random
-
-	cols= []
-	for i in range(2):
-		cols.append(Column(data=[random.randint(10*(10**i), 100*(10**i)) for j in range(10)], header=f"{i} blah"))
-	cols.append(Column(data= [122313, 463]*5, is_link=True))
-	cols.append(Column(data= [123, 4563]*5, is_link=True))
-
-	print(pprint(cols, prefix="prefix", suffix="suffix"))

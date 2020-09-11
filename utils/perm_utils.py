@@ -34,9 +34,9 @@ def _check(cmd, cog, perm_dict, flags, ctx, is_dm=False):
 	# inits
 	default_dict= dict(everyone=flags['PASS'], exceptions=[]) # @TODO: use flag reference
 	chks= {
-		"user": lambda dct: ctx.author.id in dct['user'],
-		"roles": lambda dct: all(y in [x.id for x in ctx.author.roles] for y in dct['roles']),
-		"channel": lambda dct: ctx.channel.id in dct['channel'],
+		"user": lambda dct: "user" not in dct or ctx.author.id == dct['user'],
+		"roles": lambda dct: "roles" not in dct or all(y in [x.id for x in ctx.author.roles] for y in dct['roles']),
+		"channel": lambda dct: "channel" not in dct or ctx.channel.id == dct['channel'],
 	}
 	def flag_chk(val):
 		if val == flags['ALLOW']: return True
@@ -44,7 +44,7 @@ def _check(cmd, cog, perm_dict, flags, ctx, is_dm=False):
 		elif val == flags['PASS']: return None
 
 	if is_dm: keys= ['user']
-	else: keys= ['user', 'role', 'channel']
+	else: keys= ['user', 'roles', 'channel']
 
 	silent= not perm_dict['vocal_fail']
 	details= perm_dict['details']
@@ -69,7 +69,8 @@ def _check(cmd, cog, perm_dict, flags, ctx, is_dm=False):
 
 		# if no matching exceptions, check "everyone" flag for current level
 		if (tmp:=flag_chk(dct['everyone'])) is not None:
-			if tmp is False: raise PermissionFailure(cmd, cog, level=i, everyone=True, is_dm=is_dm, silent=silent, details=details)
+			if tmp is False:
+				raise PermissionFailure(cmd, cog, level=i, everyone=True, is_dm=is_dm, silent=silent, details=details)
 			return tmp
 
 	raise PermissionFailure(cmd, cog, level=PermissionFailure.DEFAULT_LEVEL, is_dm=is_dm, silent=silent, details=details)

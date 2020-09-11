@@ -1,5 +1,5 @@
-from utils.scraper_utils import get_html, to_epoch
-from utils.parse_utils import price_to_int
+from utils.scraper_utils import get_html
+from utils.parse_utils import price_to_int, to_epoch
 from bs4 import BeautifulSoup
 import utils, aiohttp, json, asyncio, glob, os, re
 
@@ -11,7 +11,7 @@ class SuperScraper:
 		"seen": [],
 		"parsed": dict(files=[], items=[], equips=[]),
 		"num_map": {}, # itemlist name --> auction_number
-		"date_map": {}, # itemlist name --> epoch timestamp
+		"time_map": {}, # itemlist name --> epoch timestamp
 		"fails": [] # parsing fails
 	}
 	ITEM_REGEX= {
@@ -63,7 +63,7 @@ class SuperScraper:
 				tmp= name.replace("itemlist","")
 				CACHE['seen'].append(name)
 				CACHE['num_map'][tmp]= num
-				CACHE['date_map'][tmp]= date
+				CACHE['time_map'][tmp]= date
 
 
 			# update cache
@@ -105,7 +105,7 @@ class SuperScraper:
 			for x in items + equips:
 				tmp= auc_name.replace("itemlist","")
 				x['auction_number']= CACHE['num_map'][tmp]
-				x['date']= CACHE['date_map'][tmp]
+				x['time']= CACHE['time_map'][tmp]
 				x['thread']= cls.THREAD_BASE_LINK + tmp
 				x['id']= f"{x['auction_number']}_{x['id']}"
 
@@ -116,9 +116,6 @@ class SuperScraper:
 
 			for x in equips:
 				if x['id'] not in CACHE['parsed']['equips']:
-					# reordering for visual consistency
-					x= { y:x[y] for y in ["name","price","level","stats","seller","buyer","auction_number","link","thread","id"] }
-
 					EQUIP_DATA.append(x)
 					CACHE['parsed']['equips'].add(x['id'])
 

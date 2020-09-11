@@ -1,4 +1,6 @@
 from discord.ext import commands
+from utils.parse_utils import contains, int_to_price
+from utils.error_utils import TemplatedError
 import utils.pprint_utils as Pprint
 import utils
 
@@ -22,22 +24,22 @@ async def pageify_and_send(ctx, strings, CONFIG, has_link=False, max_len=1900):
 					 page_limit_dm=CONFIG['page_limit_dm'],
 					 page_limit_server=CONFIG['page_limit_server'])
 
-def check_for_link(keywords, CONFIG):
-		return keywords['link'] \
-			   or keywords['thread'] \
-			   or 'thread' in CONFIG['default_cols'] \
-			   or 'link' in CONFIG['default_cols']
+def check_for_key(key, keywords, CONFIG):
+		return keywords[key] or 'key' in CONFIG['default_cols']
 
 
-def stringify_tables(tables, has_link=False, header_func=None):
+def stringify_tables(tables, has_link=False, header_func=None, code=""):
 	# convert tables to strings
 	table_strings= []
 	for x in tables:
-		if has_link:
+		if has_link and code == "":
 			prefix= f"**{header_func(x)}**" if header_func is not None else ""
-			table_strings.append(Pprint.pprint(x, prefix=prefix, code="")) # add single ticks
 		else:
 			prefix= f"@ {header_func(x)}" if header_func is not None else ""
+
+		if has_link:
+			table_strings.append(Pprint.pprint(x, prefix=prefix, code=code)) # add single ticks
+		else:
 			table_strings.append(Pprint.pprint(x, prefix=prefix, code=None)) # we'll add code-blocks later
 
 	return table_strings
@@ -69,3 +71,104 @@ async def send_pages(ctx, pages, code=None, page_limit_server=2, page_limit_dm=N
 	# send
 	for x in pages[:limit]:
 		await ctx.send(x)
+
+
+def get_summary_table(lst, CONFIG, name_key="name", price_key="price"):
+	# inits
+	groups= CONFIG['summary_groups']
+	header_dict= CONFIG['summary_headers']
+
+	# tallies
+	values,counts= {},{}
+	for x in groups:
+		values[x]= 0
+		counts[x]= 0
+
+	unknown= [0,0]
+	for x in lst:
+		matched= False
+		for y in groups:
+			for z in groups[y]:
+				if contains(to_search=x[name_key], to_find=z):
+					counts[y]+= 1
+					values[y]+= int(x[price_key])
+					matched= True
+					break
+
+		if not matched:
+			unknown[0]+= 1
+			unknown[1]+= int(x[price_key])
+
+
+	# sum tallies
+	total_count= sum(counts.values())
+	total_value= int_to_price(sum(values.values()))
+
+	# convert to lists
+	vals= [int_to_price(values[x]) for x in groups]
+	cnts= [counts[x] for x in groups]
+
+	if unknown[0]:
+		vals.append(int_to_price(unknown[1]))
+		cnts.append(unknown[0])
+		groups[header_dict['unknown']] = []
+
+	return Pprint.Table([
+		Pprint.Column(data=groups, header=header_dict['category'], trailer=header_dict['total']),
+		Pprint.Column(data=cnts, header=header_dict['total_count'], trailer=total_count),
+		Pprint.Column(data=vals, header=header_dict['total_credits'], trailer=total_value),
+	])
+
+def filter_data(checks, data, keyword_list):
+	ret= []
+
+	# get items containing [name] and passing all keyword checks
+	if not checks: raise TemplatedError("no_keywords", keywords=keyword_list)
+	for x in data:
+		if all(chk(x) for chk in checks):
+			ret.append(x)
+
+	if not ret: raise TemplatedError("no_equip_match", keywords=keyword_list)
+	return ret
+
+def get_cols(data, special_cols, col_names, CONFIG, format_rules=None):
+	# inits
+	if format_rules is None: format_rules= {}
+	header_dict= CONFIG['equip_headers']
+
+	# @TODO: handle key-errors
+	# create columns
+	cols= []
+	for x in col_names:
+		if x in special_cols: continue # these are handled later
+
+		# create col
+		d= [eq[x] for eq in data]
+		c= Pprint.Column(data=d, header=header_dict[x])
+
+		# special formatting
+		if x in format_rules:
+			c= format_rules[x](c)
+
+		cols.append(c)
+
+	return cols
+
+def get_col_names(default_cols, keyword_list, key_map):
+	# get keys to pull data from
+	col_names= default_cols
+	for x in keyword_list:
+		if not x or key_map[x.name] in col_names or x.name not in key_map:
+			continue
+		col_names.append(key_map[x.name])
+	return col_names
+
+def categorize(lst, key_name):
+		# categorize
+		cats= {}
+		for x in lst:
+			if x[key_name] not in cats:
+				cats[x[key_name]]= []
+			cats[x[key_name]].append(x)
+
+		return cats

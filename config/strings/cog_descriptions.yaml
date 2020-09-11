@@ -15,3 +15,19 @@ Auction:
         "seller": Show equips with this seller (eg \"... sellerfrotag\")
         "buyer": Show equips with this buyer (eg \"... buyerfrotag\")
         #"thread": Show auction thread link
+
+Item:
+    description: Shows item data from HV Market + Super + Kedama.
+    commands:
+        item:
+            description: blah
+            args: "item_name [optional: keywords]"
+            keywords: [year, link, minq, maxq, seller, buyer, minu, maxu, minp, maxp]
+    keywords:
+        "year": Equips sold prior to this year are ignored (eg \"... 2019\")
+        "link": Show equip links (eg \"... link\")
+        "min":  Equips below this price are ignored (eg \"... min100k\")
+        "max":  Equips above this price are ignored (eg \"... max5m\")
+        "seller": Show equips with this seller (eg \"... sellerfrotag\")
+        "buyer": Show equips with this buyer (eg \"... buyerfrotag\")
+        #"thread": Show auction thread link

@@ -1,5 +1,5 @@
-from utils.parse_utils import price_to_int
-from utils.scraper_utils import get_html, to_epoch, get_session
+from utils.parse_utils import price_to_int, to_epoch
+from utils.scraper_utils import get_html, get_session
 from bs4 import BeautifulSoup
 import utils, aiohttp, asyncio, re, copy
 
@@ -24,7 +24,8 @@ class MarketScraper:
 		target_page_number= 1
 		target_index= None
 
-		async with get_session() as session:
+		session= get_session()
+		async with session:
 			html= await get_html(cls.BASE_LINK, session)
 
 
@@ -123,7 +124,7 @@ class MarketScraper:
 		return {
 			"name": cols[0].find('a')['title'],
 			"buyer": rep(cols[1].find('a')['href']),
-			"total_price": pti(gt(cols[2])),
+			"price": pti(gt(cols[2])),
 			"quantity": pti(gt(cols[3])),
 			"unit_price": pti(gt(cols[4])),
 			"seller": rep(cols[5].find('a')['href']),

@@ -36,7 +36,7 @@ class PartialHelp(commands.DefaultHelpCommand):
 		COG_STRINGS= utils.load_yaml(utils.COG_STRING_FILE)
 
 		reps= {
-			"COGS": [x for x in mapping if x is not None],
+			"COGS": [x for x in mapping if x is not None and not x.hidden],
 			"PREFIX": self.clean_prefix,
 			"COG_STRINGS": COG_STRINGS
 		}

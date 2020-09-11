@@ -1,6 +1,7 @@
 import utils.parse_utils as Parse
 from utils.parse_utils import Keyword, parse_keywords
-from utils.cog_utils import PartialCommand, pageify_and_send, check_for_link, stringify_tables, PartialCog
+from utils.cog_utils import PartialCommand, PartialCog
+import utils.cog_utils as Cgu
 import utils.cog_utils.auction_utils as Auct
 from discord.ext import commands
 import utils, copy
@@ -40,22 +41,28 @@ class AuctionCog(PartialCog, name=COG_NAMES['cog_name']):
 					 (not buy.value and not sell.value)
 		has_both= (buy.value and sell.value) and \
 				  (buy.value is not True and sell.value is not True)
-		one_bool= 1 == len([x == True for x in [buy.value, sell.value]])
 
 		# if neither buyer or seller or both, use regular auction search
 		if has_neither or has_both:
 			return await self.equip_search(ctx)
 		else:
-			type_= "buyer" if buy.has_value else "seller"
-			eq_list= await Auct.find_equips(keywords)
-			cats= self._categorize(eq_list=eq_list, key_name=type_)
+			eq_list= Auct.find_equips(keywords)
+
+			cats_b= Cgu.categorize(lst=eq_list, key_name="buyer")
+			cats_s= Cgu.categorize(lst=eq_list, key_name="seller")
+			only_buyer= (keywords['buyer'].has_value and keywords['buyer'].value != True and keywords['seller'].value == True)
+			only_seller= (keywords['seller'].has_value and keywords['seller'].value != True and keywords['buyer'].value == True)
 
 			# if specific buyer or specific seller, use special printout
-			if len(cats.keys()) == 1:
-				return await self.buy_sell_search(ctx, type_, user=list(cats.keys())[0], equips=eq_list, keywords=keywords)
+			if len(cats_b.keys()) == 1 or only_buyer:
+				del keywords['buyer']
+				return await self.buy_sell_search(ctx, "buyer", user=list(cats_b.keys())[0], equips=eq_list, keywords=keywords)
+			elif len(cats_s.keys()) == 1 or only_seller:
+				del keywords['seller']
+				return await self.buy_sell_search(ctx, "buyer", user=list(cats_s.keys())[0], equips=eq_list, keywords=keywords)
 			# else, resort to regular search
 			else:
-				cats= self._categorize(eq_list=eq_list, key_name="name")
+				cats= Cgu.categorize(lst=eq_list, key_name="name")
 				return await self.equip_search(ctx, keywords=keywords, cats=cats)
 
 
@@ -75,11 +82,12 @@ class AuctionCog(PartialCog, name=COG_NAMES['cog_name']):
 			tables.append(tbl)
 
 		# convert tables to strings
-		has_link= check_for_link(keywords, CONFIG)
-		table_strings= stringify_tables(tables=tables, has_link=has_link, header_func=lambda x: x.eq_name)
+		has_link= Cgu.check_for_key("link", keywords, CONFIG) or Cgu.check_for_key("thread", keywords, CONFIG)
+		table_strings= Cgu.stringify_tables(tables=tables, has_link=has_link, header_func=lambda x: x.eq_name)
 
 		# group into pages and send
-		return await pageify_and_send(ctx, strings=table_strings, CONFIG=CONFIG, has_link=has_link)
+		return await Cgu.pageify_and_send(ctx, strings=table_strings, CONFIG=CONFIG, has_link=has_link)
+
 
 	# type should be "buyer" or "seller"
 	async def buy_sell_search(self, ctx, type_, user=None, equips=None, keywords=None):
@@ -98,21 +106,21 @@ class AuctionCog(PartialCog, name=COG_NAMES['cog_name']):
 			else: user, equips= list(tmp['cats'].items())[0]
 
 		# get tables
-		CONFIG= utils.load_yaml(utils.AUCTION_CONFIG)[type_]
+		CONFIG= utils.load_yaml(utils.AUCTION_CONFIG)
 
 		del keywords[type_] # the seller / buyer will be the same for this entire table so don't need col for it
 		eq_table= Auct.to_table(type_, eq_list=equips, keyword_list=keywords)
-		summary_table= Auct.get_summary_table(equips)
+		summary_table= Cgu.misc_utils.get_summary_table(equips, CONFIG)
 
 		# convert tables to strings
-		has_link= check_for_link(keywords, CONFIG)
-		table_strings= []
+		has_link= Cgu.check_for_key("link", keywords, CONFIG[type_] ) or Cgu.check_for_key("thread", keywords, CONFIG[type_] )
 
-		table_strings+= stringify_tables(tables=[summary_table], has_link=has_link, header_func=lambda _: f"{user}\n")
-		table_strings+= stringify_tables(tables=[eq_table], has_link=has_link)
+		summary_strings= Cgu.stringify_tables(tables=[summary_table], has_link=has_link, header_func=lambda _: f"{user}\n", code="py")
+		main_strings= Cgu.stringify_tables(tables=[eq_table], has_link=has_link)
+		table_strings= summary_strings + main_strings
 
 		# group into pages and send
-		return await pageify_and_send(ctx, strings=table_strings, CONFIG=CONFIG, has_link=has_link)
+		return await Cgu.pageify_and_send(ctx, strings=table_strings, CONFIG=CONFIG[type_], has_link=has_link)
 
 
 	@staticmethod
@@ -126,21 +134,10 @@ class AuctionCog(PartialCog, name=COG_NAMES['cog_name']):
 
 		return dict(eq_list=eq_list, keywords=keywords, clean_query=clean_query)
 
-	@staticmethod
-	def _categorize(eq_list, key_name):
-		# categorize
-		cats= {}
-		for x in eq_list:
-			if x[key_name] not in cats:
-				cats[x[key_name]]= []
-			cats[x[key_name]].append(x)
-
-		return cats
-
 	@classmethod
 	def _search_and_categorize(cls, query, key_name):
 		result= cls._search(query=query, key_name=key_name)
-		cats= cls._categorize(result['eq_list'], key_name)
+		cats= Cgu.categorize(result['eq_list'], key_name)
 		return dict(cats=cats, keywords=result['keywords'], clean_query=result['clean_query'])
 
 

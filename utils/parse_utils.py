@@ -1,5 +1,5 @@
 from discord.ext.commands import CommandError
-import utils
+import utils, datetime
 
 class KeywordList:
 	def __init__(self, keywords):
@@ -161,6 +161,7 @@ def int_to_price(x, numDec=1):
 
 	if len(sx) > 6: sx= sx[:-6] + "." + sx[-6:][:numDec] + "m"
 	elif len(sx) > 3: sx = sx[:-3] + "." + sx[-3:][:numDec] + "k"
+	else: sx+= "c"
 
 	if "." in sx:
 		while sx[-2] == '0': sx= sx[:-2] + sx[-1]
@@ -205,12 +206,40 @@ def to_potential_string(val, empty=True):
 	if str(val) == "": return empty
 	else: return val
 
-# hacky-workaround for parsing the alias "20" properly
+# Checks that all words in to_find are contained in to_search
+def contains(to_search, to_find):
+	if isinstance(to_find, list):
+		pass
+	elif isinstance(to_find, str):
+		to_find= [x.lower() for x in to_find.split()]
+	else: raise ValueError(f"'{type(to_find)}' passed to 'contains' function as 'to_find' arg")
+
+	to_search= to_search.lower()
+	return all(x in to_search for x in to_find)
+
+# if bool, then don't use it as filtering criteria
+def contains_maybe(to_search, to_find):
+	if isinstance(to_search, bool) or isinstance(to_find, bool):
+		return True
+	else:
+		return contains(to_search=to_search, to_find=to_find)
+
+
+def to_epoch(year, month, day, hour=0, minute=0):
+	args= [int(x) for x in [year,month,day,hour,minute]]
+	if args[0] == 20: args[0]= 2000
+	return datetime.datetime(*args).timestamp()
+
+def epoch_to_date(epoch):
+	d= datetime.datetime.fromtimestamp(epoch)
+	return [d.year, d.month, d.day, d.minute, d.second]
+
+# workaround for parsing the alias "20" properly
 # eg any in [date2019, 2019, year2019] will parse to 2019
-def to_date(val):
+def to_year(val):
 	if val.startswith("20"): pass
 	else: val= "20" + val
 
 	return to_pos_int(val)
 
-def get_date_key(): return Keyword("date", to_date, aliases=["year", "20", "year20"])
+def get_date_key(): return Keyword("date", to_year, aliases=["year", "20", "year20"])

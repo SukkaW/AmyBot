@@ -3,7 +3,7 @@ from utils.help_command_utils import PartialHelp
 from utils.cog_utils import PartialCommand
 from utils.error_utils import ErrorHandler
 from utils.perm_utils import check_perms
-from cogs import UpdateCog, AuctionCog
+from cogs import UpdateCog, AuctionCog, ItemCog
 
 
 # @TODO: logging
@@ -12,12 +12,13 @@ class AmyBot(commands.Bot, ErrorHandler):
 		super().__init__(command_prefix=prefix, *args, **kwargs)
 		self.help_command= PartialHelp()
 
+
 		# load cogs and checks
 		self.add_cog(AuctionCog())
+		self.add_cog(UpdateCog())
+		self.add_cog(ItemCog())
 		self.add_check(check_perms)
 
-		# hotfix to limit to hv_server members, will remove later
-		for x in get_hv_checks(self): self.add_check(x)
 
 
 	# @ TODO: partial matching for aliases?
@@ -40,30 +41,10 @@ class AmyBot(commands.Bot, ErrorHandler):
 
 		# start command and send "typing..." message
 		if ctx.command is not None:
-			async with ctx.typing():
+			# async with ctx.typing():
 				await self.invoke(ctx)
 
 
 	# handle errors during command
 	async def on_command_error(self, ctx, e):
 		return await ErrorHandler.on_command_error(self, ctx, e)
-
-
-
-#@todo: will remove later
-# hotfix to limit to hv_server members because this will share a discord key with other bot
-def get_hv_checks(client):
-	test_id= 395741640372912138
-	hv_id= 584871596586565643#603053441157169155
-
-	def check_hv_server(ctx):
-		return ctx.guild is None or ctx.guild.id in [hv_id, test_id]
-
-	async def check_hv_member(ctx):
-		hv_server= client.get_guild(hv_id)
-		for x in hv_server.members:
-			if x.id == ctx.author.id:
-				return True
-		return False
-
-	return [check_hv_server, check_hv_member]

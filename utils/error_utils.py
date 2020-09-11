@@ -10,7 +10,8 @@ class ErrorHandler:
 		if isinstance(e, Forbidden):
 			pass # @ todo: handle no send perms
 		if isinstance(e, PermissionFailure):
-			return await ctx.send(e.render())
+			if not e.silent:
+				return await ctx.send(e.render())
 		elif isinstance(e, ParseError):
 			return await ctx.send(e.render(ctx))
 		elif isinstance(e, TemplatedError):

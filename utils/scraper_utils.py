@@ -11,8 +11,3 @@ async def get_html(link, session):
 def get_session():
 	# keep-alive because https://github.com/aio-libs/aiohttp/issues/3904#issuecomment-632661245
 	return aiohttp.ClientSession(headers={'Connection': 'keep-alive'})
-
-def to_epoch(year, month, day, hour=0, minute=0):
-	args= [int(x) for x in [year,month,day,hour,minute]]
-	if args[0] == 20: args[0]= 2000
-	return datetime.datetime(*args).timestamp()

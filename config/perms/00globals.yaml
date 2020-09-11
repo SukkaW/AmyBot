@@ -58,6 +58,12 @@ dm:
     sold:
       everyone: 0
       exceptions: []
+  Item:
+    everyone: 0
+    exceptions: []
+    item:
+      everyone: 0
+      exceptions: []
 
 
 default_perms:
@@ -68,7 +74,7 @@ default_perms:
   vocal_fail: true
   details: false
 
-  everyone: *fail
+  everyone: 0
   exceptions: []
 
   none:

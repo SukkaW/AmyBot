@@ -1,7 +1,6 @@
-from utils.parse_utils import int_to_price
+from utils.parse_utils import int_to_price, contains_maybe, epoch_to_date
 from utils.pprint_utils import Column, Table
-from utils.misc_utils import contains
-from utils.error_utils import TemplatedError
+import utils.cog_utils.misc_utils as misc
 import json, utils, datetime
 
 """ NOTE: find_equips and to_table should be able to handle the same keywords """
@@ -9,15 +8,7 @@ import json, utils, datetime
 # Returns dict -- each key is an equip name -- each value is a list of dicts (sale data)
 def find_equips(keyword_list):
 	# inits
-	ret= []
-	data= json.load(open(utils.AUCTION_FILE))
-
-	# if bool, then don't use it as filtering criteria
-	def contains_maybe(to_search, to_find):
-		if isinstance(to_search, bool) or isinstance(to_find, bool):
-			return True
-		else:
-			return contains(to_search=to_search, to_find=to_find)
+	data= json.load(open(utils.AUCTION_FILE, encoding='utf-8'))
 
 	# check timestamp is after jan 1st of that year
 	check_date= lambda timestamp,year: timestamp >= datetime.datetime(year,1,1).timestamp()
@@ -26,7 +17,7 @@ def find_equips(keyword_list):
 	checks= {
 		"min": lambda x: int(x['price']) >= keyword_list['min'].value,
 		"max": lambda x: int(x['price']) <= keyword_list['max'].value,
-		"date": lambda x: check_date(x['date'], keyword_list['date'].value),
+		"date": lambda x: check_date(x['time'], keyword_list['date'].value),
 		"seller": lambda x: contains_maybe(to_search=x['seller'], to_find=keyword_list['seller'].value),
 		"buyer": lambda x: contains_maybe(to_search=x['buyer'], to_find=keyword_list['buyer'].value),
 		'name': lambda x: contains_maybe(to_search=x['name'], to_find=keyword_list['name'].value),
@@ -35,100 +26,50 @@ def find_equips(keyword_list):
 	}
 	checks= [checks[x] for x in checks if x in keyword_list and keyword_list[x].has_value]
 
-	# get items containing [name] and passing all keyword checks
-	if not checks: raise TemplatedError("no_keywords", keywords=keyword_list)
-	for x in data:
-		if all(chk(x) for chk in checks):
-			ret.append(x)
-
-	if not ret: raise TemplatedError("no_equip_match", keywords=keyword_list)
-	return ret
+	filtered= misc.filter_data(checks, data, keyword_list)
+	filtered.sort(key= lambda x: x['price'], reverse=True)
+	return filtered
 
 
-# @todo: can maybe refactor chunks of to_table into reusable functions
 # convert equip results to a table (string) to print
-# certain columns are only printed if a relevant keyword is passed in (see key_maps)
-def to_table(command, eq_list, keyword_list, default_col_name="default_cols"):
-	# inits
+# certain columns are only printed if a relevant keyword is passed in (see key_map in config)
+def to_table(command, eq_list, keyword_list):
 	CONFIG= utils.load_yaml(utils.AUCTION_CONFIG)
-	eq_list.sort(reverse=True, key=lambda x: int(x['price']))
-
-	header_dict= CONFIG['equip_headers']
-	default_cols= CONFIG[command][default_col_name]
-	key_map= CONFIG['key_map']
 	special_cols= ['thread', 'link', 'date'] # these have to be added last for formatting reasons
 
-	# get keys to pull data from
-	col_names= default_cols
-	for x in keyword_list:
-		if not x or x.name in col_names or x.name not in key_map:
-			continue
-		else:
-			col_names.append(key_map[x.name])
+	# special formatting
+	def format_stats(c): c.max_width= CONFIG[command]['stat_col_width']; return c
+	def format_price(c): c.data= [str(int_to_price(x)) for x in c.data]; return c
+	format_rules= dict(stats=format_stats, price=format_price)
 
-	# @TODO: handle key-errors
-	# create columns
-	cols= []
-	for x in col_names:
-		if x in special_cols: continue # these are handled later
-
-		# create col
-		data= [eq[x] for eq in eq_list]
-		c= Column(data=data, header=header_dict[x])
-
-		# special formatting
-		if x == "stats":
-			c.max_width= CONFIG[command]['stat_col_width']
-		if x == "price":
-			c.data= [str(int_to_price(x)) for x in c.data]
-
-		cols.append(c)
+	# get cols
+	col_names= misc.get_col_names(keyword_list=keyword_list,
+								  default_cols=CONFIG[command]['default_cols'],
+								  key_map=CONFIG['key_map'])
+	cols= misc.get_cols(data=eq_list, special_cols=special_cols, col_names=col_names,
+						format_rules=format_rules, CONFIG=CONFIG)
 
 	# add date col
 	if 'date' in col_names:
 		data= []
 		for x in eq_list:
+			x['date']= epoch_to_date(x['time'])
 			tmp= utils.render(CONFIG['date_template'],x)
 			data.append(tmp)
-		cols.append(Column(data=data, header=header_dict['date']))
+		cols.append(Column(data=data, header=CONFIG['equip_headers']['date']))
 
 	# add link col
 	if 'link' in col_names:
-		cols.append(Column(data=[x['link'] for x in eq_list], header=header_dict['link'], is_link=True))
+		cols.append(Column(data=[x['link'] for x in eq_list],
+						   header=CONFIG['equip_headers']['link'], is_link=True))
 
 	# add thread col
 	if 'thread' in col_names:
-		cols.append(Column(data=[x['thread'] for x in eq_list], header=header_dict['thread'], is_link=True))
+		cols.append(Column(data=[x['thread'] for x in eq_list],
+						   header=CONFIG['equip_headers']['thread'], is_link=True))
 
 	return Table(cols)
 
-
-def get_summary_table(eq_list):
-	# inits
-	CONFIG= utils.load_yaml(utils.AUCTION_CONFIG)
-	groups= CONFIG['summary_groups']
-	header_dict= CONFIG['summary_headers']
-
-	values,counts= [],[]
-	for x in groups:
-		values.append(0)
-		counts.append(0)
-
-		for y in eq_list:
-			if contains(to_search=y['name'], to_find=x):
-				counts[-1]+= 1
-				values[-1]+= int(y['price'])
-
-	total_count= sum(counts)
-	total_value= int_to_price(sum(values))
-	vals= [int_to_price(x) for x in values]
-	cnts= counts
-
-	return Table([
-		Column(data=groups, header=header_dict['equip_category'], trailer=header_dict['total']),
-		Column(data=cnts, header=header_dict['total_count'], trailer=total_count),
-		Column(data=vals, header=header_dict['total_credits'], trailer=total_value),
-	])
 
 
 # Potentially valuable suffix / prefixes

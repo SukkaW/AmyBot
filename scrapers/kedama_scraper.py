@@ -1,5 +1,5 @@
-from utils.parse_utils import price_to_int
-from utils.scraper_utils import get_html, to_epoch
+from utils.parse_utils import price_to_int, to_epoch
+from utils.scraper_utils import get_html
 from bs4 import BeautifulSoup
 import utils, aiohttp, glob, re, asyncio, os, datetime
 
@@ -24,7 +24,7 @@ class KedamaScraper:
 
 	_eq_regex= r"\[href=(.*)\]\[eq_name=(.*)\]" # [href=...][eq_name=Legendary...] --- not part of original, comes from elem.replace_with
 	_lvl_stat_regex= r"\((?:Lv)?[\s.]*(\d+|Unassigned),?\s*(?:(.*?))?\)" # (Lv.406, EDB 65%, Agi 78%, Evd 25%)
-	_seller_regex= r"(?:\(seller:\s*(.*?)\))?" # (seller: rokyroky)
+	_seller_regex= r"\(seller:\s*(.*?)\)" # (seller: rokyroky)
 	_buyer_price_regex= r"(?:(.*) (\d+.?\d*[mkc])\s*#\d+)" # magiclamp 250k #9
 	EQUIP_REGEX= re.compile(r"\s*".join([_eq_regex, _lvl_stat_regex, _seller_regex, _buyer_price_regex]))
 
@@ -135,13 +135,10 @@ class KedamaScraper:
 			it= result['items']
 			eq= result['equips']
 			for x in it+eq:
-				x['date']= timestamp
+				x['time']= timestamp
 				x['auction_number']= auc_num
 				x['thread']= thread_link
 
-			# reordering to be visually consistent
-			eq= [{ y:x[y] for y in ["name","price","level","stats","seller","buyer","auction_number","link","thread"] } for x in eq]
-			# it= [{ y:x[y] for y in ["name","price","level","stats","seller","buyer","auction_number","thread","link"] } for x in eq]
 
 			EQUIPS+= eq
 			ITEMS+= it
@@ -183,9 +180,10 @@ class KedamaScraper:
 
 				quant= int(quant)
 				price= price_to_int(price)
+				unit_price= price // quant
 				if seller is None: seller= "SakiRaFubuKi"
 
-				ret['items'].append(dict(quant=quant,name=name,seller=seller,buyer=buyer,price=price))
+				ret['items'].append(dict(unit_price=unit_price,quantity=quant,name=name,seller=seller,buyer=buyer,price=price))
 
 			else: # mark any unparsed lines
 				is_mat= any(x in l for x in ["Mat","[M0","[M1","[sp"])

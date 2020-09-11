@@ -1,4 +1,6 @@
 # REQUIRES BOT RESTART TO APPLY
+#
+# Settings for cog display name and command alisases
 
 auction:
   cog_name: Auction
@@ -8,10 +10,18 @@ auction:
       name: auction
       short: auc
 
-    bought:
+    bought: # deprecated -- will remove later
       name: bought
       short: bou
 
-    sold:
+    sold: # deprecated -- will remove later
       name: sold
       short: sol
+
+item:
+  cog_name: Item
+  commands:
+
+    item:
+      name: item
+      short: it

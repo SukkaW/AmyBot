@@ -27,7 +27,7 @@ class UpdateCog(PartialCog):
 		CONFIG= utils.load_json_with_default(utils.BOT_CONFIG_FILE, default=False)
 
 		# check hvmarket
-		hvm_check= check_update_log("hvmarket", CONFIG['market_check_frequency'])
+		hvm_check= check_update_log("hvmarket", 3600*CONFIG['market_check_frequency_hours'])
 		if hvm_check:
 			await MarketScraper.scrape()
 		if hvm_check or not os.path.exists(utils.ITEM_FILE):
