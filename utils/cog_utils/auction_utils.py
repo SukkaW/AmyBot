@@ -11,7 +11,8 @@ def find_equips(keyword_list):
 	data= json.load(open(utils.AUCTION_FILE, encoding='utf-8'))
 
 	# check timestamp is after jan 1st of that year
-	check_date= lambda timestamp,year: timestamp >= datetime.datetime(year,1,1).timestamp()
+	def check_date(timestamp, year):
+		return timestamp >= datetime.datetime(year,1,1).timestamp()
 
 	# if keyword passed in, use it to filter results
 	checks= {
@@ -21,8 +22,8 @@ def find_equips(keyword_list):
 		"seller": lambda x: contains_maybe(to_search=x['seller'], to_find=keyword_list['seller'].value),
 		"buyer": lambda x: contains_maybe(to_search=x['buyer'], to_find=keyword_list['buyer'].value),
 		'name': lambda x: contains_maybe(to_search=x['name'], to_find=keyword_list['name'].value),
-		"rare": lambda x: is_rare(x['name'].value),
-		"norare": lambda x: not is_rare(x['name'].value)
+		"rare": lambda x: is_rare(x['name']),
+		"norare": lambda x: not is_rare(x['name'])
 	}
 	checks= [checks[x] for x in checks if x in keyword_list and keyword_list[x].has_value]
 
@@ -33,7 +34,7 @@ def find_equips(keyword_list):
 
 # convert equip results to a table (string) to print
 # certain columns are only printed if a relevant keyword is passed in (see key_map in config)
-def to_table(command, eq_list, keyword_list):
+def to_table(command, eq_list, keyword_list, prop_dct=None):
 	CONFIG= utils.load_yaml(utils.AUCTION_CONFIG)
 	special_cols= ['thread', 'link', 'date'] # these have to be added last for formatting reasons
 
@@ -68,19 +69,17 @@ def to_table(command, eq_list, keyword_list):
 		cols.append(Column(data=[x['thread'] for x in eq_list],
 						   header=CONFIG['equip_headers']['thread'], is_link=True))
 
-	return Table(cols)
+	# add attrs if requested
+	ret= Table(cols)
+	if prop_dct:
+		for x in prop_dct:
+			ret.__dict__[x]= prop_dct[x]
+
+	return ret
 
 
 
 # Potentially valuable suffix / prefixes
 def is_rare(name):
-	rares= ["Slaughter", "Savage", "Mystic", "Shielding", "Charged", "Frugal", "Radiant"]
+	rares= ["Savage", "Mystic", "Shielding", "Charged", "Frugal", "Radiant"]
 	return any(x.lower() in name.lower() for x in rares)
-
-
-if __name__ == "__main__":
-	from utils import pprint_utils, parse_utils
-	from cogs import auction_cog
-
-	query= "peerl surtr 2019 link"
-	# @todo: auction test

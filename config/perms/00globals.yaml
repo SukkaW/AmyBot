@@ -46,7 +46,7 @@ dm:
     help:
       everyone: 0
       exceptions: []
-  Auction:
+  Equip:
     everyone: 0
     exceptions: []
     auction:
@@ -56,6 +56,9 @@ dm:
       everyone: 0
       exceptions: []
     sold:
+      everyone: 0
+      exceptions: []
+    equip:
       everyone: 0
       exceptions: []
   Item:

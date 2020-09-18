@@ -8,19 +8,17 @@
 # gives #S123 / MM-YY
 date_template: |-
   {% set yr = '%02d'|format(DATE[0]) %}
-  #{{TYPE[0].upper()}}{{AUCTION_NUMBER}} / {{'%02d'|format(DATE[1])}}-{{yr}}
+  #({{TYPE[0].upper()}}){{'%02d'|format(DATE[1])}}-{{yr}}
 
 # header names for the equip tables --- see command settings to customize which cols are actually used by default
 equip_headers:
-  date: "# Auction Date"
+  date: "# Date"
   price: Price
-  level: Level
-  stats: Percentiles
+  quantity: Units
+  unit_price: PPU
   seller: Seller
   buyer: Buyer
-  link: ""
-  name: Equip Name
-  thread: ""
+  name: Item Name
 
 # headers for the summary tables
 summary_headers:
@@ -46,23 +44,11 @@ summary_groups:
 
 # ____ Command settings ____
 
-auction:
-  default_cols: [price, level, stats, date]
-  stat_col_width: 20
-  page_limit_server: 2
-  page_limit_dm: 999
-
-buyer: # special subcommand for auction
-  default_cols: [name, price, stats, level, date]
-  stat_col_width: 30
-  page_limit_server: 2
-  page_limit_dm: 999
-
-seller: # special subcommand for auction
-  default_cols: [name, price, stats, level, date]
-  stat_col_width: 20
-  page_limit_server: 2
-  page_limit_dm: 999
+item:
+  default_cols: [quantity, price, unit_price, buyer, seller, date]
+  stat_col_width: 40
+  page_limit_server: 3
+  page_limit_dm: 15
 
 
 
@@ -71,11 +57,14 @@ seller: # special subcommand for auction
 # keywords in query --> keys in data dict
 # helps determine which columns are needed in table printout
 key_map:
-  min: price
-  max: price
-  date: date
+  time: date
   name: name
   seller: seller
   buyer: buyer
-  link: link
-  thread: thread
+  maxq: quantity
+  minq: quantity
+  maxp: price
+  minp: price
+  maxu: unit_price
+  minu: unit_price
+  date: date

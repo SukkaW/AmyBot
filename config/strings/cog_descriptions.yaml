@@ -1,7 +1,11 @@
-Auction:
+"""
+Strings for help command. Any PartialCogs initialized with `hidden = False` (default) must have an entry here.
+"""
+
+Equip:
     description: Shows data from Super's and Kedama's auctions.
     commands:
-        auction:
+        equip:
             description: Show price + stats of past equips
             args: "equip_name [optional: keywords]"
             keywords: [year, link, min, max, rare, norare, seller, buyer]

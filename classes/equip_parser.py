@@ -1,4 +1,4 @@
-from scrapers.equip_scraper import EquipScraper
+from classes.equip_scraper import EquipScraper
 import utils, copy
 
 # Parses equip link for stats and converts to percentile values.

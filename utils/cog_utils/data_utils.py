@@ -2,7 +2,7 @@
 Functions for loading each main data file, creating the file from cached pages if necessary.
 """
 
-from scrapers import SuperScraper, KedamaScraper, MarketScraper, EquipScraper
+from classes import SuperScraper, KedamaScraper, MarketScraper
 from datetime import datetime
 import utils, os
 

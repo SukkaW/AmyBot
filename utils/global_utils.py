@@ -18,10 +18,10 @@ NAME_STRING_FILE= STRING_DIR + "cog_command_names.yaml"
 
 GLOBAL_PERMS_FILE= PERMS_DIR + "00globals.yaml"
 
-AUCTION_CONFIG= COG_CONFIG_DIR + "auction_config.yaml"
+AUCTION_CONFIG= COG_CONFIG_DIR + "equip_cog_config.yaml"
 AUCTION_FILE= DATA_DIR + "merged_auction_data.json"
 
-ITEM_CONFIG= COG_CONFIG_DIR + "item_config.yaml"
+ITEM_CONFIG= COG_CONFIG_DIR + "item_cog_config.yaml"
 ITEM_FILE= DATA_DIR + "merged_item_data.json"
 
 SUPER_DIR= CACHE_DIR + "super/"

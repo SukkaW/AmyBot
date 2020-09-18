@@ -1,18 +1,7 @@
-from discord.ext import commands
 from utils.parse_utils import contains, int_to_price
 from utils.error_utils import TemplatedError
 import utils.pprint_utils as Pprint
 import utils
-
-class PartialCommand(commands.Command):
-	def __init__(self, func, short, **kwargs):
-		self.short= short
-		super().__init__(func, **kwargs)
-
-class PartialCog(commands.Cog):
-	def __init__(self, hidden=False, **kwargs):
-		self.hidden=hidden
-		super().__init__(**kwargs)
 
 
 async def pageify_and_send(ctx, strings, CONFIG, has_link=False, max_len=1900):
@@ -24,23 +13,29 @@ async def pageify_and_send(ctx, strings, CONFIG, has_link=False, max_len=1900):
 					 page_limit_dm=CONFIG['page_limit_dm'],
 					 page_limit_server=CONFIG['page_limit_server'])
 
-def check_for_key(key, keywords, CONFIG):
-		return keywords[key] or 'key' in CONFIG['default_cols']
+def check_for_key(key, keywords, col_names):
+		return keywords[key] or 'key' in col_names
 
 
-def stringify_tables(tables, has_link=False, header_func=None, code=""):
+def stringify_tables(tables, has_link=False, header_func=None, trailer_func=None, code=""):
 	# convert tables to strings
 	table_strings= []
 	for x in tables:
+		suffix= trailer_func(x) if trailer_func is not None else ""
+
+		# If link and no code block explicitly requested, format header for single ticks
 		if has_link and code == "":
 			prefix= f"**{header_func(x)}**" if header_func is not None else ""
 		else:
 			prefix= f"@ {header_func(x)}" if header_func is not None else ""
 
+		# If link, format table for single ticks
 		if has_link:
-			table_strings.append(Pprint.pprint(x, prefix=prefix, code=code)) # add single ticks
+			# add single ticks
+			table_strings.append(Pprint.pprint(x, prefix=prefix, code=code, suffix=suffix))
 		else:
-			table_strings.append(Pprint.pprint(x, prefix=prefix, code=None)) # we'll add code-blocks later
+			# we'll add code-blocks later
+			table_strings.append(Pprint.pprint(x, prefix=prefix, code=None, suffix=suffix))
 
 	return table_strings
 
@@ -158,7 +153,7 @@ def get_col_names(default_cols, keyword_list, key_map):
 	# get keys to pull data from
 	col_names= default_cols
 	for x in keyword_list:
-		if not x or key_map[x.name] in col_names or x.name not in key_map:
+		if not x or x.name not in key_map or key_map[x.name] in col_names:
 			continue
 		col_names.append(key_map[x.name])
 	return col_names

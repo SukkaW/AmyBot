@@ -1,22 +1,27 @@
 # REQUIRES BOT RESTART TO APPLY
 #
 # Settings for cog display name and command alisases
+# Mostly optional, just moves the cog / command names outside the cog's .py file
 
-auction:
-  cog_name: Auction
+equip:
+  cog_name: Equip
   commands:
 
-    auction:
-      name: auction
-      short: auc
+    equip:
+      name: equip
+      short: eq
 
-    bought: # deprecated -- will remove later
+    bought: # moved to equip subcommand -- will wholly remove later
       name: bought
       short: bou
 
-    sold: # deprecated -- will remove later
+    sold: # moved to equip subcommand -- will wholly remove later
       name: sold
       short: sol
+
+    auction: # renamed to equip
+      name: auction
+      short: auct
 
 item:
   cog_name: Item

@@ -2,7 +2,7 @@ from discord.ext import commands
 import utils
 
 # @ todo: check aliases
-# Override for partial matching
+# Override of help command for partial matching
 class PartialHelp(commands.DefaultHelpCommand):
 
 	# Find relevant cogs / cmds with support for partial matching

@@ -1,7 +1,7 @@
 from discord.ext import commands
 from utils.parse_utils import Keyword
-from utils.cog_utils import PartialCog, PartialCommand, categorize
-from utils.cog_utils import item_utils
+from utils.cog_utils import categorize, item_utils
+from classes import PartialCommand, PartialCog
 from utils import cog_utils
 
 import utils, copy
