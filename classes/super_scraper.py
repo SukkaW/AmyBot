@@ -1,7 +1,7 @@
-from utils.scraper_utils import get_html
+from utils.scraper_utils import get_html, get_session
 from utils.parse_utils import price_to_int, to_epoch
 from bs4 import BeautifulSoup
-import utils, aiohttp, json, asyncio, glob, os, re
+import utils, asyncio, glob, os, re
 
 class SuperScraper:
 	SCRAPE_DELAY= 3
@@ -29,7 +29,7 @@ class SuperScraper:
 		# inits
 		CACHE= utils.load_json_with_default(utils.SUPER_CACHE_FILE, default=cls.DEFAULT_CACHE)
 
-		async with aiohttp.ClientSession(headers={'Connection': 'keep-alive'}) as session:
+		async with get_session() as session:
 			# check for new auctions
 			home_html= await get_html(cls.HOME_BASE_LINK, session)
 			home_soup= BeautifulSoup(home_html, 'html.parser')

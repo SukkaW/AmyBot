@@ -1,7 +1,9 @@
 from discord.ext import commands
 from discord.errors import Forbidden
 
-from classes.errors import TemplatedError, ParseError, PermissionError
+from .parse_error import ParseError
+from .permission_error import PermissionError
+from .templated_error import TemplatedError
 
 import utils, traceback, sys
 

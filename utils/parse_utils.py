@@ -1,4 +1,4 @@
-from classes import Keyword
+from classes.keyword import Keyword
 import utils, datetime
 
 def parse_keywords(query, keywords):
@@ -35,7 +35,7 @@ def parse_keywords(query, keywords):
 # These exceptions are then wrapped into a ParseError
 
 def int_to_price(x, numDec=1):
-	sx= str(x)
+	sx= str(x).replace(",","")
 
 	if len(sx) > 6: sx= sx[:-6] + "." + sx[-6:][:numDec] + "m"
 	elif len(sx) > 3: sx = sx[:-3] + "." + sx[-3:][:numDec] + "k"

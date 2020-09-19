@@ -1,5 +1,5 @@
 from utils.parse_utils import contains, int_to_price
-from utils.error_utils import TemplatedError
+from classes.errors import TemplatedError
 import utils.pprint_utils as Pprint
 import utils
 

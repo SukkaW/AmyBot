@@ -1,7 +1,6 @@
 from discord.ext import commands
-from utils.parse_utils import Keyword
 from utils.cog_utils import categorize, item_utils
-from classes import PartialCommand, PartialCog
+from classes import PartialCommand, PartialCog, KeywordList, Keyword
 from utils import cog_utils
 
 import utils, copy
@@ -9,7 +8,7 @@ import utils.parse_utils as Parse
 
 COG_NAMES= utils.load_yaml(utils.NAME_STRING_FILE)['item']
 
-base_keys= Parse.KeywordList([
+base_keys= KeywordList([
 	Parse.get_date_key(),
 	Keyword("name", Parse.to_potential_string, aliases=["name"]),
 	Keyword("seller", Parse.to_potential_string, aliases=["sell", "sold"]),

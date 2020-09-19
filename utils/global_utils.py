@@ -24,6 +24,8 @@ AUCTION_FILE= DATA_DIR + "merged_auction_data.json"
 ITEM_CONFIG= COG_CONFIG_DIR + "item_cog_config.yaml"
 ITEM_FILE= DATA_DIR + "merged_item_data.json"
 
+PREVIEW_CONFIG= COG_CONFIG_DIR + "preview_cog_config.yaml"
+
 SUPER_DIR= CACHE_DIR + "super/"
 SUPER_HTML_DIR= SUPER_DIR + "html/"
 SUPER_CACHE_FILE= SUPER_DIR + "cache.json"

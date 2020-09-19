@@ -1,5 +1,5 @@
 from utils.parse_utils import int_to_price, contains_maybe, epoch_to_date
-from utils.pprint_utils import Column, Table
+from classes import Column, Table
 import utils.cog_utils.misc_utils as misc
 import json, utils, datetime
 

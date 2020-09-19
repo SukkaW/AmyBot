@@ -1,6 +1,7 @@
-"""
-Strings for help command. Any PartialCogs initialized with `hidden = False` (default) must have an entry here.
-"""
+# Strings for help command.
+#
+# Any PartialCogs initialized with `hidden = False` (default) must have an entry here.
+# The name passed as a kwarg to the PartialCog should match the name listed here. Similarly for PartialCommands.
 
 Equip:
     description: Shows data from Super's and Kedama's auctions.
@@ -24,7 +25,7 @@ Item:
     description: Shows item data from HV Market + Super + Kedama.
     commands:
         item:
-            description: blah
+            description: Show transaction history for a certain item (using data from hvmarket + super + kedama)
             args: "item_name [optional: keywords]"
             keywords: [year, link, minq, maxq, seller, buyer, minu, maxu, minp, maxp]
     keywords:
@@ -35,3 +36,11 @@ Item:
         "seller": Show equips with this seller (eg \"... sellerfrotag\")
         "buyer": Show equips with this buyer (eg \"... buyerfrotag\")
         #"thread": Show auction thread link
+
+Preview:
+    description: Link previews
+    commands:
+        preview:
+            description: "(Not an actual command.) Currently supported links include: [equips, forum threads, forum comments, bounties]"
+            args: ""
+            keywords: []

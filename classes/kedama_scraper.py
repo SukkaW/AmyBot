@@ -1,5 +1,5 @@
 from utils.parse_utils import price_to_int, to_epoch
-from utils.scraper_utils import get_html
+from utils.scraper_utils import get_html, get_session
 from bs4 import BeautifulSoup
 import utils, aiohttp, glob, re, asyncio, os, datetime
 
@@ -36,7 +36,7 @@ class KedamaScraper:
 	# get all threads from the WTS forum's search engine
 	@classmethod
 	async def scrape(cls):
-		async with aiohttp.ClientSession(headers={'Connection': 'keep-alive'}) as session:
+		async with get_session() as session:
 			# get search results page
 			search_link= None
 			while search_link is None:
