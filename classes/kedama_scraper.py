@@ -213,6 +213,8 @@ class KedamaScraper:
 		date= datetime.datetime.today().replace(hour=int(hr),minute=int(min))
 		if "Yesterday," in split[0]:
 			date= date.replace(day=date.day-1)
+		elif "Today" in split[0]:
+			pass
 		else:
 			date= date.replace(year=int(split[2][:-1]), # remove comma
 							   month=1+MONTHS.index(split[0]), # month string to 1-indexed int

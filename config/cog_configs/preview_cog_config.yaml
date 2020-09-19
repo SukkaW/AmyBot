@@ -32,4 +32,4 @@ bounty_body_template: |-
 
   {{BODY}}
   ```
-  by [{{USERNAME}}]({{USER_LINK}}) | {{"%02d"|format(YEAR)}}-{{"%02d"|format(MONTH)}}-{{"%02d"|format(DAY)}}
+  by [{{USERNAME}}]({{USER_LINK}}) | {{"%02d-%02d-%02d"|format(YEAR,MONTH,DAY)}}
