@@ -12,7 +12,7 @@ thread_body_template: |-
   ```fix
   {{BODY}}
   ```
-  by [{{USERNAME}}]({{USER_LINK}}) | {{"%02d"|format(YEAR)}}-{{"%02d"|format(MONTH)}}-{{"%02d"|format(DAY)}}
+  by [{{USERNAME}}]({{USER_LINK}}) | {{"%02d"|format(YEAR)}}-{{"%02d"|format(MONTH)}}-{{"%02d"|format(DAY)}} | {{FORUM|truncate(15,True)}}
 
 comment_title_template: |-
   {{TITLE}}
@@ -21,7 +21,7 @@ comment_body_template: |-
   ```fix
   {{BODY}}
   ```
-  by [{{USERNAME}}]({{USER_LINK}}) | {{"%02d"|format(YEAR)}}-{{"%02d"|format(MONTH)}}-{{"%02d"|format(DAY)}}
+  by [{{USERNAME}}]({{USER_LINK}}) | {{"%02d"|format(YEAR)}}-{{"%02d"|format(MONTH)}}-{{"%02d"|format(DAY)}} | {{FORUM|truncate(15,True)}}
 
 bounty_title_template: |-
   {{TITLE}}
