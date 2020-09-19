@@ -1,4 +1,5 @@
 from utils.parse_utils import contains, int_to_price
+from classes import Column
 from classes.errors import TemplatedError
 import utils.pprint_utils as Pprint
 import utils
@@ -109,9 +110,9 @@ def get_summary_table(lst, CONFIG, name_key="name", price_key="price"):
 		groups[header_dict['unknown']] = []
 
 	return Pprint.Table([
-		Pprint.Column(data=groups, header=header_dict['category'], trailer=header_dict['total']),
-		Pprint.Column(data=cnts, header=header_dict['total_count'], trailer=total_count),
-		Pprint.Column(data=vals, header=header_dict['total_credits'], trailer=total_value),
+		Column(data=groups, header=header_dict['category'], trailer=header_dict['total']),
+		Column(data=cnts, header=header_dict['total_count'], trailer=total_count),
+		Column(data=vals, header=header_dict['total_credits'], trailer=total_value),
 	])
 
 def filter_data(checks, data, keyword_list):
@@ -139,7 +140,7 @@ def get_cols(data, special_cols, col_names, CONFIG, format_rules=None):
 
 		# create col
 		d= [eq[x] for eq in data]
-		c= Pprint.Column(data=d, header=header_dict[x])
+		c= Column(data=d, header=header_dict[x])
 
 		# special formatting
 		if x in format_rules:

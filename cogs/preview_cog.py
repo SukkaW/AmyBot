@@ -7,7 +7,7 @@ from utils.pprint_utils import get_pages
 from utils.parse_utils import int_to_price
 from utils.perm_utils import check_perms
 
-import bs4, datetime, discord, utils, asyncio
+import bs4, datetime, discord, utils, asyncio, time
 import regex as re # fix for allowing "infinite lookbehinds"
 
 
@@ -36,6 +36,7 @@ class PreviewCog(PartialCog, name="Preview"):
 		super().__init__(*args, **kwargs)
 		self.bot= bot
 		self.session= get_session()
+		self.last_sent= 0
 
 	# Scan each message for a supported link
 	@commands.Cog.listener()
@@ -50,10 +51,10 @@ class PreviewCog(PartialCog, name="Preview"):
 		try: check_perms(ctx)
 		except PermissionError:	return
 
-		await self.scan_equip(ctx)
-		await self.scan_bounty(ctx)
-		await self.scan_thread(ctx)
-		await self.scan_comment(ctx)
+		for x in [self.scan_equip, self.scan_bounty, self.scan_thread, self.scan_comment]:
+			result= await x(ctx)
+			if result:
+				self.last_sent= time.time()
 
 	async def scan_equip(self, ctx):
 		pass
@@ -94,6 +95,9 @@ class PreviewCog(PartialCog, name="Preview"):
 			title= split[0]
 			desc= split[1]
 
+		# get sub-forum name
+		forum= soup.find(id="navstrip").find_all("a")[-1].get_text()
+
 		# get everything else
 		soup= bs4.BeautifulSoup(html, 'html.parser').find("table", cellspacing="1")
 		dct= await self._parse_post(soup)
@@ -109,7 +113,8 @@ class PreviewCog(PartialCog, name="Preview"):
 			username=dct['username'],
 			user_link=dct['user_link'],
 			body=body,
-			year=dct['year'], month= dct['month'], day=dct['day']
+			year=dct['year'], month= dct['month'], day=dct['day'],
+			forum=forum
 		)
 
 		embed= discord.Embed(
@@ -120,6 +125,7 @@ class PreviewCog(PartialCog, name="Preview"):
 		embed.set_thumbnail(url=dct['thumbnail'])
 
 		await ctx.send(embed=embed)
+		return True
 
 
 	async def scan_comment(self, ctx):
@@ -157,6 +163,9 @@ class PreviewCog(PartialCog, name="Preview"):
 			title= split[0]
 			desc= split[1]
 
+		# get sub-forum name
+		forum= soup.find(id="navstrip").find_all("a")[-1].get_text()
+
 		# get everything else
 		soup= bs4.BeautifulSoup(html, 'html.parser').find(id=f"post-main-{post_id}").parent.parent
 		dct= await self._parse_post(soup)
@@ -171,7 +180,8 @@ class PreviewCog(PartialCog, name="Preview"):
 			username=dct['username'],
 			user_link=dct['user_link'],
 			body=body,
-			year=dct['year'], month= dct['month'], day=dct['day']
+			year=dct['year'], month= dct['month'], day=dct['day'],
+			forum=forum
 		)
 
 		embed= discord.Embed(
@@ -182,6 +192,7 @@ class PreviewCog(PartialCog, name="Preview"):
 		embed.set_thumbnail(url=dct['thumbnail'])
 
 		await ctx.send(embed=embed)
+		return True
 
 	async def scan_bounty(self, ctx):
 		# inits
@@ -277,6 +288,7 @@ class PreviewCog(PartialCog, name="Preview"):
 		embed.set_thumbnail(url=thumbnail)
 
 		await ctx.send(embed=embed)
+		return True
 
 
 	# elem.get_text() wont print correctly due to bbcode formatting
@@ -390,7 +402,7 @@ class PreviewCog(PartialCog, name="Preview"):
 		if CONFIG is None:
 			CONFIG= utils.load_yaml(utils.PREVIEW_CONFIG)
 
-		if len(title) > title[:CONFIG['max_title_length']]:
+		if len(title) > CONFIG['max_title_length']:
 			title= title[:CONFIG['max_title_length']-3] + "..."
 		title= title.replace("\n"," ")
 		return title
