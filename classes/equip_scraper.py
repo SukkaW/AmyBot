@@ -1,6 +1,6 @@
 from utils.scraper_utils import get_html, get_session
 from bs4 import BeautifulSoup
-import aiohttp, json, utils, asyncio
+import aiohttp, json, utils, asyncio, re
 
 """
 For pulling the equip-stat ranges from https://reasoningtheory.net/viewranges \
@@ -29,7 +29,7 @@ class EquipScraper:
 		return session
 
 	@classmethod
-	async def scrape_raw_stats(cls, link, session=None, max_tries=3, try_delay=3):
+	async def scrape_equip(cls, link, session=None, max_tries=3, try_delay=3):
 		if session is None:
 			session= cls.do_hv_login()
 
@@ -60,8 +60,19 @@ class EquipScraper:
 			cat= ep.find("div").text
 			stats[cat]= cls._get_other_stats(ep)
 
+		# get forge upgrades
+		forging= cls._get_upgrades(soup.find("span", id="eu"))
+
+		# get iw enchants
+		enchants= cls._get_upgrades(soup.find("span", id="ep"))
+
 		# clean up stats and return
-		return name,cls._clean_stat_dict(stats)
+		return dict(
+			name=name,
+			raw_stats=cls._clean_stat_dict(stats),
+			forging=forging,
+			enchants=enchants
+		)
 
 
 	@staticmethod
@@ -85,6 +96,18 @@ class EquipScraper:
 			base= float(d['title'].replace("Base: ",""))
 			d.span.clear();	name= d.text.replace(" +","")
 			ret[name]= base
+
+		return ret
+
+	@staticmethod
+	def _get_upgrades(span):
+		ret= dict()
+		for x in span.find_all("span"):
+			tmp= re.search(r"(.*)(?: Lv\.(\d+))?", x.get_text()) # eg "Strength Bonus Lv.17"
+			name,level= tmp.groups()
+
+			if level is None: level= 0 # eg "Hollowforged"
+			ret[name]=level
 
 		return ret
 

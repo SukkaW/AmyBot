@@ -33,3 +33,24 @@ bounty_body_template: |-
   {{BODY}}
   ```
   by [{{USERNAME}}]({{USER_LINK}}) | {{"%02d-%02d-%02d"|format(YEAR,MONTH,DAY)}}
+
+embed_template: |-
+  {% set  %}
+
+  content: |-
+    ```
+    {{NAME}}
+    ```
+    -
+    {{DESCRIPTION}}
+    -
+
+  thumbnail:
+    url: {{EQUIP_IMAGE_URL}}
+
+  footer:
+    - icon_url: {{AVATAR_URL}}
+    - text: Owned by {{USER}} | {{STATUS}}
+
+  fields:
+    - name: Attack

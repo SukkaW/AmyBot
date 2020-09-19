@@ -2,7 +2,32 @@ from utils.scraper_utils import get_session, get_html
 from utils.pprint_utils import get_pages
 from utils.parse_utils import int_to_price
 from classes.errors import TemplatedError
+from classes import EquipScraper, EquipParser
 import utils, bs4, datetime, discord, re, asyncio
+
+async def parse_equip_match(equip_id, equip_key, session):
+	# inits
+	CONFIG= utils.load_yaml(utils.PREVIEW_CONFIG)
+	parser= EquipParser()
+
+	# get stats
+	equip_link= f"hentaiverse.org/equip/{equip_id}/{equip_key}"
+	result= await EquipScraper.scrape_equip(equip_link, session=session)
+	percentiles= parser.raw_stat_to_percentile(result['name'], result['raw_stats'])
+
+	# get preview
+	render_params= dict(
+		name=result['name'],
+		raw_stats= result['raw_stats'],
+		percentiles= percentiles,
+		forging= result['forging'],
+		encahnts= result['enchants'],
+		link= equip_link
+	)
+	embed_dict= utils.render(CONFIG['equip_template'], render_params)
+	embed= discord.Embed.from_dict(embed_dict)
+
+	return embed
 
 async def parse_thread_match(thread_id, session):
 	# inits
@@ -33,7 +58,7 @@ async def parse_thread_match(thread_id, session):
 	body= _clean_body(dct['text'], CONFIG=CONFIG)
 	title= _clean_title(title, CONFIG=CONFIG)
 
-	# send preview
+	# get preview
 	render_params= dict(
 		title=title,
 		sub_title=desc,
@@ -82,7 +107,7 @@ async def parse_comment_match(thread_id, post_id, session):
 	body= _clean_body(dct['text'], CONFIG=CONFIG)
 	title= _clean_title(title, CONFIG=CONFIG)
 
-	# send preview
+	# get preview
 	render_params= dict(
 		title=title,
 		username=dct['username'],
@@ -156,7 +181,7 @@ async def parse_bounty_match(bounty_id, session, try_delay=5):
 	body= _clean_body(text, CONFIG=CONFIG)
 	title= _clean_title(title, CONFIG=CONFIG)
 
-	# send preview
+	# get preview
 	render_params= dict(
 		title=title,
 		username=username,
