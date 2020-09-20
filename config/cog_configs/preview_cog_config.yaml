@@ -44,9 +44,10 @@ bounty_body_template: |-
 equip:
   min_percentile: 75 # show non-mandatory stats above this percentile
 
-  melee_weps: &melee [attack damage] # helper node
+  melee_weps: &m_wep [attack damage] # helper node
+  melee_armor: &m_armor [strength, dex, end] # helper node
   mandatory_stats: # "(partial) equip name" : [list of (partial) mandatory stat names]
-    "": [block]
+    "": [block, parry]
     staff: [magic damage, depr prof, int, wis]
 
     fiery staff: [fire edb]
@@ -67,14 +68,19 @@ equip:
     the demon: [forb prof]
     the heaven: [div prof]
 
-    waki: *melee
-    axe: *melee
-    club: *melee
-    rapier: *melee
-    sword: *melee
-    estoc: *melee
-    mace: *melee
-    katana: *melee
+    waki: *m_wep
+    axe: *m_wep
+    club: *m_wep
+    rapier: *m_wep
+    sword: *m_wep
+    estoc: *m_wep
+    mace: *m_wep
+    katana: *m_wep
+
+    leather: *m_armor
+    shade: *m_armor
+    plate: *m_armor
+    power: *m_armor
 
   # keys must match table_categories --- also keep "other"
   table_headers:
