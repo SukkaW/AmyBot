@@ -44,18 +44,19 @@ class EquipParser:
 
 		return data
 
-	def raw_stat_to_percentile(self, name, stat_dct):
+	def raw_stat_to_percentile(self, name, raw_stats):
 		ret= {}
+		eq_ranges= self.get_ranges(name)
 
-		for st in stat_dct:
+		for st in raw_stats:
 			st_r= st
-			if st_r not in self.RANGES: st_r= st.replace(" MIT", "").replace(" PROF", "")
-			if st_r not in self.RANGES or self.RANGES[st_r]['max'] == 0:
+			if st_r not in eq_ranges: st_r= st.replace(" MIT", "").replace(" PROF", "")
+			if st_r not in eq_ranges or eq_ranges[st_r]['max'] == 0:
 				print(f"STAT WARNING: [{st_r}] is an invalid stat for [{name}]")
 				continue
 
-			numer= stat_dct[st] - self.RANGES[st_r]['min']
-			denom= (self.RANGES[st_r]['max'] - self.RANGES[st_r]['min'])
+			numer= raw_stats[st] - eq_ranges[st_r]['min']
+			denom= (eq_ranges[st_r]['max'] - eq_ranges[st_r]['min'])
 			ret[st]= 100*numer/denom
 
 		return ret

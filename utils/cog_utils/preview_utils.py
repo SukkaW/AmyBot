@@ -15,11 +15,11 @@ async def parse_equip_match(equip_id, equip_key, session, level=0):
 	# get stats
 	equip_link= f"https://hentaiverse.org/equip/{equip_id}/{equip_key}"
 	result= await EquipScraper.scrape_equip(equip_link, session=session)
-	percentiles= parser.raw_stat_to_percentile(result['name'], result['raw_stats'])
+	percentiles= parser.raw_stat_to_percentile(result['name'], result['base_stats'])
 
 	# get preview
 	forge_level= 0
-	if results['forging']:
+	if result['forging']:
 		forge_level= statistics.mode(result['forging'].values())
 
 	if level == 2:
@@ -30,35 +30,72 @@ async def parse_equip_match(equip_id, equip_key, session, level=0):
 
 		else: # show only mandatory / high stats
 			def check(stat_name):
-				is_mandatory= any(contains(stat_name, x) for x in CONFIG['mandatory_stats'])
-				is_high= percentiles[stat_name] >= CONFIG['min_percentile']
+				is_mandatory= False
+				for x in CONFIG['mandatory_stats']:
+					if contains(result['name'], x):
+						is_mandatory= is_mandatory or any(contains(stat_name, y) for y in CONFIG['mandatory_stats'][x])
+
+
+				if stat_name in ['Interference', 'Burden']:
+					is_high= percentiles[stat_name] <= 100-CONFIG['min_percentile']
+				else:
+					is_high= percentiles[stat_name] >= CONFIG['min_percentile']
+
 				return is_high or is_mandatory
+
 			percentiles= { x:y for x,y in percentiles.items() if check(x) }
+
+		# round
+		percentiles= { x:round(y) for x,y in percentiles.items() }
 
 		# categorize
 		cats= { c:[] for c in CONFIG['table_categories'] }
 		for stat in percentiles:
 			abbrv= CONFIG['abbreviations'][stat] if stat in CONFIG['abbreviations'] else stat
-			string= f"{percentiles[stat]}% {abbrv}"
+			string= f"{percentiles[stat]}%"
+			string= f"{string.ljust(3)} {abbrv}"
 
 			# add stat to cat if mentioned in that cat, else "other"
 			for c in CONFIG['table_categories']:
 				if any(contains(stat, x) for x in CONFIG['table_categories'][c]):
 					cats[c].append(string)
+					break
 			else:
 				cats['other'].append(string)
 
 		# get table columns
-		cols= []
-		for x in CONFIG['table_headers']:
-			cols.append(Column(data=cats[x], header=x))
+		tmp= []
+		for x,y in CONFIG['table_headers'].items():
+			if cats[x]:
+				tmp.append(dict(data=cats[x], header=y))
 
+		# ensure cols same length
+		max_len= max(len(x['data']) for x in tmp)
+		for x in tmp:
+			x['data']+= [""]*(max_len-len(x['data']))
+
+		cols= [Column(**x) for x in tmp]
+
+		# forging
 		suffix= ""
-		if forge_level > 0: suffix= f"# Forge {forge_level}"
-		for name,lvl in result['enchants'].items():
-			suffix+= f", {name} {lvl}"
+		if forge_level > 0:
+			suffix= f"# Forge {forge_level}"
 
-		preview= pprint(cols, prefix=f"@ {result['name']}", suffix=suffix, code="py", borders=True)
+		# IW potencies
+		tmp= []
+		for name,lvl in result['enchants'].items():
+			if lvl > 0:
+				tmp.append(f"{name} {lvl}")
+			else:
+				tmp.append(name)
+
+		# concatenate
+		if suffix and result['enchants']:
+			suffix+= ", "
+		suffix+= ", ".join(tmp)
+
+		# return
+		preview= pprint(cols, prefix=f"@ {result['name']}", suffix=suffix, code=None, borders=True)
 		return preview
 
 async def parse_thread_match(thread_id, session):

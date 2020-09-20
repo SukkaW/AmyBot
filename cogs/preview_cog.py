@@ -7,7 +7,7 @@ from utils.perm_utils import check_perms
 from utils.cog_utils import preview_utils
 from utils.pprint_utils import get_pages
 
-import time, re
+import time, re, discord
 
 
 # @todo: max previews per message

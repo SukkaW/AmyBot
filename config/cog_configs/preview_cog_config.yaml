@@ -42,54 +42,77 @@ bounty_body_template: |-
 #  spell damage is suffixed with EDB
 #  proficiency is suffixed with PROF
 equip:
-  min_percentile: 65 # show non-mandatory stats above this percentile
+  min_percentile: 75 # show non-mandatory stats above this percentile
 
-  melee_weps: &melee [adb, crit] # helper node
+  melee_weps: &melee [attack damage] # helper node
   mandatory_stats: # "(partial) equip name" : [list of (partial) mandatory stat names]
     "": [block]
-    "staff": [mdb, depr prof]
+    staff: [magic damage, depr prof, int, wis]
 
-    "fiery staff": [fire edb]
-    "arctic staff": [cold edb]
-    "temp staff": [wind edb]
-    "shock staff": [elec edb]
-    "hallowed staff": [holy edb]
-    "demon staff": [dark edb]
+    fiery staff: [fire edb]
+    arctic staff: [cold edb]
+    temp staff: [wind edb]
+    shock staff: [elec edb]
+    hallowed staff: [holy edb]
+    demon staff: [dark edb]
 
-    "surtr": [fire edb, elem prof]
-    "nifl": [cold edb, elem prof]
-    "freyr": [wind edb, elem prof]
-    "mjo": [elec edb, elem prof]
-    "heimd": [holy edb, div prof]
-    "fenr": [dark edb, forb prof]
+    surtr: [fire edb, elem prof]
+    nifl: [cold edb, elem prof]
+    freyr: [wind edb, elem prof]
+    mjo: [elec edb, elem prof]
+    heimd: [holy edb, div prof]
+    fenr: [dark edb, forb prof]
 
-    "the elem": [elem prof]
-    "the demon": [forb prof]
-    "the heaven": [div prof]
+    the elem: [elem prof]
+    the demon: [forb prof]
+    the heaven: [div prof]
 
-    "waki": *melee
-    "axe": *melee
-    "club": *melee
-    "rapier": *melee
-    "sword": *melee
-    "estoc": *melee
-    "mace": *melee
-    "katana": *melee
+    waki: *melee
+    axe: *melee
+    club: *melee
+    rapier: *melee
+    sword: *melee
+    estoc: *melee
+    mace: *melee
+    katana: *melee
 
   # keys must match table_categories --- also keep "other"
   table_headers:
     offensive: Offensive
     defensive: Defensive
+    supportive: Supportive
     pabs: PABs
     other: Other
 
   # keys must match table_headers
   table_categories:
-    offensive: []
-    defensive: []
-    pabs: []
+    offensive: [damage, edb, crit]
+    defensive: [parry, mit]
+    supportive: [prof, accuracy]
+    pabs: [wisdom, intelligence, dexterity, strength, agility, endurance]
     other: []
 
-  # keys are (exact, case-insensitive) stat names and values are case-sensitive abbreviations
+  # case sensitive mappings (html name --> desired abbreviation)
   abbreviations:
-    "block chance": BLK
+    Block Chance: BLK
+    Attack Damage: ADB
+    Magic Damage: MDB
+    Attack Crit Chance: Pcrit
+    Magic Crit Chance: Mcrit
+    Attack Accuracy: Pacc
+    Magic Accuracy: Macc
+
+    Elemental PROF: Elem Prof
+    Supportive PROF: Supp Prof
+    Deprecating PROF: Depr Prof
+    Divine PROF: Holy Prof
+    Forbidden PROF: Dark Prof
+
+    Wisdom: WIS
+    Intelligence: INT
+    Agility: AGI
+    Endurance: END
+    Strength: STR
+    Dexterity: DEX
+
+    Interference: Intf.

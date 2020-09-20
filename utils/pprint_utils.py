@@ -6,7 +6,7 @@ def pprint(columns, prefix="", suffix="", code=None, v_sep="|", h_sep="-", v_pad
 
 	columns= columns.columns if isinstance(columns, Table) else columns
 	padding= "".join([" "]*v_pad)
-	v_sep= padding + v_sep + padding
+	v_sep_pad= padding + v_sep + padding
 
 	not_link= [x for x in columns if not x.is_link]
 	is_link= [x for x in columns if x.is_link]
@@ -20,11 +20,13 @@ def pprint(columns, prefix="", suffix="", code=None, v_sep="|", h_sep="-", v_pad
 
 	# horiz separator for header
 	if h_sep:
-		h_sep_length= sum(x.max_width for x in not_link) + len(not_link)*len(v_sep) - padding
-		if borders: h_sep_length+= len(v_sep) - padding
+		h_sep_length= sum(x.max_width for x in not_link) + len(not_link) * len(v_sep_pad) - v_pad
+		if borders: h_sep_length+= len(v_sep_pad) - v_pad
 
 		h_div= "".join(["-"] * h_sep_length)
-		if borders: h_div= f"{corner} " + h_div[2:-2] + f" {corner}"
+		if borders:
+			tmp= len(corner)+1
+			h_div= f"{corner} " + h_div[tmp:-tmp] + f" {corner}"
 
 		if single_tick: h_div= f"`{h_div}`"
 
@@ -33,8 +35,11 @@ def pprint(columns, prefix="", suffix="", code=None, v_sep="|", h_sep="-", v_pad
 	# headers
 	if any(x.header for x in columns):
 		tmp= ""
+
+		if borders: tmp+= v_sep + padding
+
 		for col in not_link:
-			tmp+= col.header.ljust(col.max_width) + v_sep
+			tmp+= col.header.ljust(col.max_width) + v_sep_pad
 		if single_tick: tmp= f"`{tmp}`"
 
 		ret+= tmp + "\n"
@@ -43,8 +48,11 @@ def pprint(columns, prefix="", suffix="", code=None, v_sep="|", h_sep="-", v_pad
 	# data
 	for i in range(len(not_link[0])):
 		tmp= ""
+
+		if borders: tmp+= v_sep + padding
+
 		for col in not_link:
-			tmp+= col[i].ljust(col.max_width) + v_sep
+			tmp+= col[i].ljust(col.max_width) + v_sep_pad
 		if single_tick: tmp= f"`{tmp}`"
 
 		for col in is_link:
@@ -55,10 +63,12 @@ def pprint(columns, prefix="", suffix="", code=None, v_sep="|", h_sep="-", v_pad
 	# trailers
 	if any(x.trailer for x in columns):
 		tmp= ""
+
+		if borders: tmp+= v_sep_pad + padding
 		if h_sep: ret+= h_div + "\n"
 
 		for col in not_link:
-			tmp+= col.trailer.ljust(col.max_width) + v_sep
+			tmp+= col.trailer.ljust(col.max_width) + v_sep_pad
 		if single_tick: tmp= f"`{tmp}`"
 
 		ret+= tmp + "\n"
