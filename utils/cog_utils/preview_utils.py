@@ -48,38 +48,8 @@ async def parse_equip_match(equip_id, equip_key, session, level=0):
 		# round
 		percentiles= { x:round(y) for x,y in percentiles.items() }
 
-		# categorize
-		max_len= max(len(str(percentiles[x])) for x in percentiles)
-		cats= { c:[] for c in CONFIG['table_categories'] }
-		for stat in percentiles:
-			abbrv= CONFIG['abbreviations'][stat] if stat in CONFIG['abbreviations'] else stat
-
-			# add stat to cat if mentioned in that cat, else "other"
-			for c in CONFIG['table_categories']:
-				if any(contains(stat, x) for x in CONFIG['table_categories'][c]):
-					cats[c].append((str(percentiles[stat]), abbrv))
-					break
-			else:
-				cats['other'].append((str(percentiles[stat]), abbrv))
-
-		# convert entries to strings
-		for c in cats:
-			if not cats[c]: continue
-			max_len= max(len(x[0]) for x in cats[c])
-			cats[c]= [f"{x[0].rjust(max_len)}% {x[1]}" for x in cats[c]]
-
-		# get table columns
-		tmp= []
-		for x,y in CONFIG['table_headers'].items():
-			if cats[x]:
-				tmp.append(dict(data=cats[x], header=y))
-
-		# ensure cols same length
-		max_len= max(len(x['data']) for x in tmp)
-		for x in tmp:
-			x['data']+= [""]*(max_len-len(x['data']))
-
-		cols= [Column(**x) for x in tmp]
+		# table cols
+		cols= _get_equip_cols(percentiles, CONFIG)
 
 		# forging
 		suffix= ""
@@ -101,7 +71,7 @@ async def parse_equip_match(equip_id, equip_key, session, level=0):
 
 		# other info
 		tmp= []
-		tmp= ["Tradeable" if result['tradeable'] else "Soulbound"]
+		tmp+= ["Tradeable" if result['tradeable'] else "Soulbound"]
 		tmp+= [f"Owned by {result['owner']}"]
 		if result['level']: tmp.insert(0, f"Level {result['level']}")
 
@@ -109,8 +79,48 @@ async def parse_equip_match(equip_id, equip_key, session, level=0):
 		suffix+= "# " + " • ".join(tmp)
 
 		# return
-		preview= pprint(cols, prefix=f"@ {result['name']}", suffix=suffix, code=None, borders=True)
+		if level == 1:
+			preview= pprint(cols, prefix=f"@ {result['name']}", suffix=suffix, code=None, borders=True)
+		else:
+			tmp= [y.strip() for x in cols for y in x.data if y.strip()]
+			preview= f"@ {result['name']}\n{', '.join(tmp)}\n{suffix}\n"
+
 		return preview
+
+def _get_equip_cols(percentiles, CONFIG):
+	# categorize
+	max_len= max(len(str(percentiles[x])) for x in percentiles)
+	cats= { c:[] for c in CONFIG['table_categories'] }
+	for stat in percentiles:
+		abbrv= CONFIG['abbreviations'][stat] if stat in CONFIG['abbreviations'] else stat
+
+		# add stat to cat if mentioned in that cat, else "other"
+		for c in CONFIG['table_categories']:
+			if any(contains(stat, x) for x in CONFIG['table_categories'][c]):
+				cats[c].append((str(percentiles[stat]), abbrv))
+				break
+		else:
+			cats['other'].append((str(percentiles[stat]), abbrv))
+
+	# convert entries to strings
+	for c in cats:
+		if not cats[c]: continue
+		max_len= max(len(x[0]) for x in cats[c])
+		cats[c]= [f"{x[0].rjust(max_len)}% {x[1]}" for x in cats[c]]
+
+	# get table columns
+	tmp= []
+	for x,y in CONFIG['table_headers'].items():
+		if cats[x]:
+			tmp.append(dict(data=cats[x], header=y))
+
+	# ensure cols same length
+	max_len= max(len(x['data']) for x in tmp)
+	for x in tmp:
+		x['data']+= [""]*(max_len-len(x['data']))
+
+	cols= [Column(**x) for x in tmp]
+	return cols
 
 async def parse_thread_match(thread_id, session):
 	# inits

@@ -74,7 +74,7 @@ class PreviewCog(PartialCog, name="Preview"):
 		texts= [x for x in msgs if isinstance(x,str)]
 		embeds= [x for x in msgs if isinstance(x, discord.Embed)]
 
-		for x in get_pages(texts, no_orphan=10):
+		for x in get_pages(texts, no_orphan=10, join_char="\n"):
 			await ctx.send(f"```py\n{x}\n```")
 
 		for x in embeds:
