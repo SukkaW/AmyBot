@@ -49,19 +49,24 @@ async def parse_equip_match(equip_id, equip_key, session, level=0):
 		percentiles= { x:round(y) for x,y in percentiles.items() }
 
 		# categorize
+		max_len= max(len(str(percentiles[x])) for x in percentiles)
 		cats= { c:[] for c in CONFIG['table_categories'] }
 		for stat in percentiles:
 			abbrv= CONFIG['abbreviations'][stat] if stat in CONFIG['abbreviations'] else stat
-			string= f"{percentiles[stat]}%"
-			string= f"{string.ljust(3)} {abbrv}"
 
 			# add stat to cat if mentioned in that cat, else "other"
 			for c in CONFIG['table_categories']:
 				if any(contains(stat, x) for x in CONFIG['table_categories'][c]):
-					cats[c].append(string)
+					cats[c].append((str(percentiles[stat]), abbrv))
 					break
 			else:
-				cats['other'].append(string)
+				cats['other'].append((str(percentiles[stat]), abbrv))
+
+		# convert entries to strings
+		for c in cats:
+			if not cats[c]: continue
+			max_len= max(len(x[0]) for x in cats[c])
+			cats[c]= [f"{x[0].rjust(max_len)}% {x[1]}" for x in cats[c]]
 
 		# get table columns
 		tmp= []
