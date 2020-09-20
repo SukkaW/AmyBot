@@ -70,7 +70,7 @@ Equip:
     everyone: 0
     exceptions: []
 Preview:
-  everyone: 0
+  everyone: *allow
   exceptions: []
   preview:
     everyone: 0

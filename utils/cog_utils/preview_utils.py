@@ -7,6 +7,21 @@ from classes import EquipScraper, EquipParser, Column
 
 import utils, bs4, datetime, discord, re, asyncio, statistics
 
+# less redundancy
+def scan_decorator(key):
+	def outer(func):
+		async def dec(self, ctx):
+			matches= self.get_matches(ctx.message.content, key)
+
+			for x in matches:
+				await ctx.trigger_typing()
+				embed= await func(self, x)
+				if embed: await ctx.send(embed=embed)
+
+		return dec
+
+	return outer
+
 async def parse_equip_match(equip_id, equip_key, session, level=0):
 	# inits
 	CONFIG= utils.load_yaml(utils.PREVIEW_CONFIG)['equip']
@@ -20,7 +35,8 @@ async def parse_equip_match(equip_id, equip_key, session, level=0):
 	# get preview
 	forge_level= 0
 	if result['forging']:
-		forge_level= statistics.mode(result['forging'].values())
+		vals= [x for x in result['forging'].values() if x > 5]
+		forge_level= statistics.median(vals)
 
 	if level == 2:
 		pass # @todo: super-expanded equip preview

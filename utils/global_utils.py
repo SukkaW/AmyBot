@@ -26,6 +26,8 @@ ITEM_FILE= DATA_DIR + "merged_item_data.json"
 
 PREVIEW_CONFIG= COG_CONFIG_DIR + "preview_cog_config.yaml"
 
+RECTION_CONFIG= COG_CONFIG_DIR + "reaction_cog_config.yaml"
+
 SUPER_DIR= CACHE_DIR + "super/"
 SUPER_HTML_DIR= SUPER_DIR + "html/"
 SUPER_CACHE_FILE= SUPER_DIR + "cache.json"

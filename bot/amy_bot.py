@@ -2,7 +2,7 @@ from discord.ext import commands
 from classes import PartialCommand, PartialHelp
 from classes.errors import ErrorHandler
 from utils.perm_utils import check_perms
-from cogs import UpdateCog, EquipCog, ItemCog, PreviewCog
+from cogs import UpdateCog, EquipCog, ItemCog, PreviewCog, ReactionCog
 
 """
 All cogs must subclass PartialCog and all commands must subclass PartialCommand. 
@@ -18,7 +18,10 @@ class AmyBot(commands.Bot, ErrorHandler):
 		self.add_cog(EquipCog())
 		self.add_cog(UpdateCog())
 		self.add_cog(ItemCog())
+
 		self.add_cog(PreviewCog(self))
+		self.add_cog(ReactionCog(self))
+
 		self.add_check(check_perms)
 
 

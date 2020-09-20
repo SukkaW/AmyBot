@@ -76,45 +76,35 @@ class PreviewCog(PartialCog, name="Preview"):
 		embeds= [x for x in msgs if isinstance(x, discord.Embed)]
 
 		for x in get_pages("".join(texts), no_orphan=10, join_char="\n"):
-			await ctx.send(x)
+			if x: await ctx.send(x)
 
 		for x in embeds:
 			await ctx.send(embed=x)
 
-	async def scan_thread(self, ctx):
-		matches= self.get_matches(ctx.message.content, "thread")
 
-		for x in matches:
-			await ctx.trigger_typing()
-			has_excl, thread_id= x
-			embed= await preview_utils.parse_thread_match(thread_id=thread_id,
-														  session=self.session)
-			if embed:
-				await ctx.send(embed=embed)
+	@preview_utils.scan_decorator(key="thread")
+	async def scan_thread(self, match):
+		has_excl, thread_id= match
+		embed= await preview_utils.parse_thread_match(thread_id=thread_id,
+													  session=self.session)
+		return embed
 
 
-	async def scan_comment(self, ctx):
-		matches= self.get_matches(ctx.message.content, "comment")
-
-		for x in matches:
-			has_excl, thread_id, post_id= x
-			embed= await preview_utils.parse_comment_match(thread_id=thread_id,
-						  								   post_id=post_id,
-														   session=self.session)
-			if embed:
-				await ctx.send(embed=embed)
+	@preview_utils.scan_decorator(key="comment")
+	async def scan_comment(self, match):
+		has_excl, thread_id, post_id= match
+		embed= await preview_utils.parse_comment_match(thread_id=thread_id,
+													   post_id=post_id,
+													   session=self.session)
+		return embed
 
 
-	async def scan_bounty(self, ctx):
-		matches= self.get_matches(ctx.message.content, "bounty")
-
-		for x in matches:
-			await ctx.trigger_typing()
-			has_excl, bounty_id= x
-			embed= await preview_utils.parse_bounty_match(bounty_id=bounty_id,
-													      session=self.session)
-			if embed:
-				await ctx.send(embed=embed)
+	@preview_utils.scan_decorator(key="bounty")
+	async def scan_bounty(self, match):
+		has_excl, bounty_id= match
+		embed= await preview_utils.parse_bounty_match(bounty_id=bounty_id,
+													  session=self.session)
+		return embed
 
 
 	def get_matches(self, string, regex_key):
