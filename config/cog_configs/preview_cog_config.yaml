@@ -116,3 +116,6 @@ equip:
     Dexterity: DEX
 
     Interference: Intf.
+
+    Physical Mitigation: Pmit
+    Magical Mitigation: Mmit

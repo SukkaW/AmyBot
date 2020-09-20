@@ -160,14 +160,19 @@ class EquipScraper:
 	def _unforge(cls, eq_name, stats, forging, potency_info, enchants):
 		def clean_upgrade_name(st):
 			reps= {
+				"Physical Defense": "Physical Mitigation",
+				"Magical Defense": "Magical Mitigation",
 				"Magical": "Magic",
 				"Proficiency": "PROF",
 				"Spell Damage": "EDB",
 				" Bonus": "",
-				"Hit Chance": "Accuracy"
+				"Hit Chance": "Accuracy",
+				"Mitigation": "MIT"
 			}
 			for x,y in reps.items():
-				st= st.replace(x, y)
+				if x in st:
+					st= st.replace(x, y)
+					break
 			return st
 
 		for st,level in forging.items():
