@@ -25,25 +25,25 @@ class EquipScraper:
 		CONFIG= utils.load_json_with_default(utils.BOT_CONFIG_FILE,default=False)
 		if session is None:
 			session= get_session()
-		session.get(CONFIG['hv_login_link'])
+		await session.get(CONFIG['hv_login_link'])
 		return session
 
 	@classmethod
 	async def scrape_equip(cls, link, session=None, max_tries=3, try_delay=3):
 		if session is None:
-			session= cls.do_hv_login()
+			session= await cls.do_hv_login()
 
 		# get equip page
-		async with session:
-			html= get_html(link, session)
+		html= await get_html(link, session)
 
-			tries= 1
-			while cls.LOGIN_FAIL_STRING in html and tries < max_tries:
-				await asyncio.sleep(try_delay)
-				html= get_html(link, session)
-				tries+= 1
-			if cls.LOGIN_FAIL_STRING in html:
-				raise Exception(f"Failed to retrieve equip page after {max_tries} tries with delay {try_delay}s: {link}")
+		tries= 1
+		while cls.LOGIN_FAIL_STRING in html and tries < max_tries:
+			await cls.do_hv_login(session)
+			await asyncio.sleep(try_delay)
+			html= await get_html(link, session)
+			tries+= 1
+		if cls.LOGIN_FAIL_STRING in html:
+			raise Exception(f"Failed to retrieve equip page after {max_tries} tries with delay {try_delay}s: {link}")
 
 		soup= BeautifulSoup(html, 'html.parser')
 
@@ -61,10 +61,14 @@ class EquipScraper:
 			stats[cat]= cls._get_other_stats(ep)
 
 		# get forge upgrades
-		forging= cls._get_upgrades(soup.find("span", id="eu"))
+		forging= {}
+		tmp= soup.find("span", id="eu")
+		if tmp: forging= cls._get_upgrades()
 
 		# get iw enchants
-		enchants= cls._get_upgrades(soup.find("span", id="ep"))
+		enchants= {}
+		tmp= soup.find("span", id="ep")
+		if tmp: enchants= cls._get_upgrades()
 
 		# clean up stats and return
 		return dict(

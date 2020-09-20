@@ -5,13 +5,15 @@ from classes.errors import PermissionError
 from utils.scraper_utils import get_session
 from utils.perm_utils import check_perms
 from utils.cog_utils import preview_utils
+from utils.pprint_utils import get_pages
 
 import time, re
 
 
+# @todo: max previews per message
 # Generate previews for certain links
 class PreviewCog(PartialCog, name="Preview"):
-	_excl= r"(!)?[\S]*" # check for ! prefix
+	_excl= r"(!+)?[\S]*" # check for ! prefix
 	_b1= r"(<.*)?" # check for < prefix
 	_b2= r"(.*>)?" # check for > suffix
 	LINK_REGEX= dict(
@@ -58,15 +60,25 @@ class PreviewCog(PartialCog, name="Preview"):
 
 
 	async def scan_equip(self, ctx):
-		pass
-	# 	matches= self.get_matches(ctx.message.content, "equip")
-	#
-	# 	for x in matches:
-	# 		equip_id= x
-	# 		embed= await preview_utils.parse_equip_match(equip_id=equip_id,
-	# 											         session=self.session)
-	# 		if embed:
-	# 			await ctx.send(embed=embed)
+		matches= self.get_matches(ctx.message.content, "equip")
+
+		msgs= []
+		for x in matches:
+			has_excl, equip_id, equip_key= x
+			t= await preview_utils.parse_equip_match(equip_id=equip_id,
+		                                             equip_key=equip_key,
+			                                         level=len(has_excl),
+											         session=self.session)
+			msgs.append(t)
+
+		texts= [x for x in msgs if isinstance(x,str)]
+		embeds= [x for x in msgs if isinstance(x, discord.Embed)]
+
+		for x in get_pages(texts, no_orphan=10):
+			await ctx.send(f"```py\n{x}\n```")
+
+		for x in embeds:
+			await ctx.send(embed=x)
 
 	async def scan_thread(self, ctx):
 		matches= self.get_matches(ctx.message.content, "thread")

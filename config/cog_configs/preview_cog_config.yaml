@@ -1,3 +1,4 @@
+# forum / bounty
 max_body_length: 250
 max_body_lines: 6
 max_title_length: 50
@@ -34,23 +35,61 @@ bounty_body_template: |-
   ```
   by [{{USERNAME}}]({{USER_LINK}}) | {{"%02d-%02d-%02d"|format(YEAR,MONTH,DAY)}}
 
-embed_template: |-
-  {% set  %}
+# HV equips
+# stat names are case-insensitive and generally follow the original naming scheme with the following exceptions:
+#  mitigations are suffixed with MIT
+#  attack damage is suffixed with ADB
+#  spell damage is suffixed with EDB
+#  proficiency is suffixed with PROF
+equip:
+  min_percentile: 65 # show non-mandatory stats above this percentile
 
-  content: |-
-    ```
-    {{NAME}}
-    ```
-    -
-    {{DESCRIPTION}}
-    -
+  melee_weps: &melee [adb, crit] # helper node
+  mandatory_stats: # "(partial) equip name" : [list of (partial) mandatory stat names]
+    "": [block]
+    "staff": [mdb, depr prof]
 
-  thumbnail:
-    url: {{EQUIP_IMAGE_URL}}
+    "fiery staff": [fire edb]
+    "arctic staff": [cold edb]
+    "temp staff": [wind edb]
+    "shock staff": [elec edb]
+    "hallowed staff": [holy edb]
+    "demon staff": [dark edb]
 
-  footer:
-    - icon_url: {{AVATAR_URL}}
-    - text: Owned by {{USER}} | {{STATUS}}
+    "surtr": [fire edb, elem prof]
+    "nifl": [cold edb, elem prof]
+    "freyr": [wind edb, elem prof]
+    "mjo": [elec edb, elem prof]
+    "heimd": [holy edb, div prof]
+    "fenr": [dark edb, forb prof]
 
-  fields:
-    - name: Attack
+    "the elem": [elem prof]
+    "the demon": [forb prof]
+    "the heaven": [div prof]
+
+    "waki": *melee
+    "axe": *melee
+    "club": *melee
+    "rapier": *melee
+    "sword": *melee
+    "estoc": *melee
+    "mace": *melee
+    "katana": *melee
+
+  # keys must match table_categories --- also keep "other"
+  table_headers:
+    offensive: Offensive
+    defensive: Defensive
+    pabs: PABs
+    other: Other
+
+  # keys must match table_headers
+  table_categories:
+    offensive: []
+    defensive: []
+    pabs: []
+    other: []
+
+  # keys are (exact, case-insensitive) stat names and values are case-sensitive abbreviations
+  abbreviations:
+    "block chance": BLK

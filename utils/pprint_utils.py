@@ -1,7 +1,7 @@
 from classes import Table
 
 # @ todo: comment this
-def pprint(columns, prefix="", suffix="", code=None, v_sep="|", h_sep="-", v_pad=1):
+def pprint(columns, prefix="", suffix="", code=None, v_sep="|", h_sep="-", v_pad=1, borders=False, corner="+"):
 	ret= ""
 
 	columns= columns.columns if isinstance(columns, Table) else columns
@@ -20,9 +20,15 @@ def pprint(columns, prefix="", suffix="", code=None, v_sep="|", h_sep="-", v_pad
 
 	# horiz separator for header
 	if h_sep:
-		h_sep_length= sum(x.max_width for x in not_link) + len(not_link)*len(v_sep)
-		h_sep= "".join(["-"]*h_sep_length)
-		if single_tick: h_sep= f"`{h_sep}`"
+		h_sep_length= sum(x.max_width for x in not_link) + len(not_link)*len(v_sep) - padding
+		if borders: h_sep_length+= len(v_sep) - padding
+
+		h_div= "".join(["-"] * h_sep_length)
+		if borders: h_div= f"{corner} " + h_div[2:-2] + f" {corner}"
+
+		if single_tick: h_div= f"`{h_div}`"
+
+	if h_sep and borders: ret+= h_div + "\n"
 
 	# headers
 	if any(x.header for x in columns):
@@ -32,7 +38,7 @@ def pprint(columns, prefix="", suffix="", code=None, v_sep="|", h_sep="-", v_pad
 		if single_tick: tmp= f"`{tmp}`"
 
 		ret+= tmp + "\n"
-		if h_sep: ret+= h_sep + "\n"
+		if h_sep: ret+= h_div + "\n"
 
 	# data
 	for i in range(len(not_link[0])):
@@ -49,13 +55,15 @@ def pprint(columns, prefix="", suffix="", code=None, v_sep="|", h_sep="-", v_pad
 	# trailers
 	if any(x.trailer for x in columns):
 		tmp= ""
-		if h_sep: ret+= h_sep + "\n"
+		if h_sep: ret+= h_div + "\n"
 
 		for col in not_link:
 			tmp+= col.trailer.ljust(col.max_width) + v_sep
 		if single_tick: tmp= f"`{tmp}`"
 
 		ret+= tmp + "\n"
+
+	if h_sep and borders: ret+= h_div + "\n"
 
 
 	if suffix: ret+= suffix + "\n"

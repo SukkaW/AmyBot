@@ -1,33 +1,65 @@
 from utils.scraper_utils import get_session, get_html
-from utils.pprint_utils import get_pages
-from utils.parse_utils import int_to_price
-from classes.errors import TemplatedError
-from classes import EquipScraper, EquipParser
-import utils, bs4, datetime, discord, re, asyncio
+from utils.pprint_utils import get_pages, pprint
+from utils.parse_utils import int_to_price, contains
 
-async def parse_equip_match(equip_id, equip_key, session):
+from classes.errors import TemplatedError
+from classes import EquipScraper, EquipParser, Column
+
+import utils, bs4, datetime, discord, re, asyncio, statistics
+
+async def parse_equip_match(equip_id, equip_key, session, level=0):
 	# inits
-	CONFIG= utils.load_yaml(utils.PREVIEW_CONFIG)
+	CONFIG= utils.load_yaml(utils.PREVIEW_CONFIG)['equip']
 	parser= EquipParser()
 
 	# get stats
-	equip_link= f"hentaiverse.org/equip/{equip_id}/{equip_key}"
+	equip_link= f"https://hentaiverse.org/equip/{equip_id}/{equip_key}"
 	result= await EquipScraper.scrape_equip(equip_link, session=session)
 	percentiles= parser.raw_stat_to_percentile(result['name'], result['raw_stats'])
 
 	# get preview
-	render_params= dict(
-		name=result['name'],
-		raw_stats= result['raw_stats'],
-		percentiles= percentiles,
-		forging= result['forging'],
-		encahnts= result['enchants'],
-		link= equip_link
-	)
-	embed_dict= utils.render(CONFIG['equip_template'], render_params)
-	embed= discord.Embed.from_dict(embed_dict)
+	forge_level= 0
+	if results['forging']:
+		forge_level= statistics.mode(result['forging'].values())
 
-	return embed
+	if level == 2:
+		pass # @todo: super-expanded equip preview
+	else:
+		if level == 1: # expanded form (no stats omitted)
+			pass
+
+		else: # show only mandatory / high stats
+			def check(stat_name):
+				is_mandatory= any(contains(stat_name, x) for x in CONFIG['mandatory_stats'])
+				is_high= percentiles[stat_name] >= CONFIG['min_percentile']
+				return is_high or is_mandatory
+			percentiles= { x:y for x,y in percentiles.items() if check(x) }
+
+		# categorize
+		cats= { c:[] for c in CONFIG['table_categories'] }
+		for stat in percentiles:
+			abbrv= CONFIG['abbreviations'][stat] if stat in CONFIG['abbreviations'] else stat
+			string= f"{percentiles[stat]}% {abbrv}"
+
+			# add stat to cat if mentioned in that cat, else "other"
+			for c in CONFIG['table_categories']:
+				if any(contains(stat, x) for x in CONFIG['table_categories'][c]):
+					cats[c].append(string)
+			else:
+				cats['other'].append(string)
+
+		# get table columns
+		cols= []
+		for x in CONFIG['table_headers']:
+			cols.append(Column(data=cats[x], header=x))
+
+		suffix= ""
+		if forge_level > 0: suffix= f"# Forge {forge_level}"
+		for name,lvl in result['enchants'].items():
+			suffix+= f", {name} {lvl}"
+
+		preview= pprint(cols, prefix=f"@ {result['name']}", suffix=suffix, code="py", borders=True)
+		return preview
 
 async def parse_thread_match(thread_id, session):
 	# inits
