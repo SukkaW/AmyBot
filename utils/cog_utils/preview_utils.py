@@ -94,10 +94,19 @@ async def parse_equip_match(equip_id, equip_key, session, level=0):
 			else:
 				tmp.append(name)
 
-		# concatenate
-		if suffix and result['enchants']:
-			suffix+= ", "
-		suffix+= ", ".join(tmp)
+		# concatenate upgrades
+		if forge_level > 0 and result['enchants']:
+			suffix+= " • "
+		suffix+= " • ".join(tmp)
+
+		# other info
+		tmp= []
+		tmp= ["Tradeable" if result['tradeable'] else "Soulbound"]
+		tmp+= [f"Owned by {result['owner']}"]
+		if result['level']: tmp.insert(0, f"Level {result['level']}")
+
+		if suffix: suffix+= "\n"
+		suffix+= "# " + " • ".join(tmp)
 
 		# return
 		preview= pprint(cols, prefix=f"@ {result['name']}", suffix=suffix, code=None, borders=True)

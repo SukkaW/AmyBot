@@ -82,13 +82,26 @@ class EquipScraper:
 		# unenchant base values
 		base_stats= cls._unenchant(base_stats, enchants)
 
+		# get level and tradeable
+		tmp= soup.find("div", class_=["eq", "et"]).find("div").get_text()
+		tradeable= "Tradeable" in tmp
+
+		m= re.search(r"Level (\d+)", tmp)
+		level= int(m.group(1)) if m else 0
+
+		# get owner
+		owner= soup.find(target="_forums").get_text()
+
 		# clean up stats and return
 		return dict(
 			name=name,
 			stats= forged_stats,
 			base_stats= base_stats,
 			forging=forging,
-			enchants=enchants
+			enchants=enchants,
+			tradeable=tradeable,
+			level=level,
+			owner=owner
 		)
 
 	@staticmethod
@@ -160,13 +173,15 @@ class EquipScraper:
 	def _unforge(cls, eq_name, stats, forging, potency_info, enchants):
 		def clean_upgrade_name(st):
 			reps= {
+				"Physical Damage": "Attack Damage",
 				"Physical Defense": "Physical Mitigation",
 				"Magical Defense": "Magical Mitigation",
+				"Magical Hit Chance": "Magic Accuracy",
+				"Physical Hit Chance": "Attack Accuracy",
 				"Magical": "Magic",
 				"Proficiency": "PROF",
 				"Spell Damage": "EDB",
 				" Bonus": "",
-				"Hit Chance": "Accuracy",
 				"Mitigation": "MIT"
 			}
 			for x,y in reps.items():
