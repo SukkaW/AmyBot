@@ -37,7 +37,9 @@ vocal_fail: false   # @todo: true when for real
 details: false
 
 everyone: *fail
-exceptions: [{value: *allow, channel: 634255830094446592}]
+exceptions:
+  - value: *allow
+    channel: 634255830094446592
 
 none:
   everyone: 0
@@ -70,7 +72,7 @@ Equip:
     everyone: 0
     exceptions: []
 Preview:
-  everyone: 0
+  everyone: *allow
   exceptions: []
   preview:
     everyone: 0
