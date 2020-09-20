@@ -64,6 +64,7 @@ class PreviewCog(PartialCog, name="Preview"):
 
 		msgs= []
 		for x in matches:
+			await ctx.trigger_typing()
 			has_excl, equip_id, equip_key= x
 			t= await preview_utils.parse_equip_match(equip_id=equip_id,
 		                                             equip_key=equip_key,
@@ -84,6 +85,7 @@ class PreviewCog(PartialCog, name="Preview"):
 		matches= self.get_matches(ctx.message.content, "thread")
 
 		for x in matches:
+			await ctx.trigger_typing()
 			has_excl, thread_id= x
 			embed= await preview_utils.parse_thread_match(thread_id=thread_id,
 														  session=self.session)
@@ -107,6 +109,7 @@ class PreviewCog(PartialCog, name="Preview"):
 		matches= self.get_matches(ctx.message.content, "bounty")
 
 		for x in matches:
+			await ctx.trigger_typing()
 			has_excl, bounty_id= x
 			embed= await preview_utils.parse_bounty_match(bounty_id=bounty_id,
 													      session=self.session)
