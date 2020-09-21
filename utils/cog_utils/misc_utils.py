@@ -5,7 +5,7 @@ import utils.pprint_utils as Pprint
 import utils
 
 
-async def pageify_and_send(ctx, strings, CONFIG=None, has_link=False, max_len=1900, page_limit_dm=99, page_limit_server=2, code=None):
+async def pageify_and_send(ctx, strings, CONFIG=None, has_link=False, max_len=1900, page_limit_dm=99, page_limit_server=2, code="py"):
 	# group strings into pages
 	pages= Pprint.get_pages(strings, max_len=max_len)
 

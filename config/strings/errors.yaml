@@ -141,7 +141,7 @@ empty_embed_json_template: |-
   {{STRING}}
 
 no_rr_message_id_template: |-
-  Error. You must supply the ID (integer) of a reaction-role message previously posted by the bot.
+  Error. You must supply either "all" or the ID (integer) of a reaction-role message previously posted by the bot.
 
 rr_message_not_int_template: |-
   Error. The message id supplied (`{{STRING}}`) is not an integer.

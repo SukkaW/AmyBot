@@ -2,6 +2,7 @@ from classes.errors import TemplatedError
 from utils.perm_utils import check_perms
 from ruamel.yaml import YAML
 from ruamel.yaml.parser import ParserError
+from ruamel.yaml.scanner import ScannerError
 import utils, re, discord, json
 
 
@@ -107,20 +108,19 @@ def get_rr_type(query, ctx):
 	return ret, new_query
 
 async def get_rr_message(query, ctx, bot):
-	# check for guild
-	if not ctx.guild: raise TemplatedError("no_guild")
-
 	# inits
 	spl= query.strip().split()
+
+	# validity checks
+	if not ctx.guild: raise TemplatedError("no_guild")
+	if not spl:	raise TemplatedError("no_rr_message_id")
+
+	# get log
 	message_id= spl[0]
 	new_query= " ".join(spl[1:])
 
 	log_file= utils.REACTION_ROLE_LOG_DIR + str(ctx.guild.id) + ".json"
 	log= utils.load_json_with_default(log_file)
-
-	# validity checks
-	if not message_id:
-		raise TemplatedError("no_rr_message_id")
 
 	# get message channel
 	for ch in log:
@@ -258,8 +258,6 @@ def parse_emotes(string, ctx, bot):
 		if e:
 			return e,""
 
-
-
 	ret= []
 	emotes= bot.emojis
 	spl= string.strip().split()
@@ -288,8 +286,8 @@ def parse_message_json(string):
 	string= string.strip()
 
 	# add brackets
-	string= "{ " + string if not string.startswith("{") else string
-	string+= "} " if not string.endswith("}") else ""
+	# string= "{ " + string if not string.startswith("{") else string
+	# string+= "} " if not string.endswith("}") else ""
 
 	# if empty
 	if not string:
@@ -298,7 +296,7 @@ def parse_message_json(string):
 	# convert to yaml (which supports json)
 	try:
 		dct= YAML().load(string)
-	except ParserError as e:
+	except (ParserError, ScannerError) as e:
 		raise TemplatedError("yaml_to_json", string=string, error=str(e))
 
 	# convert yaml to dictionary

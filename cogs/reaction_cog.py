@@ -152,7 +152,7 @@ class ReactionCog(PartialCog, name="Reaction"):
 		messages= []
 
 		# get messages / log entries
-		if ctx.query.lower() != "all":
+		if ctx.query.lower() != "all" and ctx.query.strip():
 			msg,_= await React.get_rr_message(ctx.query, ctx, self.bot)
 			entry= React.edit_rr_log(msg)
 			entries.append(entry)

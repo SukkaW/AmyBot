@@ -90,3 +90,9 @@ Reaction:
   listroles:
     everyone: 0
     exceptions: []
+  getrr:
+    everyone: 0
+    exceptions: []
+  editrr:
+    everyone: 0
+    exceptions: []
