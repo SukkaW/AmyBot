@@ -4,10 +4,10 @@ import utils
 class ParseError(CommandError):
 	def __init__(self, keyword=None, value=None, exception=None):
 		"""
-		Error when parsing a string value.
+		For pretty printing parse errors.
 		:param keyword: Keyword that the value belongs to
 		:param value: String being parsed
-		:param func: Parsing function
+		:param exception: Exception raised during parsing
 		"""
 
 		self.keyword= keyword
@@ -27,7 +27,7 @@ class ParseError(CommandError):
 			"EXCEPTION": str(self.exception)
 		}
 
-		return utils.render(ERROR_STRINGS['usage_template'], reps)
+		return utils.render(ERROR_STRINGS['parse_error_template'], reps)
 
 	def __str__(self):
 		STRINGS= utils.load_yaml(utils.ERROR_STRING_FILE)

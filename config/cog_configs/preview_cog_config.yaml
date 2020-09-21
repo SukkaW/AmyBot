@@ -126,6 +126,8 @@ equip:
     Physical Mitigation: Pmit
     Magical Mitigation: Mmit
 
+    Parry Chance: Parry
     Evade Chance: Evade
     Resist Chance: Resist
     Counter-Resist: CR
+    Attack Speed: AS

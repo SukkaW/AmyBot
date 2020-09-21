@@ -45,6 +45,9 @@ none:
   help:
     everyone: 0
     exceptions: []
+  poop_delete:
+    everyone: 0
+    exceptions: []
 Auction:
   everyone: 0
   exceptions: []

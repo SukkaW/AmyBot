@@ -26,7 +26,8 @@ help_string: &help |-
   If "vocal_fail" mode is enabled, a failed-permissions message will be sent to the user. If "details" is also enabled,
   the reason (eg exception entry) will also be printed.
 
-admins: {}
+# admins should be { memorable_name: user_id, ... }
+admins: {genie: 113843036965830657}
 
 flags: &flags
   ALLOW: &allow 1

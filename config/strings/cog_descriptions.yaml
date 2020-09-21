@@ -44,3 +44,18 @@ Preview:
             description: "(Not an actual command.) Currently supported links include: [equips, forum threads, forum comments, bounties]"
             args: ""
             keywords: []
+
+
+Reaction:
+    description: Mostly reaction roles.
+    keywords:
+    commands:
+        addrr:
+            description: Add reaction role message / emotes / roles
+            args: '[ "message" | "roles" | "emotes" ] [ text/json | list of roles | list of emotes ]'
+            keywords:
+
+        editrr:
+            description: Edit reaction role message / emotes / roles
+            args: '{old_message_id}  { "message" | "roles" | "emotes" }  { text/json | list of roles | list of emotes }'
+            keywords:

@@ -1,7 +1,8 @@
 from classes import PartialCog, PartialCommand
-from utils.cog_utils.reaction_utils import check_admin_owner, check_self
+from utils.cog_utils.reaction_utils import has_reaction_perms, is_self
+from utils.cog_utils import reaction_utils as React
 from discord.ext import commands
-import utils
+import utils, discord
 
 
 """
@@ -10,46 +11,29 @@ For various reaction-related functions.
 class ReactionCog(PartialCog, name="Reaction"):
 	def __init__(self, bot, **kwargs):
 		super().__init__(**kwargs)
-		self.hidden=True
+		self.hidden=False
 		self.bot= bot
-
-		self.hv_role_msg= None
-		self.hv_role_ch= None
 
 
 	@commands.Cog.listener()
 	async def on_raw_reaction_add(self, payload):
-		for x in [self.poop_delete]:
+		for x in [self.reaction_delete]:
 			await x(payload)
 
 
-	async def hv_reaction_roles(self, payload):
-		# get channel
-		if self.hv_role_ch is None:
-			CONFIG= utils.load_yaml(utils.BOT_CONFIG_FILE)
-			self.hv_role_ch= self.bot.get_channel(CONFIG['reaction_role_channel'])
+	@commands.command(name="addrr", short="addrr", cls=PartialCommand)
+	async def addrr(self, ctx):
+		print(ctx.query)
 
-
-	async def get_hv_reaction_msg(self, channel):
-		# get last message in channel
-		if self.hv_role_msg is None:
-			async for msg in self.hv_role_ch.history(limit=1):
-				last_msg= msg
-
-			# if non-bot messsage, post new one
-
-
-
-	# delete bot messages reacted to with 💩
-	@check_self
-	@check_admin_owner
-	async def poop_delete(self, payload):
+	# delete bot messages reacted to with CONFIG['deletion_emote']
+	@is_self
+	@has_reaction_perms(command_name="reaction_delete")
+	async def reaction_delete(self, payload):
 		# inits
+		CONFIG= utils.load_yaml(utils.REACTION_CONFIG)
 		channel= self.bot.get_channel(payload.channel_id)
 		message= await channel.fetch_message(payload.message_id)
 
 		# check emoji
-		if payload.emoji.is_unicode_emoji() and str(payload.emoji) == "💩":
+		if payload.emoji.is_unicode_emoji() and str(payload.emoji) == CONFIG['deletion_emote']:
 			await message.delete()
-		else:
-			print(payload.emoji)

@@ -1,20 +1,28 @@
 from classes.errors import PermissionError
 import utils, os, copy
 
-def check_perms(ctx):
+def check_perms(ctx, command_name=None, cog_name=None):
 	# inits
 	GLOBALS= utils.load_yaml(utils.GLOBAL_PERMS_FILE)
-	cmd= ctx.command.name
-	cog= ctx.cog.qualified_name if ctx.cog is not None else "none"
+	cmd= ctx.command.name if command_name is None else command_name
+	if cog_name is None:
+		cog= ctx.cog.qualified_name if ctx.cog is not None else "none"
+	else:
+		cog= cog_name
 
 	# check global admin
 	if _is_global_admin(ctx, GLOBALS):
 		return True
 
-	if ctx.guild is None: # if dm, check dm perms
+	# if dm, check dm perms in global_perms file, else guild perms file
+	if ctx.guild is None:
 		ret= _check(cmd=cmd, cog=cog, perm_dict=GLOBALS['dm'], flags=GLOBALS['flags'], ctx=ctx, is_dm=True)
 		utils.dump_yaml(GLOBALS, utils.GLOBAL_PERMS_FILE)
 	else:
+		# check guild owner
+		if ctx.author.id == ctx.guild.owner.id:
+			return True
+
 		# load guild perms
 		perms_file= f"{utils.PERMS_DIR}{str(ctx.guild.id)}.yaml"
 		if os.path.exists(perms_file):
