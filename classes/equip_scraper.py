@@ -198,15 +198,15 @@ class EquipScraper:
 			if st == 'Attack Damage':
 				coeff= 0.279575
 
-				if 'Archmage' in enchants:
-					iw_coeff= 1 + 0.02*enchants['Archmage']
+				if 'Butcher' in enchants:
+					iw_coeff= 1 + 0.02*enchants['Butcher']
 				else:
 					iw_coeff= 1
 			elif st == 'Magic Damage':
 				coeff= 0.279575
 
-				if 'Butcher' in enchants:
-					iw_coeff= 1 + 0.02*enchants['Butcher']
+				if 'Archmage' in enchants:
+					iw_coeff= 1 + 0.02*enchants['Archmage']
 				else:
 					iw_coeff= 1
 			else:
