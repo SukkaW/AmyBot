@@ -38,8 +38,8 @@ details: false
 
 everyone: *fail
 exceptions:
-  - value: *allow
-    channel: 634255830094446592
+- value: *allow
+  channel: 634255830094446592
 
 none:
   everyone: 0
@@ -76,4 +76,22 @@ Preview:
   exceptions: []
   preview:
     everyone: 0
+    exceptions: []
+Reaction:
+  everyone: 0
+  exceptions: []
+  addrr:
+    everyone: 0
+    exceptions: []
+  editrr:
+    everyone: 0
+    exceptions: []
+  reaction_delete:
+    everyone: *allow
+    exceptions: []
+  listroles:
+    everyone: 0
+    exceptions: []
+  reaction_role:
+    everyone: *allow
     exceptions: []

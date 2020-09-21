@@ -87,7 +87,7 @@ RR_EMOTE= "emotes"
 # Enforce argument to rr commands are either "message", "roles", or "emotes"
 def get_rr_type(query, ctx):
 	# inits
-	spl= str(query).strip().split()
+	spl= str(query).strip().split(" ")
 	new_query= " ".join(spl[1:])
 
 	# check for guild
@@ -109,7 +109,7 @@ def get_rr_type(query, ctx):
 
 async def get_rr_message(query, ctx, bot):
 	# inits
-	spl= query.strip().split()
+	spl= query.strip().split("\n", maxsplit=1)
 
 	# validity checks
 	if not ctx.guild: raise TemplatedError("no_guild")
@@ -117,7 +117,7 @@ async def get_rr_message(query, ctx, bot):
 
 	# get log
 	message_id= spl[0]
-	new_query= " ".join(spl[1:])
+	new_query= spl[1]
 
 	log_file= utils.REACTION_ROLE_LOG_DIR + str(ctx.guild.id) + ".json"
 	log= utils.load_json_with_default(log_file)

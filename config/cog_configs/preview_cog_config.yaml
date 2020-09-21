@@ -86,7 +86,7 @@ equip:
   table_headers:
     offensive: Offensive
     defensive: Defensive
-    supportive: Supportive
+#    supportive: Supportive
     pabs: PABs
     other: Other
 
@@ -94,7 +94,7 @@ equip:
   table_categories:
     offensive: [damage, edb, crit]
     defensive: [parry, mit]
-    supportive: [prof, accuracy]
+    # supportive: [prof, accuracy]
     pabs: [wisdom, intelligence, dexterity, strength, agility, endurance]
     other: []
 
@@ -103,8 +103,10 @@ equip:
     Block Chance: BLK
     Attack Damage: ADB
     Magic Damage: MDB
-    Attack Crit Chance: Pcrit
-    Magic Crit Chance: Mcrit
+    Attack Crit Chance: Pcrit%
+    Magic Crit Chance: Mcrit%
+    Attack Crit Damage: Pcrit Dmg
+    Magic Crit Damage: Mcrit Dmg
     Attack Accuracy: Pacc
     Magic Accuracy: Macc
 
@@ -125,6 +127,8 @@ equip:
 
     Physical Mitigation: Pmit
     Magical Mitigation: Mmit
+    Crushing MIT: Crushing
+    Slashing MIT: Slashing
 
     Parry Chance: Parry
     Evade Chance: Evade

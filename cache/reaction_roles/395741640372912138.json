@@ -1,0 +1,239 @@
+{
+  "563523595322785833": {
+    "757521028950917157": {
+      "message": {
+        "content": "this `supports` __a__ **subset** *of* ~~markdown~~ 😃 ```js\nfunction foo(bar) {\n  console.log(bar);\n}\n\nfoo(1);```",
+        "embed": {
+          "footer": {
+            "icon_url": "https://cdn.discordapp.com/embed/avatars/0.png",
+            "text": "footer text"
+          },
+          "image": {
+            "url": "https://cdn.discordapp.com/embed/avatars/0.png"
+          },
+          "thumbnail": {
+            "url": "https://cdn.discordapp.com/embed/avatars/0.png"
+          },
+          "author": {
+            "name": "author name",
+            "url": "https://discordapp.com",
+            "icon_url": "https://cdn.discordapp.com/embed/avatars/0.png"
+          },
+          "fields": [
+            {
+              "name": "🤔",
+              "value": "some of these properties have certain limits..."
+            },
+            {
+              "name": "😱",
+              "value": "try exceeding some of them!"
+            },
+            {
+              "name": "🙄",
+              "value": "an informative error should show up, and this view will remain as-is until all issues are fixed"
+            },
+            {
+              "name": "<:thonkang:416067075610640394>",
+              "value": "these last two",
+              "inline": true
+            },
+            {
+              "name": "<:thonkang:416067075610640394>",
+              "value": "are inline fields",
+              "inline": true
+            }
+          ],
+          "color": 1633051,
+          "description": "this supports [named links](https://discordapp.com) on top of the previously shown subset of markdown. ```\nyes, even code blocks```",
+          "url": "https://discordapp.com",
+          "title": "title ~~(did you know you can have markdown here too?)~~"
+        }
+      },
+      "roles": [
+        584877212428271632,
+        590197343291310101,
+        418268887444881408
+      ],
+      "emotes": [
+        "🤔",
+        706175004110356490,
+        "🙄"
+      ]
+    },
+    "757652126049632256": {
+      "message": {
+        "content": "test",
+        "embed": {}
+      },
+      "roles": [
+        584877212428271632,
+        418268887444881408
+      ],
+      "emotes": [
+        "🤔"
+      ]
+    },
+    "757655497624256530": {
+      "message": {
+        "content": "test",
+        "embed": {}
+      },
+      "roles": [
+        584877212428271632,
+        584877212428271632
+      ],
+      "emotes": [
+        "<:zero:659241523078234142>",
+        "🤔"
+      ]
+    },
+    "757675372279234670": {
+      "message": {
+        "content": "test2",
+        "embed": {}
+      },
+      "roles": [
+        442817369878954014,
+        442817369878954014
+      ],
+      "emotes": [
+        "👀",
+        "<:wow:730431853617479752>"
+      ]
+    },
+    "757677167743336689": {
+      "message": {
+        "content": "blah",
+        "embed": {}
+      },
+      "roles": [],
+      "emotes": []
+    },
+    "757681666536767613": {
+      "message": {
+        "content": "test2",
+        "embed": {}
+      },
+      "roles": [],
+      "emotes": []
+    },
+    "757694624243384350": {
+      "message": {
+        "content": "test",
+        "embed": {}
+      },
+      "roles": [],
+      "emotes": []
+    },
+    "757724683045961848": {
+      "message": {
+        "content": "",
+        "embed": {
+          "description": "0️⃣ - Niten Ichiryu\n1️⃣ - One-Handed\n2️⃣ - Two-Handed\n3️⃣ - Dual-Wield\n4️⃣ - Surtr Mage\n5️⃣ - Niflheim Mage\n6️⃣ - Mjolnir Mage\n7️⃣ - Freyr Mage\n8️⃣ - Fenrir Mage\n9️⃣ - Heimdall Mage",
+          "title": "Available roles"
+        }
+      },
+      "roles": [],
+      "emotes": []
+    },
+    "757724785038852169": {
+      "message": {
+        "content": "",
+        "embed": {
+          "description": "0️⃣ - Niten Ichiryu\n1️⃣ - One-Handed\n2️⃣ - Two-Handed\n3️⃣ - Dual-Wield\n4️⃣ - Surtr Mage\n5️⃣ - Niflheim Mage\n6️⃣ - Mjolnir Mage\n7️⃣ - Freyr Mage\n8️⃣ - Fenrir Mage\n9️⃣ - Heimdall Mage",
+          "title": "Available roles"
+        }
+      },
+      "roles": [],
+      "emotes": []
+    }
+  },
+  "726728019707953192": {
+    "757713785728270426": {
+      "message": {
+        "content": "",
+        "embed": {
+          "description": "__Available Roles__:\n  0️⃣ - Niten Ichiryu\n  1️⃣ - One-Handed\n  2️⃣ - Two-Handed\n  3️⃣ - Dual-Wield\n  4️⃣ - Surtr Mage\n  5️⃣ - Niflheim Mage\n  6️⃣ - Mjolnir Mage\n  7️⃣ - Freyr Mage\n  8️⃣ - Fenrir Mage\n  9️⃣ - Heimdall Mage\""
+        }
+      },
+      "roles": [],
+      "emotes": []
+    },
+    "757713890229485579": {
+      "message": {
+        "content": "",
+        "embed": {
+          "description": "__Available Roles__:\n  0️⃣ - Niten Ichiryu\n  1️⃣ - One-Handed\n  2️⃣ - Two-Handed\n  3️⃣ - Dual-Wield\n  4️⃣ - Surtr Mage\n  5️⃣ - Niflheim Mage\n  6️⃣ - Mjolnir Mage\n  7️⃣ - Freyr Mage\n  8️⃣ - Fenrir Mage\n  9️⃣ - Heimdall Mage"
+        }
+      },
+      "roles": [],
+      "emotes": []
+    },
+    "757714767669493800": {
+      "message": {
+        "content": "",
+        "embed": {
+          "description": "0️⃣ - Niten Ichiryu\n1️⃣ - One-Handed\n2️⃣ - Two-Handed\n3️⃣ - Dual-Wield\n4️⃣ - Surtr Mage\n5️⃣ - Niflheim Mage\n6️⃣ - Mjolnir Mage\n7️⃣ - Freyr Mage\n8️⃣ - Fenrir Mage\n9️⃣ - Heimdall Mage",
+          "title": "Available roles"
+        }
+      },
+      "roles": [
+        442817369878954014,
+        442817369878954014,
+        442817369878954014,
+        442817369878954014,
+        442817369878954014,
+        442817369878954014,
+        442817369878954014,
+        442817369878954014,
+        442817369878954014,
+        442817369878954014
+      ],
+      "emotes": [
+        "0️⃣",
+        "1️⃣",
+        "2️⃣",
+        "3️⃣",
+        "4️⃣",
+        "5️⃣",
+        "6️⃣",
+        "7️⃣",
+        "8️⃣",
+        "9️⃣"
+      ]
+    },
+    "757724386110341202": {
+      "message": {
+        "content": "",
+        "embed": {
+          "description": "0️⃣ - Niten Ichiryu\n1️⃣ - One-Handed\n2️⃣ - Two-Handed\n3️⃣ - Dual-Wield\n4️⃣ - Surtr Mage\n5️⃣ - Niflheim Mage\n6️⃣ - Mjolnir Mage\n7️⃣ - Freyr Mage\n8️⃣ - Fenrir Mage\n9️⃣ - Heimdall Mage",
+          "title": "Available roles"
+        }
+      },
+      "roles": [],
+      "emotes": []
+    },
+    "757731410546262016": {
+      "message": {
+        "content": "",
+        "embed": {
+          "description": "0️⃣ - Niten Ichiryu\n1️⃣ - One-Handed\n2️⃣ - Two-Handed\n3️⃣ - Dual-Wield\n4️⃣ - Fire Mage\n5️⃣ - Ice Mage\n6️⃣ - Elec Mage\n7️⃣ - Wind Mage\n8️⃣ - Dark Mage\n9️⃣ - Holy Mage",
+          "title": "Available roles"
+        }
+      },
+      "roles": [],
+      "emotes": []
+    },
+    "757731428690821230": {
+      "message": {
+        "content": "",
+        "embed": {
+          "description": "0️⃣ - Niten Ichiryu\n1️⃣ - One-Handed\n2️⃣ - Two-Handed\n3️⃣ - Dual-Wield\n4️⃣ - Fire Mage\n5️⃣ - Ice Mage\n6️⃣ - Elec Mage\n7️⃣ - Wind Mage\n8️⃣ - Dark Mage\n9️⃣ - Holy Mage",
+          "title": "Available roles"
+        }
+      },
+      "roles": [],
+      "emotes": []
+    }
+  }
+}
