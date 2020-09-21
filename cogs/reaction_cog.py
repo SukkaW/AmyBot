@@ -114,7 +114,7 @@ class ReactionCog(PartialCog, name="Reaction"):
 						   embed=discord.Embed.from_dict(message_dict['embed']))
 
 			# edit log
-			React.edit_rr_log(msg, message_dict=message_dict)
+			entry= React.edit_rr_log(msg, message_dict=message_dict)
 			return
 
 
@@ -125,7 +125,6 @@ class ReactionCog(PartialCog, name="Reaction"):
 			entry= React.edit_rr_log(msg, roles=roles)
 
 			# notify user
-			emotes= React.get_emotes(entry['emotes'], bot=self.bot, ctx=ctx, message=msg)
 			await React.notify_rr_emote_role_edit(ctx, roles, entry['emotes'], remainder, message=msg)
 			return
 

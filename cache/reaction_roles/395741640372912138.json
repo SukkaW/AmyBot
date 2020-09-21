@@ -206,7 +206,7 @@
       "message": {
         "content": "",
         "embed": {
-          "description": "0️⃣ - Niten Ichiryu\n1️⃣ - One-Handed\n2️⃣ - Two-Handed\n3️⃣ - Dual-Wield\n4️⃣ - Surtr Mage\n5️⃣ - Niflheim Mage\n6️⃣ - Mjolnir Mage\n7️⃣ - Freyr Mage\n8️⃣ - Fenrir Mage\n9️⃣ - Heimdall Mage",
+          "description": "0️⃣ - Niten Ichiryu\n1️⃣ - One-Handed\n2️⃣ - Two-Handed\n3️⃣ - Dual-Wield\n4️⃣ - Fire Mage\n5️⃣ - Ice Mage\n6️⃣ - Elec Mage\n7️⃣ - Wind Mage\n8️⃣ - Dark Mage\n9️⃣ - Holy Mage",
           "title": "Available roles"
         }
       },
@@ -225,6 +225,17 @@
       "emotes": []
     },
     "757731428690821230": {
+      "message": {
+        "content": "",
+        "embed": {
+          "description": "0️⃣ - Niten Ichiryu\n1️⃣ - One-Handed\n2️⃣ - Two-Handed\n3️⃣ - Dual-Wield\n4️⃣ - Fire Mage\n5️⃣ - Ice Mage\n6️⃣ - Elec Mage\n7️⃣ - Wind Mage\n8️⃣ - Dark Mage\n9️⃣ - Holy Mage",
+          "title": "Available roles"
+        }
+      },
+      "roles": [],
+      "emotes": []
+    },
+    "757746977881587913": {
       "message": {
         "content": "",
         "embed": {
