@@ -32,7 +32,7 @@ def parse_keywords(query, keywords):
 
 # ---- Parsing Functions ----
 # Invalid values should raise an Exception with a reason supplied to the constructor
-# These exceptions are then wrapped into a ParseError
+# These exceptions are then wrapped into a ParseError by the Keyword class
 
 def int_to_price(x, numDec=1):
 	sx= str(x).replace(",","")

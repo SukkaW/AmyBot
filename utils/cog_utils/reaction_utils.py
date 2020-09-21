@@ -1,7 +1,9 @@
 from discord.ext import commands
-from classes.errors import PermissionError, TemplatedError
+from classes.errors import TemplatedError, ParseError
 from utils.perm_utils import check_perms
-import utils, re, discord
+from ruamel.yaml import YAML
+from ruamel.yaml.parser import ParserError
+import utils, re, discord, json
 
 
 # ---- Decorators for on_raw_reaction_add ----
@@ -76,58 +78,285 @@ RR_ROLE= "roles"
 RR_EMOTE= "emotes"
 
 # Enforce argument to rr commands are either "message", "roles", or "emotes"
-def get_rr_type(string):
-		sw= lambda x: string.lower().startswith(x.lower())
+def get_rr_type(query, ctx):
+	# inits
+	spl= str(query).strip().split()
+	new_query= " ".join(spl[1:])
 
-		if sw("msg") or sw("message"):
-			return RR_MESSAGE
-		elif sw("role"):
-			return RR_ROLE
-		elif sw("emote") or sw("emoji"):
-			return RR_EMOTE
-		else:
-			raise TemplatedError("bad_rr_type", value=string)
+	# check for guild
+	if not ctx.guild: raise TemplatedError("no_guild")
+
+	# get command type
+	sw= lambda x: spl[0].lower().startswith(x.lower())
+
+	if sw("msg") or sw("message"):
+		ret= RR_MESSAGE
+	elif sw("role"):
+		ret= RR_ROLE
+	elif sw("emote") or sw("emoji"):
+		ret= RR_EMOTE
+	else:
+		raise TemplatedError("bad_rr_type", value=spl[0])
+
+	return ret, new_query
+
+async def get_rr_message(query, ctx, bot):
+	# check for guild
+	if not ctx.guild: raise TemplatedError("no_guild")
+
+	# inits
+	spl= query.strip().split()
+	message_id= spl[0]
+	new_query= " ".join(spl[1:])
+
+	log_file= utils.REACTION_ROLE_LOG_DIR + str(ctx.guild.id) + ".json"
+	log= utils.load_json_with_default(log_file)
+
+	# validity checks
+	if not message_id:
+		raise TemplatedError("no_rr_message_id")
+
+	# get message channel
+	for ch in log:
+		if message_id in log[ch]:
+			msg_ch= bot.get_channel(int(ch))
+			break
+	else:
+		raise TemplatedError("bad_rr_message_id", string=message_id)
+
+	# fetch message
+	try:
+		msg= await msg_ch.fetch_message(int(message_id))
+		return msg, new_query
+	except discord.NotFound:
+		raise TemplatedError("deleted_rr_message", string=message_id)
+	except ValueError:
+		raise TemplatedError("rr_message_not_int", string=message_id)
+
 
 
 # get users from string, case insensitive
-async def parse_roles(string, ctx, bot):
+def parse_roles(string, ctx, bot):
 	# inits
 	ret= []
-	guild_roles= await ctx.guild.fetch_roles()
-	to_search= string
-
-	# get exact id matches
-	r_ids= re.findall(r"<@&(\d+)>", to_search)
-	for x in r_ids:
-		role= bot.get_role(int(x))
-		to_search= to_search.replace(f"<@&{x}>", "")
-		if role:
-			ret.append(role)
-
-	# get exact name matches
-	for role in guild_roles:
-		m= re.search(rf"\b{role.name}\b", to_search, flags=re.IGNORECASE)
-		if m:
-			ret.append(role)
-			to_search= re.sub(rf"\b{role.name}\b", "", to_search, count=1, flags=re.IGNORECASE)
-
-	# get partial name matches
-	for role in guild_roles:
-		m= re.search(rf"{role.name}", to_search, flags=re.IGNORECASE)
-		if m:
-			ret.append(role)
-			to_search= re.sub(rf"{role.name}", "", to_search, count=1, flags=re.IGNORECASE)
-
-	return dict(matches=ret, remainder=to_search)
-
-
-# get emotes from string, case insensitive
-async def parse_emotes(string, ctx, bot):
-	ret= []
-	emotes= bot.emojis
+	guild_roles= ctx.guild.roles
 	spl= string.split()
 
-	# get exact matches
-	for i,x in enumerate(spl):
-		ms= re.findall(r"<a?:[a-zA-Z0-9\_]+:([0-9]+)>", x, )
+	i,last_length= 0,0
+	while i < len(spl):
+		# get exact rendered matches
+		r_ids= re.findall(r"<@&(\d+)>", spl[i])
+		for x in r_ids:
+			if not spl[i].startswith(x):
+				break
 
+			role= bot.get_role(int(x))
+			spl[i]= spl[i].replace(f"<@&{x}>", "", count=1)
+
+			if role:
+				ret.append(role)
+
+		# get exact name matches
+		for role in guild_roles:
+			m= re.match(rf"{role.name}\b", spl[i], flags=re.IGNORECASE)
+			if m:
+				ret.append(role)
+				spl[i]= re.sub(rf"{role.name}\b", "", spl[i], count=1, flags=re.IGNORECASE)
+
+		# get partial name matches
+		for role in guild_roles:
+			m= re.search(rf"{role.name}", spl[i], flags=re.IGNORECASE)
+			if m:
+				ret.append(role)
+				spl[i]= re.sub(rf"{role.name}", "", spl[i], count=1, flags=re.IGNORECASE)
+
+
+		# stay on iteration until no more matches found
+		if len(ret) != last_length:
+			last_length= len(ret)
+			continue
+		else:
+			i+=1
+
+	return ret, [x for x in spl if x]
+
+
+# get emotes from string, case insensitive, preserves order
+def parse_emotes(string, ctx, bot):
+	ret= []
+	emotes= bot.emojis
+	spl= string.strip().split()
+	CONFIG= utils.load_yaml(utils.REACTION_CONFIG)
+
+	i= 0
+	last_length= len(ret)
+	while i < len(spl):
+		# get unicode emotes
+		matches= re.findall(f"({CONFIG['unicode_emote_regex']})", spl[i])
+		for m in matches:
+			if not spl[i].startswith(m): break
+			spl[i]= spl[i].replace(m,"")
+			ret.append(m)
+
+		# get exact matches from rendered emotes
+		matches= re.finditer(r"<a?:[a-z\d_]+:([0-9]+)>", spl[i], flags=re.IGNORECASE)
+		for m in matches:
+			if not spl[i].startswith(m.group(0)): break
+			e= discord.utils.find(lambda x: str(x) == m.group(0), emotes)
+			if e:
+				spl[i]= spl[i].replace(m.group(0),"")
+				ret.append(e)
+
+		# get exact matches from id
+		try: e= discord.utils.get(emotes, id=int(spl[i]))
+		except ValueError: e= None
+		if e:
+			spl[i]= ""
+			ret.append(e)
+
+		# get exact matches from name
+		e= discord.utils.find(lambda y: spl[i].lower() == y.name.lower(), emotes)
+		if e:
+			spl[i]= ""
+			ret.append(e)
+
+		# get partial matches from name
+		e= discord.utils.find(lambda y: spl[i] and (spl[i].lower() in y.name.lower()), emotes)
+		if e:
+			spl[i]= ""
+			ret.append(e)
+
+		# stay on iteration until no more matches found
+		if len(ret) != last_length:
+			last_length= len(ret)
+			continue
+		else:
+			i+=1
+
+	return ret, [x for x in spl if spl]
+
+# get emotes from string, case insensitive
+def parse_message_json(string):
+	string= string.strip()
+
+	# add brackets
+	string= "{ " + string if not string.startswith("{") else string
+	string+= "} " if not string.endswith("}") else ""
+
+	# if empty
+	if not string:
+		raise TemplatedError("empty_message_json")
+
+	# convert to yaml (which supports json)
+	try:
+		dct= YAML().load(string)
+	except ParserError as e:
+		raise TemplatedError("yaml_to_json", string=string, error=str(e))
+
+	# convert yaml to dictionary
+	dct= dict(dct)
+
+	# get embed
+	embed= None
+	if "embed" in dct:
+		try:
+			embed= discord.Embed.from_dict(dct["embed"])
+		except Exception as e:
+			raise TemplatedError("bad_embed_json", string=string, error=str(e))
+
+		if embed.to_dict() == discord.Embed.from_dict({}).to_dict():
+			raise TemplatedError("empty_embed_json", string=json.dumps(dct,embed=2))
+
+	# get text
+	text=""
+	if "content" in dct:
+		text= str(dct["content"])
+
+	# check non-empty
+	if not text and not embed:
+		raise TemplatedError("empty_message_json")
+
+	return dict(content=text, embed=embed.to_dict())
+
+def edit_rr_log(message, message_dict=None, roles=None, emotes=None):
+	# load log
+	log_file= utils.REACTION_ROLE_LOG_DIR + str(message.guild.id) + ".json"
+	log= utils.load_json_with_default(log_file, default={})
+
+	# add default values (includes channel id because cant fetch message without it)
+	ch_id= str(message.channel.id)
+	m_id= str(message.id)
+
+	if ch_id not in log:
+		log[ch_id]= {}
+	if m_id not in log[ch_id]:
+		log[ch_id][m_id]= dict(message={}, roles=[], emotes=[])
+
+	# edit entry
+	entry= log[str(message.channel.id)][str(message.id)]
+	if message_dict is not None:
+		entry['message']= message_dict
+	if roles is not None:
+		entry['roles']= [x.id for x in roles]
+	if emotes is not None:
+		entry['emotes']= []
+		for x in emotes:
+			if isinstance(x, str):
+				entry['emotes'].append(x)  # unicode emoji
+			else:
+				entry['emotes'].append(x.id)
+
+	# save log
+	utils.dump_json(log, log_file)
+	return entry
+
+def get_emotes(id_list, bot, ctx, message):
+	ret= []
+	emotes= bot.emojis
+
+	for x in id_list:
+		try:
+			e= discord.utils.get(emotes, id=int(x))
+			if e is None:
+				raise TemplatedError("deleted_rr_emote", id=x, ctx=ctx, message=message)
+			else:
+				ret.append(e)
+		except ValueError:
+			ret.append(x) # unicode emoji
+
+	return ret
+
+def get_roles(id_list, bot, ctx, message):
+	ret= []
+	roles= message.guild.roles
+
+	for x in id_list:
+		e= discord.utils.get(roles, id=int(x))
+		if e is None:
+			raise TemplatedError("deleted_rr_role", id=x, ctx=ctx, message=message)
+		else:
+			ret.append(e)
+
+	return ret
+
+async def notify_rr_emote_role_edit(ctx, roles, emotes, remainder, message):
+	# inits
+	CONFIG= utils.load_yaml(utils.REACTION_CONFIG)
+	notify_template= CONFIG['rr_role_emote_edit_template']
+
+	# preprocess
+	pairs= []
+	for i in range(max(len(roles), len(emotes))):
+		tmp= []
+
+		if i < len(roles): tmp.append(roles[i].name)
+		else: tmp.append("")
+
+		if i < len(emotes): tmp.append(str(emotes[i]))
+		else: tmp.append("")
+
+		pairs.append(tuple(tmp))
+
+	# notify
+	text= utils.render(notify_template, dict(pairs=pairs, remainder=remainder, message=message))
+	await ctx.send(text)

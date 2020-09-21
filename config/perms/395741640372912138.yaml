@@ -48,6 +48,9 @@ none:
   poop_delete:
     everyone: 0
     exceptions: []
+  reaction_delete:
+    everyone: 0
+    exceptions: []
 Auction:
   everyone: 0
   exceptions: []

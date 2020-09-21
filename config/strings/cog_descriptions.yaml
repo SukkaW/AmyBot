@@ -51,8 +51,8 @@ Reaction:
     keywords:
     commands:
         addrr:
-            description: Add reaction role message / emotes / roles
-            args: '[ "message" | "roles" | "emotes" ] [ text/json | list of roles | list of emotes ]'
+            description: Add reaction role message
+            args: '{json-encoded string containing "content" and/or "embed" keys}'
             keywords:
 
         editrr:

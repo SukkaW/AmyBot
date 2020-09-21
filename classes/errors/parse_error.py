@@ -2,7 +2,7 @@ from discord.ext.commands.errors import CommandError
 import utils
 
 class ParseError(CommandError):
-	def __init__(self, keyword=None, value=None, exception=None):
+	def __init__(self, keyword=None, value=None, reason=None):
 		"""
 		For pretty printing parse errors.
 		:param keyword: Keyword that the value belongs to
@@ -12,7 +12,7 @@ class ParseError(CommandError):
 
 		self.keyword= keyword
 		self.value= value
-		self.exception= exception
+		self.reason= reason
 
 	def render(self, ctx):
 		COG_STRINGS= utils.load_yaml(utils.COG_STRING_FILE)
@@ -24,7 +24,7 @@ class ParseError(CommandError):
 			"ARGS": COG_STRINGS[ctx.command.cog.qualified_name]['commands'][ctx.command.name]['args'],
 			"VALUE": self.value,
 			"KEYWORD": self.keyword,
-			"EXCEPTION": str(self.exception)
+			"REASON": str(self.reason)
 		}
 
 		return utils.render(ERROR_STRINGS['parse_error_template'], reps)
@@ -34,6 +34,6 @@ class ParseError(CommandError):
 		reps= {
 			"VALUE": self.value,
 			"KEYWORD": self.keyword,
-			"EXCEPTION": str(self.exception)
+			"REASON": str(self.reason)
 		}
 		return utils.render(STRINGS['parse_console_template'], reps)

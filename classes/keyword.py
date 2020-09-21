@@ -1,3 +1,5 @@
+from classes.errors import ParseError
+
 class Keyword:
 	def __init__(self, name, parsing_function=None, aliases=None):
 		self.name= name
@@ -41,7 +43,12 @@ class Keyword:
 		for x in to_chk:
 			if string.startswith(x):
 				tmp= string.replace(x,"",1)
-				self.value= self.parsing_function(tmp)
+
+				try:
+					self.value= self.parsing_function(tmp)
+				except Exception as e:
+					raise ParseError(keyword=self.name, value=string, reason=str(e))
+
 				return self.value
 
 		return None

@@ -2,7 +2,7 @@
 parse_error_template: |-
   ParseError. Could not parse value `{{VALUE}}` for keyword `{{KEYWORD}}`.
   ----
-  __Reason__: {{EXCEPTION}}
+  __Reason__: {{REASON}}
   __Correct Usage__: `{{PREFIX}}{{COMMAND}} {{ARGS}}`
   ----
   See `{{PREFIX}}help {{COMMAND}}` for details.
@@ -89,6 +89,7 @@ uncaught_template: |-
 tmp_not_found_template: |-
   Typo in template name `{{NAME}}`
   Valid template names: `[{{", ".join(AVAILABLE)}}]`
+  <@113843036965830657>
 
 no_equip_match_template: |-
   No equips found.
@@ -106,5 +107,55 @@ no_keywords_template: "todo no_keywords_template" #@todo
 bad_response_template: |-
   Error. Accessing "{{LINK}}" failed with reason "{{response.reason}} ({{response.status}})"
 
+# Reaction cog errors ----
+no_guild_template: |-
+  Error. You can't use this command in DM's.
+
 bad_rr_type_template: |-
   Error. `{{VALUE|upper}}` is not a known sub-command. Please try again with `msg`, `emotes`, or `roles` instead.
+
+empty_message_json_template: |-
+  Error. You must supply a JSON-encoded string that is containing at least one key named "content" or "embed".
+  You may validate your input with <https://leovoel.github.io/embed-visualizer/>. (Exclude the timestamp field.)
+
+yaml_to_json_template: |-
+  ParserError. Could not convert your input to a JSON.
+  You may validate your input with <https://leovoel.github.io/embed-visualizer/>. (Exclude the timestamp field.)
+  ```py
+  {{ERROR}}
+  ```
+
+bad_embed_json_template": |-
+  Error. Could not convert the embed dictionary to a json.
+  Reason: `{{ERROR}}`
+  Input JSON:
+  ```
+  {{STRING}}
+  ```
+
+empty_embed_json_template: |-
+  Error. Your input results in an empty embed.
+  You may validate your input with <https://leovoel.github.io/embed-visualizer/>. (Exclude the timestamp field.)
+  Your input:
+  ---
+  {{STRING}}
+
+no_rr_message_id_template: |-
+  Error. You must supply the ID (integer) of a reaction-role message previously posted by the bot.
+
+rr_message_not_int_template: |-
+  Error. The message id supplied (`{{STRING}}`) is not an integer.
+
+bad_rr_message_id_template: |-
+  Error. No previous reaction-role message with that ID (`{{STRING}}`) found.
+
+deleted_rr_message_template: |-
+  Error. The message with that ID (`{{STRING}}`) has been deleted.
+
+deleted_rr_emote_template: |-
+  Error. The emoji with ID `{{ID}}` has been deleted. Please re-edit the rr message.
+  (ie, try `{{CTX.prefix}}rredit {{MESSAGE.id}} emotes {list_of_emotes}`)
+
+deleted_rr_role_template: |-
+  Error. The role with ID `{{ID}}` has been deleted. Please re-edit the rr message.
+  (ie, try `{{CTX.prefix}}rredit {{MESSAGE.id}} roles {list_of_roles}`)
