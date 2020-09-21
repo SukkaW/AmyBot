@@ -52,7 +52,7 @@ class UpdateCog(PartialCog):
 	@tasks.loop(hours=6)
 	async def update_ranges(self):
 		CONFIG= utils.load_json_with_default(utils.BOT_CONFIG_FILE, default=False)
-		range_check= check_update_log("equip_ranges", 24*CONFIG['equip_range_check_frequency_hours'])
+		range_check= check_update_log("equip_ranges", 3600*CONFIG['equip_range_check_frequency_hours'])
 
 		if range_check or not os.path.exists(utils.RANGES_FILE):
 			print("Updating equip ranges...")
