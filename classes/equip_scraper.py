@@ -14,7 +14,7 @@ class EquipScraper:
 	# get equip ranges and save as json
 	@classmethod
 	async def scrape_ranges(cls):
-		with aiohttp.ClientSession() as session:
+		async with aiohttp.ClientSession() as session:
 			html= await get_html(cls.DATA_LINK, session)
 			data= json.loads(html)
 			utils.dump_json(data, utils.RANGES_FILE)

@@ -59,3 +59,13 @@ Reaction:
             description: Edit reaction role message / emotes / roles
             args: '{old_message_id}  { "message" | "roles" | "emotes" }  { text/json | list of roles | list of emotes }'
             keywords:
+
+        getrr:
+            description: Gets a list of active reaction-role messages for the server
+            args: '{old_message_id OR "all"}'
+            keywords:
+
+        listroles:
+            description: Lists all roles + role ids for the server
+            args: ""
+            keywords:

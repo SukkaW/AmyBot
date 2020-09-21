@@ -159,3 +159,9 @@ deleted_rr_emote_template: |-
 deleted_rr_role_template: |-
   Error. The role with ID `{{ID}}` has been deleted. Please re-edit the rr message.
   (ie, try `{{CTX.prefix}}rredit {{MESSAGE.id}} roles {list_of_roles}`)
+
+no_add_perms_template: |-
+  Error. I can't give you the `{{ROLE.name}}` role {{MEMBER.mention}}. You're either the server owner or more patrician than me on the role list.
+
+no_remove_perms_template: |-
+  Error. I can't remove the `{{ROLE.name}}` role {{MEMBER.mention}} for you. You're either the server owner or more patrician than me on the role list.

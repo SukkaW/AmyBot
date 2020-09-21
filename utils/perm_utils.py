@@ -1,7 +1,10 @@
 from classes.errors import PermissionError
 import utils, os, copy
 
-def check_perms(ctx, command_name=None, cog_name=None):
+# Don't immediately return in order to update perm dict for missing commands
+def check_perms(ctx, command_name=None, cog_name=None, suppress=False):
+	ret= False
+
 	# inits
 	GLOBALS= utils.load_yaml(utils.GLOBAL_PERMS_FILE)
 	cmd= ctx.command.name if command_name is None else command_name
@@ -12,16 +15,22 @@ def check_perms(ctx, command_name=None, cog_name=None):
 
 	# check global admin
 	if _is_global_admin(ctx, GLOBALS):
-		return True
+		ret |= True
 
 	# if dm, check dm perms in global_perms file, else guild perms file
 	if ctx.guild is None:
-		ret= _check(cmd=cmd, cog=cog, perm_dict=GLOBALS['dm'], flags=GLOBALS['flags'], ctx=ctx, is_dm=True)
+		ret |= _check(cmd=cmd, cog=cog, perm_dict=GLOBALS['dm'], flags=GLOBALS['flags'], ctx=ctx, is_dm=True)
 		utils.dump_yaml(GLOBALS, utils.GLOBAL_PERMS_FILE)
 	else:
 		# check guild owner
 		if ctx.author.id == ctx.guild.owner.id:
-			return True
+			ret |= True
+
+		# check guild admin
+		member= ctx.guild.get_member(ctx.author.id)
+		perms= member.permissions_in(ctx.channel)
+		if perms.administrator:
+			ret |= True
 
 		# load guild perms
 		perms_file= f"{utils.PERMS_DIR}{str(ctx.guild.id)}.yaml"
@@ -32,7 +41,14 @@ def check_perms(ctx, command_name=None, cog_name=None):
 			utils.dump_yaml(perms_dict, perms_file)
 
 		# check guild perms
-		ret= _check(cmd=cmd, cog=cog, perm_dict=perms_dict, flags=perms_dict['flags'], ctx=ctx, is_dm=False)
+		if not suppress and not ret:
+			ret |= _check(cmd=cmd, cog=cog, perm_dict=perms_dict, flags=perms_dict['flags'], ctx=ctx, is_dm=False)
+		else:
+			try:
+				ret |= _check(cmd=cmd, cog=cog, perm_dict=perms_dict, flags=perms_dict['flags'], ctx=ctx, is_dm=False)
+			except PermissionError:
+				ret |= False
+
 		utils.dump_yaml(perms_dict, perms_file)
 
 	return ret

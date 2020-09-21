@@ -2,10 +2,10 @@ import os, json
 from ruamel.yaml import YAML
 
 def load_yaml(path):
-	return YAML().load(open(path))
+	return YAML().load(open(path, encoding='utf-8'))
 
 def dump_yaml(data, path):
-	return YAML().dump(data, open(path, "w"))
+	return YAML().dump(data, open(path, "w", encoding='utf-8'))
 
 
 # yamls are assumed to be pre-existing because they contain templates, but...

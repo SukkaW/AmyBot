@@ -33,7 +33,7 @@ flags:
   FAIL: &fail -1
 
 
-vocal_fail: false   # @todo: true when for real
+vocal_fail: true
 details: false
 
 everyone: *fail

@@ -45,12 +45,6 @@ none:
   help:
     everyone: 0
     exceptions: []
-  poop_delete:
-    everyone: 0
-    exceptions: []
-  reaction_delete:
-    everyone: 0
-    exceptions: []
 Auction:
   everyone: 0
   exceptions: []
@@ -79,5 +73,20 @@ Preview:
   everyone: *allow
   exceptions: []
   preview:
+    everyone: 0
+    exceptions: []
+Reaction:
+  everyone: 0
+  exceptions: []
+  addrr:
+    everyone: 0
+    exceptions: []
+  reaction_delete:
+    everyone: 0
+    exceptions: []
+  reaction_role:
+    everyone: 0
+    exceptions: []
+  listroles:
     everyone: 0
     exceptions: []

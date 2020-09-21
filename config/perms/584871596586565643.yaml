@@ -42,3 +42,21 @@ exceptions: []
 none:
   everyone: 0
   exceptions: []
+Preview:
+  everyone: 0
+  exceptions: []
+  preview:
+    everyone: 0
+    exceptions: []
+Reaction:
+  everyone: 0
+  exceptions: []
+  addrr:
+    everyone: 0
+    exceptions: []
+  reaction_delete:
+    everyone: 0
+    exceptions: []
+  reaction_role:
+    everyone: 0
+    exceptions: []

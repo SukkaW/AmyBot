@@ -5,14 +5,17 @@ import utils.pprint_utils as Pprint
 import utils
 
 
-async def pageify_and_send(ctx, strings, CONFIG, has_link=False, max_len=1900):
+async def pageify_and_send(ctx, strings, CONFIG=None, has_link=False, max_len=1900, page_limit_dm=99, page_limit_server=2, code=None):
 	# group strings into pages
 	pages= Pprint.get_pages(strings, max_len=max_len)
 
+	if has_link: _code=None
+	else: _code=code
+
 	# send pages
-	await send_pages(ctx, pages, has_link=has_link, code="py" if not has_link else None,
-					 page_limit_dm=CONFIG['page_limit_dm'],
-					 page_limit_server=CONFIG['page_limit_server'])
+	await send_pages(ctx, pages, has_link=has_link, code=_code,
+					 page_limit_dm=CONFIG['page_limit_dm'] if CONFIG else page_limit_dm,
+					 page_limit_server=CONFIG['page_limit_server'] if CONFIG else page_limit_server)
 
 def check_for_key(key, keywords, col_names):
 		return keywords[key] or 'key' in col_names
