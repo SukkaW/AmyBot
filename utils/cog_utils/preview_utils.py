@@ -295,12 +295,12 @@ async def parse_bounty_match(bounty_id, session, try_delay=5):
 
 	# reward calculations
 	tmp= soup.find_all(class_="r")[5].get_text()
-	tmp= re.search(r"([\d,]+) Credits \+ ([\d,]+) Hath", tmp).groups()
-	credits= int_to_price(tmp[0])
-	hath= int_to_price(tmp[1])
+	tmp= re.search(r"(?:([\d,]+) Credits)?(?: \+ )?(?:([\d,]+) Hath)?", tmp).groups()
+	credits= int_to_price(tmp[0]) if tmp[0] else "0c"
+	hath= int_to_price(tmp[1]) if tmp[1] else "0c"
 
-	raw_credits= int(tmp[0].replace(",",""))
-	raw_hath= int(tmp[1].replace(",",""))
+	raw_credits= int(tmp[0].replace(",","")) if tmp[0] else 0
+	raw_hath= int(tmp[1].replace(",","")) if tmp[0] else 0
 
 	credit_val= raw_credits + raw_hath*CONFIG['hath_value']
 	credit_val= int_to_price(credit_val)
