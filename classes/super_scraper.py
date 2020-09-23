@@ -20,7 +20,8 @@ class SuperScraper:
 	}
 	EQUIP_REGEX= {
 		"level_stats": re.compile(r"(\d+|Unassigned|n/a)(?:, (.*))?"),
-		"price_buyer": re.compile(r"(\d+[mkc]) \((.*) #[\d.]+\)")
+		"price_buyer": re.compile(r"(\d+[mkc]) \((.*) #[\d.]+\)"),
+		"stat_cleaning": re.compile(r"(\w+ )EDB", flags=re.IGNORECASE) # Elec EDB --> EDB
 	}
 
 
@@ -216,6 +217,11 @@ class SuperScraper:
 		match= cls.EQUIP_REGEX['level_stats'].fullmatch(cols[2].get_text()) # fails for 5-in-1, see: hea04 https://reasoningtheory.net/itemlist215252
 		if match:
 			level,stats= match.group(1,2)
+
+			if stats is None:
+				stats= ""
+			else:
+				stats= cls.EQUIP_REGEX['stat_cleaning'].sub("EDB", stats)
 		else:
 			raise SuperParseFail("level_stats", tr)
 
@@ -235,7 +241,6 @@ class SuperScraper:
 			level= int(level)
 
 		price= price_to_int(price)
-		if stats is None: stats= ""
 
 
 		# return

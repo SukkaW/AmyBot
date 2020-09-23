@@ -21,10 +21,9 @@ class UpdateCog(PartialCog):
 	async def check_super(self):
 		super_check= check_update_log("super", 24*60*60, exact_day=6)
 
-		if super_check:
+		if super_check or not os.path.exists(utils.AUCTION_FILE):
 			print("Checking super...")
 			await SuperScraper.scrape()
-		if super_check or not os.path.exists(utils.AUCTION_FILE):
 			await SuperScraper.parse()
 			await merge_auctions()
 
@@ -34,10 +33,9 @@ class UpdateCog(PartialCog):
 		CONFIG= utils.load_json_with_default(utils.BOT_CONFIG_FILE, default=False)
 		hvm_check= check_update_log("hvmarket", 3600*CONFIG['market_check_frequency_hours'])
 
-		if hvm_check:
+		if hvm_check or not os.path.exists(utils.ITEM_FILE):
 			print("Checking market...")
 			await MarketScraper.scrape()
-		if hvm_check or not os.path.exists(utils.ITEM_FILE):
 			await merge_items()
 
 	# check kedama fo... jk, her auctions discountinued

@@ -1,6 +1,6 @@
 import utils.parse_utils as Parse
 import utils.cog_utils as Cgu
-import utils.cog_utils.auction_utils as Auct
+import utils.cog_utils.equip_utils as Auct
 
 from discord.ext import commands
 from classes import PartialCommand, PartialCog, KeywordList, Keyword
