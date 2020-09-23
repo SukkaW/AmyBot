@@ -36,7 +36,12 @@ async def parse_equip_match(equip_id, equip_key, session, level=0):
 	forge_level= 0
 	if result['forging']:
 		vals= [x for x in result['forging'].values() if x > 5]
-		forge_level= statistics.median(vals)
+		if vals:
+			forge_level= statistics.median(vals)
+		elif len(list(result['forging'].values())) > 0:
+			forge_level= 5
+		else:
+			forge_level= 0
 
 	if level == 2:
 		pass # @todo: super-expanded equip preview
