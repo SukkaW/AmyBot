@@ -93,8 +93,8 @@ equip:
 
   # keys must match table_headers
   table_categories:
-    offensive: [damage, edb, crit]
-    defensive: [parry, mit]
+    offensive: [damage, edb, crit, intelligence, wisdom, strength, dexterity]
+    defensive: [parry, mit, agility, endurance]
     # supportive: [prof, accuracy]
 #    pabs: [wisdom, intelligence, dexterity, strength, agility, endurance]
     other: []
@@ -124,12 +124,13 @@ equip:
     Strength: STR
     Dexterity: DEX
 
-    Interference: Intf.
+    Interference: Intf
 
     Physical Mitigation: Pmit
     Magical Mitigation: Mmit
     Crushing MIT: Crush
     Slashing MIT: Slash
+    Piercing MIT: Pierc
 
     Parry Chance: Parry
     Evade Chance: Evade
