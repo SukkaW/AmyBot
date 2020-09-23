@@ -48,7 +48,7 @@ class EquipScraper:
 		soup= BeautifulSoup(html, 'html.parser')
 
 		# get name and main stats
-		name= soup.find(id="showequip").find("div").get_text(" ")
+		name, alt_name= cls._get_names(soup)
 		forged_stats= cls._get_main_stats(soup.find(class_="ex"))
 
 		# get attack damage (weapons)
@@ -95,6 +95,7 @@ class EquipScraper:
 		# clean up stats and return
 		return dict(
 			name=name,
+			alt_name=alt_name,
 			stats= forged_stats,
 			base_stats= base_stats,
 			forging=forging,
@@ -103,6 +104,22 @@ class EquipScraper:
 			level=level,
 			owner=owner
 		)
+
+	# get real equip name and custom name (if exists)
+	@staticmethod
+	def _get_names(soup):
+		name= None
+		alt_name= None
+
+		divs= soup.find(id="showequip").find_all("div", recursive=False)
+		if "id" in divs[1].attrs: # no custom name
+			name= divs[0].get_text()
+		else:
+			name= divs[1].get_text()
+			alt_name= divs[0].get_text()
+
+		return name,alt_name
+
 
 	@staticmethod
 	def _get_main_stats(div):

@@ -100,11 +100,16 @@ async def parse_equip_match(equip_id, equip_key, session, level=0):
 		suffix+= "# " + " • ".join(tmp)
 
 		# return
+		if not result['alt_name']:
+			name= f"@ {result['name']}"
+		else:
+			name= f"@ {result['alt_name']}\n# ({result['name']})"
+
 		if level == 1:
-			preview= pprint(cols, prefix=f"@ {result['name']}\n{suffix}", code=None, borders=True)
+			preview= pprint(cols, prefix=f"{name}\n{suffix}", code=None, borders=True)
 		else:
 			tmp= [y.strip() for x in cols for y in x.data if y.strip()]
-			preview= f"@ {result['name']}\n{suffix}\n{', '.join(tmp)}"
+			preview= f"{name}\n{suffix}\n{', '.join(tmp)}"
 
 		return preview
 

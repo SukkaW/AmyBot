@@ -87,7 +87,7 @@ equip:
     offensive: Offensive
     defensive: Defensive
 #    supportive: Supportive
-    pabs: PABs
+#    pabs: PABs
     other: Other
 
   # keys must match table_headers
