@@ -5,7 +5,7 @@ from utils.parse_utils import int_to_price, contains
 from classes.errors import TemplatedError
 from classes import EquipScraper, EquipParser, Column
 
-import utils, bs4, datetime, discord, re, asyncio, statistics
+import utils, bs4, datetime, discord, re, asyncio, statistics, sys
 
 # less redundancy
 def scan_decorator(key):
@@ -30,19 +30,17 @@ async def parse_equip_match(equip_id, equip_key, session, level=0):
 	# get stats
 	equip_link= f"https://hentaiverse.org/equip/{equip_id}/{equip_key}"
 	result= await EquipScraper.scrape_equip(equip_link, session=session)
-	percentiles= parser.raw_stat_to_percentile(result['name'], result['base_stats'])
+
+	title= _get_title(result)
+	subtitle= _get_subtitle(result)
+	prefix= f"{title}\n{subtitle}"
+
+	try: percentiles= parser.raw_stat_to_percentile(result['name'], result['base_stats'])
+	except ValueError as e:
+		sys.stderr.write("WARNING: " + str(e))
+		return f"{prefix}\n(no percentile data)\n"
 
 	# get preview
-	forge_level= 0
-	if result['forging']:
-		vals= [x for x in result['forging'].values() if x > 5]
-		if vals:
-			forge_level= statistics.median(vals)
-		elif len(list(result['forging'].values())) > 0:
-			forge_level= 5
-		else:
-			forge_level= 0
-
 	if level == 2:
 		pass # @todo: super-expanded equip preview
 	else:
@@ -72,46 +70,60 @@ async def parse_equip_match(equip_id, equip_key, session, level=0):
 		# table cols
 		cols= _get_equip_cols(percentiles, CONFIG)
 
-		# forging
-		suffix= ""
-		if forge_level > 0:
-			suffix= f"# Forge {forge_level}"
-
-		# IW potencies
-		tmp= []
-		for name,lvl in result['enchants'].items():
-			if lvl > 0:
-				tmp.append(f"{name} {lvl}")
-			else:
-				tmp.append(name)
-
-		# concatenate upgrades
-		if forge_level > 0 and result['enchants']:
-			suffix+= " • "
-		suffix+= " • ".join(tmp)
-
-		# other info
-		tmp= []
-		tmp+= ["Tradeable" if result['tradeable'] else "Soulbound"]
-		tmp+= [f"Owned by {result['owner']}"]
-		if result['level']: tmp.insert(0, f"Level {result['level']}")
-
-		if suffix: suffix+= "\n"
-		suffix+= "# " + " • ".join(tmp)
-
 		# return
-		if not result['alt_name']:
-			name= f"@ {result['name']}"
-		else:
-			name= f"@ {result['alt_name']}\n# ({result['name']})"
-
 		if level == 1:
-			preview= pprint(cols, prefix=f"{name}\n{suffix}", code=None, borders=True)
+			preview= pprint(cols, prefix=prefix, code=None, borders=True)
 		else:
 			tmp= [y.strip() for x in cols for y in x.data if y.strip()]
-			preview= f"{name}\n{suffix}\n{', '.join(tmp)}"
+			preview= f"{prefix}\n{', '.join(tmp)}"
 
 		return preview
+
+def _get_title(result):
+	if not result['alt_name']:
+		return f"@ {result['name']}"
+	else:
+		return f"@ {result['alt_name']}\n# ({result['name']})"
+
+def _get_subtitle(result):
+	# forging
+	forge_level= 0
+	if result['forging']:
+		vals= [x for x in result['forging'].values() if x > 5]
+		if vals:
+			forge_level= statistics.median(vals)
+		elif len(list(result['forging'].values())) > 0:
+			forge_level= 5
+		else:
+			forge_level= 0
+
+	subtitle= ""
+	if forge_level > 0:
+		subtitle= f"# Forge {forge_level}"
+
+	# IW potencies
+	tmp= []
+	for name,lvl in result['enchants'].items():
+		if lvl > 0:
+			tmp.append(f"{name} {lvl}")
+		else:
+			tmp.append(name)
+
+	# concatenate upgrades
+	if forge_level > 0 and result['enchants']:
+		subtitle+= " • "
+	subtitle+= " • ".join(tmp)
+
+	# other info
+	tmp= []
+	tmp+= ["Tradeable" if result['tradeable'] else "Soulbound"]
+	tmp+= [f"Owned by {result['owner']}"]
+	if result['level']: tmp.insert(0, f"Level {result['level']}")
+
+	if subtitle: subtitle+= "\n"
+	subtitle+= "# " + " • ".join(tmp)
+
+	return subtitle
 
 def _get_equip_cols(percentiles, CONFIG):
 	# categorize

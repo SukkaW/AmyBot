@@ -31,7 +31,10 @@ class EquipParser:
 		suffix= spl.pop(-1) # Surtr
 
 		data= copy.deepcopy(self.RANGES)
-		for x in spl: data= data[x]
+		for x in spl:
+			if x not in data:
+				raise ValueError(f"[{equip_name}] (\"{x}\") not found in range data.")
+			data= data[x]
 		data= data[quality]
 
 		for stat in data:

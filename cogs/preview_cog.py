@@ -7,7 +7,7 @@ from utils.perm_utils import check_perms
 from utils.cog_utils import preview_utils
 from utils.pprint_utils import get_pages
 
-import time, re, discord
+import time, re, discord, traceback, utils
 
 
 # @todo: max previews per message
@@ -66,10 +66,18 @@ class PreviewCog(PartialCog, name="Preview"):
 		for x in matches:
 			await ctx.trigger_typing()
 			has_excl, equip_id, equip_key= x
-			t= await preview_utils.parse_equip_match(equip_id=equip_id,
-		                                             equip_key=equip_key,
-			                                         level=len(has_excl),
-											         session=self.session)
+
+			# try parsing, add reaction to original message on fail
+			try:
+				t= await preview_utils.parse_equip_match(equip_id=equip_id,
+														 equip_key=equip_key,
+														 level=len(has_excl),
+														 session=self.session)
+			except Exception as e:
+				CONFIG= utils.load_yaml(utils.PREVIEW_CONFIG)
+				traceback.print_tb(e.__traceback__)
+				return await ctx.message.add_reaction(CONFIG['fail_reaction_emote'])
+
 			msgs.append(t)
 
 		texts= [f"```py\n{x.strip()}\n```" for x in msgs if isinstance(x,str)]
