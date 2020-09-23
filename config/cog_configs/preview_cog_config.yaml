@@ -95,7 +95,7 @@ equip:
     offensive: [damage, edb, crit]
     defensive: [parry, mit]
     # supportive: [prof, accuracy]
-    pabs: [wisdom, intelligence, dexterity, strength, agility, endurance]
+#    pabs: [wisdom, intelligence, dexterity, strength, agility, endurance]
     other: []
 
   # case sensitive mappings (html name --> desired abbreviation)
@@ -127,8 +127,8 @@ equip:
 
     Physical Mitigation: Pmit
     Magical Mitigation: Mmit
-    Crushing MIT: Crushing
-    Slashing MIT: Slashing
+    Crushing MIT: Crush
+    Slashing MIT: Slash
 
     Parry Chance: Parry
     Evade Chance: Evade
