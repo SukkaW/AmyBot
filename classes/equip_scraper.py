@@ -113,10 +113,10 @@ class EquipScraper:
 
 		divs= soup.find(id="showequip").find_all("div", recursive=False)
 		if "id" in divs[1].attrs: # no custom name
-			name= divs[0].get_text()
+			name= " ".join(x.get_text() for x in soup.find_all("div", class_="fc4 fac fcb"))
 		else:
-			name= divs[1].get_text()
-			alt_name= divs[0].get_text()
+			name= " ".join(x.get_text() for x in soup.find_all("div", class_="fc4 fac fcb"))
+			alt_name= " ".join(x.get_text() for x in soup.find_all("div", class_="fc2 fac fcb"))
 
 		return name,alt_name
 
