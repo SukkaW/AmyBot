@@ -91,7 +91,7 @@ def _get_subtitle(result):
 	if result['forging']:
 		vals= [x for x in result['forging'].values() if x > 5]
 		if vals:
-			forge_level= statistics.median(vals)
+			forge_level= round(statistics.median(vals))
 		elif len(list(result['forging'].values())) > 0:
 			forge_level= 5
 		else:
@@ -160,9 +160,10 @@ def _get_equip_cols(percentiles, CONFIG):
 	cols= [Column(**x) for x in tmp]
 	return cols
 
-async def parse_thread_match(thread_id, session):
+async def parse_thread_match(thread_id, session, is_long=False):
 	# inits
 	CONFIG= utils.load_yaml(utils.PREVIEW_CONFIG)
+	if is_long: CONFIG= _get_long_params(CONFIG)
 
 	# get html
 	thread_link= "https://forums.e-hentai.org/index.php?showtopic=" + thread_id
@@ -209,9 +210,10 @@ async def parse_thread_match(thread_id, session):
 
 	return embed
 
-async def parse_comment_match(thread_id, post_id, session):
+async def parse_comment_match(thread_id, post_id, session, is_long=False):
 	# inits
 	CONFIG= utils.load_yaml(utils.PREVIEW_CONFIG)
+	if is_long: CONFIG= _get_long_params(CONFIG)
 
 	# get html
 	thread_link= "https://forums.e-hentai.org/index.php?showtopic=" + thread_id + "&view=findpost&p=" + post_id
@@ -257,9 +259,10 @@ async def parse_comment_match(thread_id, post_id, session):
 
 	return embed
 
-async def parse_bounty_match(bounty_id, session, try_delay=5):
+async def parse_bounty_match(bounty_id, session, try_delay=5, is_long=False):
 	# inits
 	CONFIG= utils.load_yaml(utils.PREVIEW_CONFIG)
+	if is_long: CONFIG= _get_long_params(CONFIG)
 	max_tries= CONFIG['max_tries']
 
 	# get html
@@ -300,7 +303,7 @@ async def parse_bounty_match(bounty_id, session, try_delay=5):
 	hath= int_to_price(tmp[1]) if tmp[1] else "0c"
 
 	raw_credits= int(tmp[0].replace(",","")) if tmp[0] else 0
-	raw_hath= int(tmp[1].replace(",","")) if tmp[0] else 0
+	raw_hath= int(tmp[1].replace(",","")) if tmp[1] else 0
 
 	credit_val= raw_credits + raw_hath*CONFIG['hath_value']
 	credit_val= int_to_price(credit_val)
@@ -335,6 +338,11 @@ async def parse_bounty_match(bounty_id, session, try_delay=5):
 	return embed
 
 # helper methods --------------
+
+def _get_long_params(CONFIG):
+	for x in ['max_body_length', 'max_body_lines', 'max_title_length']:
+		CONFIG[x] *= CONFIG['long_multiplier']
+	return CONFIG
 
 # elem.get_text() wont print correctly due to bbcode formatting
 # so apply various fixes before grabbing string to parse

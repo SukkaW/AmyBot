@@ -94,7 +94,8 @@ class PreviewCog(PartialCog, name="Preview"):
 	async def scan_thread(self, match):
 		has_excl, thread_id= match
 		embed= await preview_utils.parse_thread_match(thread_id=thread_id,
-													  session=self.session)
+													  session=self.session,
+													  is_long=has_excl)
 		return embed
 
 
@@ -103,7 +104,8 @@ class PreviewCog(PartialCog, name="Preview"):
 		has_excl, thread_id, post_id= match
 		embed= await preview_utils.parse_comment_match(thread_id=thread_id,
 													   post_id=post_id,
-													   session=self.session)
+													   session=self.session,
+													   is_long=has_excl)
 		return embed
 
 
@@ -111,7 +113,8 @@ class PreviewCog(PartialCog, name="Preview"):
 	async def scan_bounty(self, match):
 		has_excl, bounty_id= match
 		embed= await preview_utils.parse_bounty_match(bounty_id=bounty_id,
-													  session=self.session)
+													  session=self.session,
+													  is_long=has_excl)
 		return embed
 
 
