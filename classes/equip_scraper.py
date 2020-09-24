@@ -230,11 +230,11 @@ class EquipScraper:
 				coeff= 0.2
 				iw_coeff= 1
 
-			if potency_info[0] == "10":
-				pxp_zero= cls._get_pxp_zero(eq_name)
-			else:
+			if potency_info[0] == "0":
 				pxp_zero= re.search(r"\((\d+\s+)/(\s+\d+)\)", potency_info[1]).group(2)
 				pxp_zero= int(pxp_zero)
+			else:
+				pxp_zero= cls._get_pxp_zero(eq_name)
 
 			forge_coeff= 1 + coeff*math.log( 0.1*level + 1 )
 			quality_bonus= (pxp_zero-100) * (cls._get_base_multiplier(st) / 25)
