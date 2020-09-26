@@ -61,6 +61,7 @@ class PreviewCog(PartialCog, name="Preview"):
 
 	async def scan_equip(self, ctx):
 		matches= self.get_matches(ctx.message.content, "equip")
+		has_failed= False
 
 		msgs= []
 		for x in matches:
@@ -76,7 +77,11 @@ class PreviewCog(PartialCog, name="Preview"):
 			except Exception as e:
 				CONFIG= utils.load_yaml(utils.PREVIEW_CONFIG)
 				traceback.print_tb(e.__traceback__)
-				return await ctx.message.add_reaction(CONFIG['fail_reaction_emote'])
+
+				if not has_failed:
+					await ctx.message.add_reaction(CONFIG['fail_reaction_emote'])
+					has_failed= True
+					continue
 
 			msgs.append(t)
 
