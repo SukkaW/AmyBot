@@ -1,4 +1,3 @@
-from classes.keyword import Keyword
 import utils, datetime
 
 def parse_keywords(query, keywords):
@@ -120,4 +119,6 @@ def to_year(val):
 
 	return to_pos_int(val)
 
-def get_date_key(): return Keyword("date", to_year, aliases=["year", "20", "year20"])
+def get_date_key():
+	from classes.keyword import Keyword
+	return Keyword("date", to_year, aliases=["year", "20", "year20"])

@@ -1,4 +1,4 @@
-from classes.scrapers.equip_scraper import EquipScraper
+from .scrapers.equip_scraper import EquipScraper
 import utils, copy
 
 # Parses equip link for stats and converts to percentile values.
@@ -14,14 +14,14 @@ class EquipParser:
 		spl= equip_name.split() # ['Peerless', 'Charged', 'Phase', 'Cap', 'Surtr']
 		quality= spl.pop(0) # Peerless
 
-		types= ["oak", "redwood", "willow", "katalox"
+		types= ["oak", "redwood", "willow", "katalox",
 				"axe", "club", "rapier", "shortsword", "wakizashi", "estoc", "longsword", "mace", "katana",
 				"cotton","phase","leather","shade","power","plate",
 				"buckler","kite","force"]
 
 		# check if type or prefix comes next
 		if quality.lower() not in ["peerless", "legendary"]:
-			if spl[0] in types:
+			if spl[0].lower() in types:
 				prefix= ""
 			else:
 				prefix= spl.pop(0) # Charged

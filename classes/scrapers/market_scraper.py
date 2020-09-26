@@ -18,15 +18,13 @@ class MarketScraper:
 		# inits
 		DATA= utils.load_json_with_default(utils.MARKET_ITEM_FILE)
 		CACHE= utils.load_json_with_default(utils.MARKET_CACHE_FILE, default=cls.DEFAULT_CACHE)
-		invalid_list= CACHE['invalid']
 		CACHE['invalid']= set(CACHE['invalid'])
 
 		target_page_number= 1
 		target_index= None
 
 		session= get_session()
-		async with session:
-			html= await get_html(cls.BASE_LINK, session)
+		html= await get_html(cls.BASE_LINK, session)
 
 
 		# Loop logic:
@@ -43,7 +41,6 @@ class MarketScraper:
 			DATA.update(result['entries'])
 			total= result['total']
 			CACHE['invalid'] |= result['invalid_indices']
-			invalid_list+= list(result)
 
 			# step 2
 			if target_index is None:
@@ -62,17 +59,19 @@ class MarketScraper:
 			html= await get_html(cls.BASE_LINK + str(target_page_number), session)
 
 			# be nice to lestion
-			# print(f"\r{len(DATA.keys())} / {total}...", end="")
+			print(f"\r{len(DATA.keys())} / {total}...", end="")
 			await asyncio.sleep(cls.SCRAPE_DELAY)
 
 			# intermediate save
 			tmp= copy.deepcopy(CACHE)
-			tmp['invalid']= invalid_list
+			tmp['invalid']= list(CACHE['invalid'])
+			tmp['invalid'].sort()
 			utils.dump_json(tmp, utils.MARKET_CACHE_FILE)
 			utils.dump_json(DATA, utils.MARKET_ITEM_FILE)
 
 		# final save
 		CACHE['invalid']= list(CACHE['invalid'])
+		CACHE['invalid'].sort()
 		utils.dump_json(CACHE, utils.MARKET_CACHE_FILE)
 		utils.dump_json(DATA, utils.MARKET_ITEM_FILE)
 
@@ -152,6 +151,9 @@ class MarketScraper:
 		if remainder != 0: total_pages+= 1
 
 		target_page_from_oldest= (index + invert) // cls.RESULTS_PER_PAGE # 0-indexed from oldest
+		if (index + invert) % cls.RESULTS_PER_PAGE == 0:
+			target_page_from_oldest-= 1
+
 		target_page_from_newest= total_pages - target_page_from_oldest # 1-indexed from newest
 
 		return target_page_from_newest

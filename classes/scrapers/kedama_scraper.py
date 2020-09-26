@@ -1,7 +1,7 @@
-from utils.parse_utils import price_to_int, to_epoch
+from utils.parse_utils import price_to_int
 from utils.scraper_utils import get_html, get_session
 from bs4 import BeautifulSoup
-import utils, aiohttp, glob, re, asyncio, os, datetime
+import utils, glob, re, asyncio, os, datetime
 
 """
 Unlike the scrapers for super / hvmarket, there's no way to tell if new results have been added without \
@@ -172,6 +172,7 @@ class KedamaScraper:
 				level= cls._clean_level(level)
 				price= price_to_int(price)
 				if seller is None: seller= "SakiRaFubuKi"
+				buyer= re.sub(r"start:[\d.]+.? ", "", buyer)
 
 				ret['equips'].append(dict(name=name,price=price,level=level,stats=stats,seller=seller,buyer=buyer,link=link))
 
@@ -182,6 +183,7 @@ class KedamaScraper:
 				price= price_to_int(price)
 				unit_price= price // quant
 				if seller is None: seller= "SakiRaFubuKi"
+				buyer= re.sub(r"start:[\d+.].? ", "", buyer)
 
 				ret['items'].append(dict(unit_price=unit_price,quantity=quant,name=name,seller=seller,buyer=buyer,price=price))
 
@@ -221,7 +223,3 @@ class KedamaScraper:
 							   day=int(split[1]))
 
 		return date.timestamp()
-
-if __name__ == "__main__":
-	# asyncio.get_event_loop().run_until_complete(KedamaScraper.scrape())
-	KedamaScraper.parse()
