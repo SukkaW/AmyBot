@@ -59,7 +59,7 @@ class MarketScraper:
 			html= await get_html(cls.BASE_LINK + str(target_page_number), session)
 
 			# be nice to lestion
-			print(f"\r{len(DATA.keys())} / {total}...", end="")
+			print(f"\r{(len(DATA.keys()) + len(CACHE['invalid']))} / {total}...", end="")
 			await asyncio.sleep(cls.SCRAPE_DELAY)
 
 			# intermediate save
@@ -115,8 +115,9 @@ class MarketScraper:
 
 		def te(hour_minute, day_month_year): # to epoch
 			s1= day_month_year.split("-")
-			s2= hour_minute.split(":")
-			return to_epoch(*(list(reversed(s1)) + s2))
+			# s2= hour_minute.split(":")
+			# return to_epoch(*(list(reversed(s1)) + s2))
+			return to_epoch(*(list(reversed(s1))))
 
 		# do parsing
 		cols= row.find_all("td")
@@ -140,10 +141,11 @@ class MarketScraper:
 		total= cls.PAGE_INFO_REGEX.search(page_info).group(1)
 		return dict(total=int(total))
 
-	# get page number (1-indexed from newest) of the target index (0-indexed from oldest)
+	# get page number (1-indexed from newest) of the target index (1-indexed from oldest)
 	# oldest page may not have same number of results as RESULTS_PER_PAGE
 	@classmethod
 	def get_target_page(cls, index, total_results):
+		index-= 1
 		remainder= total_results % cls.RESULTS_PER_PAGE
 		invert= cls.RESULTS_PER_PAGE - remainder
 
@@ -151,7 +153,7 @@ class MarketScraper:
 		if remainder != 0: total_pages+= 1
 
 		target_page_from_oldest= (index + invert) // cls.RESULTS_PER_PAGE # 0-indexed from oldest
-		if (index + invert) % cls.RESULTS_PER_PAGE == 0:
+		if remainder == 0:
 			target_page_from_oldest-= 1
 
 		target_page_from_newest= total_pages - target_page_from_oldest # 1-indexed from newest

@@ -104,7 +104,7 @@ def contains_maybe(to_search, to_find):
 
 def to_epoch(year, month, day, hour=0, minute=0):
 	args= [int(x) for x in [year,month,day,hour,minute]]
-	if args[0] == 20: args[0]= 2000
+	if len(str(args[0])) == 2: args[0]= int(f"20{args[0]}")
 	return datetime.datetime(*args).timestamp()
 
 def epoch_to_date(epoch):
