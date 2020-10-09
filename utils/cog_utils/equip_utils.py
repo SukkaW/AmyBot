@@ -19,8 +19,8 @@ def find_equips(keyword_list):
 		"min": lambda x: int(x['price']) >= keyword_list['min'].value,
 		"max": lambda x: int(x['price']) <= keyword_list['max'].value,
 		"date": lambda x: check_date(x['time'], keyword_list['date'].value),
-		"seller": lambda x: contains_maybe(to_search=x['seller'], to_find=keyword_list['seller'].value),
-		"buyer": lambda x: contains_maybe(to_search=x['buyer'], to_find=keyword_list['buyer'].value),
+		"seller": lambda x: contains_maybe(to_search=x['seller'], to_find=keyword_list['seller'].value, spaced=False),
+		"buyer": lambda x: contains_maybe(to_search=x['buyer'], to_find=keyword_list['buyer'].value, spaced=False),
 		'name': lambda x: contains_maybe(to_search=x['name'], to_find=keyword_list['name'].value),
 		"rare": lambda x: is_rare(x['name']),
 		"norare": lambda x: not is_rare(x['name'])

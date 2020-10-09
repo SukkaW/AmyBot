@@ -21,8 +21,8 @@ def find_items(keyword_list):
 		"minu": lambda x: x['unit_price'] >= keyword_list['minu'].value,
 		"maxu": lambda x: x['unit_price'] <= keyword_list['maxu'].value,
 		"date": lambda x: check_date(x['time'], keyword_list['date'].value),
-		"seller": lambda x: contains_maybe(to_search=x['seller'], to_find=keyword_list['seller'].value),
-		"buyer": lambda x: contains_maybe(to_search=x['buyer'], to_find=keyword_list['buyer'].value),
+		"seller": lambda x: contains_maybe(to_search=x['seller'], to_find=keyword_list['seller'].value, spaced=False),
+		"buyer": lambda x: contains_maybe(to_search=x['buyer'], to_find=keyword_list['buyer'].value, spaced=False),
 		'name': lambda x: contains_maybe(to_search=x['name'], to_find=keyword_list['name'].value)
 	}
 	checks= [checks[x] for x in checks if x in keyword_list and keyword_list[x].has_value]

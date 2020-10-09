@@ -95,10 +95,13 @@ def contains(to_search, to_find):
 	return all(x in to_search for x in to_find)
 
 # if bool, then don't use it as filtering criteria
-def contains_maybe(to_search, to_find):
+def contains_maybe(to_search, to_find, spaced=True):
 	if isinstance(to_search, bool) or isinstance(to_find, bool):
 		return True
 	else:
+		if not spaced:
+			to_search= to_search.replace(" ", "")
+			to_find= to_find.replace(" ", "")
 		return contains(to_search=to_search, to_find=to_find)
 
 
