@@ -2986,7 +2986,25 @@
       "[Clo16] [href=https://hentaiverse.org/equip/221235341/5b49566114][eq_name=Legendary Onyx Phase Shoes of Heimdall] (Lv.500, EDB 74%, Agi 28%, Evd 65%) (seller: Hot Chocolate)",
       "[Clo22] [href=https://hentaiverse.org/equip/220628879/13008ce859][eq_name=Legendary Frugal Cotton Shoes of the Heaven-sent] (Lv.500, Prof 73%, Agi 32%, Evd 38%) (seller: daboli)",
       "[Lig02] [href=https://hentaiverse.org/equip/219766251/532b63a5c1][eq_name=Legendary Jade Shade Breastplate of the Fleet] (Lv.500, ADB 67%) (seller: in memory)",
-      "[Hea13] [href=https://hentaiverse.org/equip/214703164/b71a0a8cec][eq_name=Legendary Amber Power Boots of Warding] (Lv.500, ADB 96%) (seller: Hot Chocolate)"
+      "[Hea13] [href=https://hentaiverse.org/equip/214703164/b71a0a8cec][eq_name=Legendary Amber Power Boots of Warding] (Lv.500, ADB 96%) (seller: Hot Chocolate)",
+      "[One04] [href=https://hentaiverse.org/equip/241238702/4c90547010][eq_name=Legendary Hallowed Wakizashi of Slaughter] (Lv.463, ADB 75%, Parry 97%) (seller: lhv520045)",
+      "[Sta06] [href=https://hentaiverse.org/equip/234790868/a81dcdc981][eq_name=Peerless Shocking Willow Staff of the Curse-weaver] (Lv.500) (seller: Treesion) start:1m",
+      "[Lig03] [href=https://hentaiverse.org/equip/248652961/d59370a3e3][eq_name=Legendary Agile Shade Gauntlets of the Fleet] (Lv.500, ADB 74%) (seller: Ming28561)",
+      "[Lig04] [href=https://hentaiverse.org/equip/161355432/ab6ad2cec5][eq_name=Legendary Agile Shade Breastplate of the Arcanist] (Lv.500, ADB 71%) (seller: decondelite) start:300k",
+      "[Sta04] [href=https://hentaiverse.org/equip/190312848/291b47d515][eq_name=Legendary Tempestuous Willow Staff of Destruction] (Lv.435, MDB 12%, EDB 39%) (seller: estiy)",
+      "[Sta13] [href=https://hentaiverse.org/equip/202656831/efecdcf052][eq_name=Legendary Demonic Katalox Staff of the Demon-fiend] (Lv.444, MDB 10%, EDB 59%, Prof 40%) (seller: estiy)",
+      "[Sta15] [href=https://hentaiverse.org/equip/247324416/5934fcbf42][eq_name=Legendary Arctic Redwood Staff of Destruction] (Lv.500, EDB 35%, Prof 34%) (seller: zhenterzzf)",
+      "[Clo02] [href=https://hentaiverse.org/equip/177712159/6bc7238449][eq_name=Legendary Radiant Phase Gloves of Surtr] (Lv.423, EDB 7%, MDB 21%, Agi 67%, Evd 30%) (seller: estiy)",
+      "[Clo03] [href=https://hentaiverse.org/equip/191265232/818d8294f2][eq_name=Legendary Cobalt Phase Pants of Surtr] (Lv.482, EDB 57%, Agi 15%, Evd 97%) (seller: [ANONYMOUS])",
+      "[Clo04] [href=https://hentaiverse.org/equip/113755567/a3c056cab1][eq_name=Legendary Amber Phase Gloves of Niflheim] (Lv.427, EDB 36%, Agi 67%, Evd 21%) (seller: [ANONYMOUS])",
+      "[Clo07] [href=https://hentaiverse.org/equip/143409659/bb660727ee][eq_name=Legendary Frugal Phase Robe of Mjolnir] (Lv.456, EDB 26%, Agi 24%, Evd 96%) (seller: [ANONYMOUS])",
+      "[Clo16] [href=https://hentaiverse.org/equip/246874132/acc6593904][eq_name=Legendary Onyx Cotton Gloves of the Elementalist] (Lv.490, Prof 52%, Agi 80%, Evd 10%) (seller: [ANONYMOUS])",
+      "[Clo17] [href=https://hentaiverse.org/equip/143154051/15845899d0][eq_name=Legendary Ruby Cotton Cap of the Heaven-sent] (Lv.456 IW 9, Prof 65%, Agi 29%, Evd 45%) (seller: [ANONYMOUS])",
+      "[Clo19] [href=https://hentaiverse.org/equip/249956633/89697798aa][eq_name=Legendary Cobalt Cotton Gloves of the Demon-fiend] (Lv.492, Prof 85%, Agi 41%, Evd 63%) (seller: [ANONYMOUS])",
+      "[Clo20] [href=https://hentaiverse.org/equip/250690907/1b3b817445][eq_name=Legendary Ruby Cotton Shoes of the Demon-fiend] (Lv.493, Prof 85%, Agi 7%, Evd 23%) (seller: [ANONYMOUS])",
+      "[Clo21] [href=https://hentaiverse.org/equip/251234734/a9aadd0af0][eq_name=Legendary Charged Cotton Cap of the Earth-walker] (Lv.494, CS 73%, Agi 29%, Evd 10%) (seller: [ANONYMOUS])",
+      "[Lig02] [href=https://hentaiverse.org/equip/220896917/f870de9c89][eq_name=Legendary Agile Shade Boots of the Shadowdancer] (Lv.471, ADB 79%) (seller: zero1018101) start:3m",
+      "[Lig03] [href=https://hentaiverse.org/equip/251418744/30ff109774][eq_name=Legendary Agile Shade Breastplate of the Fleet] (Lv.461, ADB 52%) (seller: estiy)"
     ],
     "items": [
       "[M01]50xBinding of Friendship(seller:frankmelody)",
@@ -3011,7 +3029,10 @@
       "[Mat07] Magnificent Power Slaughter Pack (seller: piyin)",
       "[Mat01] 50x Binding of Freyr (seller: kangaeruthing)",
       "[Mat02] 50x Binding of the Heaven-sent (seller: kangaeruthing)",
-      "[Mat11] 1-Hand Weapons Pack (seller: Maharid)"
+      "[Mat11] 1-Hand Weapons Pack (seller: Maharid)",
+      "[Mat01] 500x High-Grade Leather (seller: [ANONYMOUS])",
+      "[Mat07] 150x Binding of Freyr (seller: [ANONYMOUS])",
+      "[Mat10] 150x Binding of Fenrir (seller: [ANONYMOUS])"
     ]
   },
   "fails": {
@@ -3150,7 +3171,16 @@
       "[Sta02] [href=https://hentaiverse.org/equip/214151515/821f6ceb13][eq_name=Legendary Shocking Willow Staff of Focus] (Lv.500, MDB 95%, EDB 31%) Fap Boost Institute 250k #40 E1",
       "[Two01] [href=https://hentaiverse.org/equip/215801334/1ef879e264][eq_name=Legendary Ethereal Katana of Slaughter] (Lv.500, ADB 92%) yearharvest 400k #27",
       "[Two02] [href=https://hentaiverse.org/equip/216357136/e449907c8f][eq_name=Legendary Ethereal Mace of Slaughter] (Lv.500, ADB 84%) DCFulano 50k #5",
-      "[Hea03] [href=https://hentaiverse.org/equip/218385355/508f1aba28][eq_name=Peerless Shielding Plate Helmet of Stoneskin] (Lv.500) DCFulano 1m #68"
+      "[Hea03] [href=https://hentaiverse.org/equip/218385355/508f1aba28][eq_name=Peerless Shielding Plate Helmet of Stoneskin] (Lv.500) DCFulano 1m #68",
+      "[One01] [href=https://hentaiverse.org/equip/236991107/c8e600179d][eq_name=Legendary Ethereal Rapier of Slaughter] (Lv.500, ADB 64%, Parry 14%) qianheng 50k #178",
+      "[Clo06] [href=https://hentaiverse.org/equip/240719807/3c18463879][eq_name=Legendary Radiant Phase Pants of Niflheim] (Lv.500, EDB 97%, MDB 66%, Agi 87%, Evd 44%) Ming28561 5m #13",
+      "[Clo22] [href=https://hentaiverse.org/equip/247485847/05ff3859f2][eq_name=Legendary Charged Phase Shoes of Fenrir] (Lv.500, EDB 16%, CS 64%, Agi 55%, Evd 44%) qianheng 100k #178",
+      "[Clo28] [href=https://hentaiverse.org/equip/221913802/11515ebdc8][eq_name=Legendary Charged Cotton Robe of the Demon-fiend] (Lv.500, Prof 87%, CS 26%, Agi 18%, Evd 94%) Treesion 12.8m #289 E2",
+      "[Clo30] [href=https://hentaiverse.org/equip/222928763/092d5ed193][eq_name=Legendary Charged Cotton Shoes of the Demon-fiend] (Lv.500, Prof 4%, CS 74%, Agi 95%, Evd 38%) fixlulu 500k #73",
+      "[Lig06] [href=https://hentaiverse.org/equip/244341962/1d95164f3f][eq_name=Peerless Cobalt Shade Leggings of the Negation] (Lv.500) mundomuÃ±eca 100k #262",
+      "[Shd02] [href=https://hentaiverse.org/equip/183024049/7ad86f68e1][eq_name=Legendary Amber Force Shield of Protection] (Lv.500, Str Dex End, BLK 81%) 20Ilya 150k #82",
+      "[Clo15] [href=https://hentaiverse.org/equip/222766445/7cd76b42a6][eq_name=Legendary Charged Phase Pants of Fenrir] (Lv.500, EDB 5%, CS 92%, Agi 61%, Evd 60%) 20Ilya 50k #16",
+      "[Clo18] [href=https://hentaiverse.org/equip/237309627/8e93830529][eq_name=Legendary Charged Cotton Robe of the Heaven-sent] (Lv.500, Prof 53%, CS 9%, Agi 1%, Evd 90%) Treesion 600k #113"
     ],
     "items": [
       "[Mat21] Melee Set (seller: qiaoyao12456) nebula rains 400k #70",

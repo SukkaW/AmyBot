@@ -8,7 +8,7 @@
 # gives #S123 / MM-YY
 date_template: |-
   {% set yr = '%02d'|format(DATE[0]) %}
-  #{{TYPE[0].upper()}}{{AUCTION_NUMBER}} / {{'%02d'|format(DATE[1])}}-{{yr}}
+  #{{TYPE[0].upper()}}{{AUCTION_NUMBER[:3]}} / {{'%02d'|format(DATE[1])}}-{{yr}}
 
 # header names for the equip tables --- see command settings to customize which cols are actually used by default
 equip_headers:

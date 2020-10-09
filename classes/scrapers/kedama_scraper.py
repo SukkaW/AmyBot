@@ -46,11 +46,12 @@ class KedamaScraper:
 					if tmp:
 						search_link= tmp.find("a")['href']
 					else:
+						print("kedama: rate limit")
 						await asyncio.sleep(30) # wait for a while if hit rate limit
 
 			# get thread links
 			await asyncio.sleep(cls.DELAY)
-			html= await get_html(search_link, session)
+			html= await get_html(search_link, session); print("kedama: getting",search_link)
 			soup= BeautifulSoup(html, 'html.parser')
 
 			num_pages= soup.find(id=lambda y: y and "page-jump" in y)
@@ -60,20 +61,20 @@ class KedamaScraper:
 			links= cls._scrape_search_page(soup)
 			for i in range(1,num_pages):
 				await asyncio.sleep(cls.DELAY)
-				html= await get_html(search_link + f"&st={25*i}", session)
+				html= await get_html(search_link + f"&st={25*i}", session); print("kedama: getting",search_link + f"&st={25*i}")
 				soup= BeautifulSoup(html, 'html.parser')
 				links+= cls._scrape_search_page(soup)
 
 			# save threads to file
 			for x in links:
-				await asyncio.sleep(cls.DELAY)
 				thread_id= cls.THREAD_ID_REGEX.search(x).group(1)
 				out_file= utils.KEDAMA_HTML_DIR + thread_id + ".html"
 
 				if os.path.exists(out_file):
 					continue
 				else:
-					html= await get_html(x, session)
+					await asyncio.sleep(cls.DELAY)
+					html= await get_html(x, session); print("kedama: getting (no-html)",x)
 					with open(out_file, "w", encoding='utf-8') as file:
 						file.write(html)
 
@@ -95,7 +96,7 @@ class KedamaScraper:
 
 		for file in glob.glob(utils.KEDAMA_HTML_DIR + "*.html"):
 			# inits
-			html= open(file, encoding='utf-8')
+			html= open(file, encoding='utf-8'); print('parsing', os.path.basename(file))
 			soup= BeautifulSoup(html, 'html.parser')
 
 
@@ -123,8 +124,9 @@ class KedamaScraper:
 
 			# auction number (eg 146 in "[Auction] Kedama's Auction #146")
 			auc_num= soup.find(class_="maintitle").find("td").get_text().strip()
-			auc_num= re.search(r"#([^\s]+)", auc_num).group(1)
-			auc_num= auc_num.replace(",","").zfill(3)
+			tmp= re.search(r"#([^\s]+)", auc_num)
+			if tmp:
+				auc_num= tmp.group(1).replace(",","").zfill(3)
 
 			# thread link
 			thread_link= cls.THREAD_BASE_LINK + os.path.basename(file).replace(".html","")
@@ -223,3 +225,7 @@ class KedamaScraper:
 							   day=int(split[1]))
 
 		return date.timestamp()
+
+if __name__ == "__main__":
+	# asyncio.get_event_loop().run_until_complete(KedamaScraper.scrape())
+	KedamaScraper.parse()

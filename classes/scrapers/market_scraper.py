@@ -59,7 +59,7 @@ class MarketScraper:
 			html= await get_html(cls.BASE_LINK + str(target_page_number), session)
 
 			# be nice to lestion
-			print(f"\r{(len(DATA.keys()) + len(CACHE['invalid']))} / {total}...", end="")
+			print(f"{(len(DATA.keys()) + len(CACHE['invalid']))} / {total}...", end="")
 			await asyncio.sleep(cls.SCRAPE_DELAY)
 
 			# intermediate save
