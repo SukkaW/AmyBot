@@ -23,6 +23,9 @@ specific_help_template: |-
             `{{kw}}`:  {{tmp['keywords'][kw]}}
           {% endfor %}
       {% endif %}
+      {% if tmp['commands'] %}
+        __Commands__: [`{{ tmp['commands']|join('`, `') }}`]
+      {% endif %}
     {% endfor %}
 
     {% for cmd in COMMANDS %}
