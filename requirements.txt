@@ -1,0 +1,6 @@
+discord.py
+bs4
+jinja2
+ruamel.yaml
+aiohttp
+regex

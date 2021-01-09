@@ -1,0 +1,5 @@
+omit_template: |-
+  {% set nl = "\n" if HAS_LINK else "" %}
+  {% set om = PAGES|length - PAGE_LIMIT %}
+  {% set pg = "pages" if om > 0 else "page" %}
+  {{nl}}{{om}} {{pg}} omitted. Please DM for the full printout.
