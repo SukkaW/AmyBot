@@ -18,7 +18,7 @@ class PreviewCog(PartialCog, name="Preview"):
 	_b2= r"(.*>)?" # check for > suffix
 	LINK_REGEX= dict(
 		equip= [
-			rf"{_b1}{_excl}hentaiverse\.org/equip/([A-Za-z\d]+)/([A-Za-z\d]+){_b2}", # http://hentaiverse.org/equip/123487856/579b582136
+			rf"{_b1}{_excl}hentaiverse\.org/(isekai/)?equip/([A-Za-z\d]+)/([A-Za-z\d]+){_b2}", # http://hentaiverse.org/equip/123487856/579b582136
 			rf"{_b1}{_excl}eid=([A-Za-z\d]+)&key=([A-Za-z\d]+){_b2}" # old style -- http://hentaiverse.org/pages/showequip.php?eid=123487856&key=579b582136
 		],
 		thread= [
@@ -29,7 +29,7 @@ class PreviewCog(PartialCog, name="Preview"):
 		],
 		bounty= [
 			rf"{_b1}{_excl}e-hentai.*?bid=(\d+){_b2}" # https://e-hentai.org/bounty.php?bid=21180
-		]
+		],
 	)
 
 
@@ -66,13 +66,14 @@ class PreviewCog(PartialCog, name="Preview"):
 		msgs= []
 		for x in matches:
 			await ctx.trigger_typing()
-			has_excl, equip_id, equip_key= x
+			has_excl, isekai, equip_id, equip_key= x
 
 			# try parsing, add reaction to original message on fail
 			try:
 				t= await preview_utils.parse_equip_match(equip_id=equip_id,
 														 equip_key=equip_key,
 														 level=len(has_excl),
+														 isekai=bool(isekai),
 														 session=self.session)
 			except Exception as e:
 				CONFIG= utils.load_yaml(utils.PREVIEW_CONFIG)

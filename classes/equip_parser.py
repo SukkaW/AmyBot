@@ -7,12 +7,15 @@ class EquipParser:
 		self.RANGES= utils.load_json_with_default(utils.RANGES_FILE, default=False)
 
 	# Gets min / max values for each equip stat
-	def get_ranges(self, equip_name):
+	def get_ranges(self, equip_name, only_legendary=False):
 		reps= ["of ", "Of ", "the ", "The ", "Shield ", "Staff "]
 		for x in reps: equip_name= equip_name.replace(x, "")  # eg Peerless Chaged Phase Cap of Surtr --> Peerless Chaged Phase Cap Surtr
 
 		spl= equip_name.split() # ['Peerless', 'Charged', 'Phase', 'Cap', 'Surtr']
 		quality= spl.pop(0) # Peerless
+
+		if only_legendary:
+			quality= "Legendary"
 
 		types= ["oak", "redwood", "willow", "katalox",
 				"axe", "club", "rapier", "shortsword", "wakizashi", "estoc", "longsword", "mace", "katana",
@@ -61,9 +64,9 @@ class EquipParser:
 
 		return data
 
-	def raw_stat_to_percentile(self, name, raw_stats):
+	def raw_stat_to_percentile(self, name, raw_stats, only_legendary=False):
 		ret= {}
-		eq_ranges= self.get_ranges(name)
+		eq_ranges= self.get_ranges(name, only_legendary=only_legendary)
 
 		for st in raw_stats:
 			st_r= st

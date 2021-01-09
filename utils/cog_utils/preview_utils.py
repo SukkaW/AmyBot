@@ -22,20 +22,23 @@ def scan_decorator(key):
 
 	return outer
 
-async def parse_equip_match(equip_id, equip_key, session, level=0):
+async def parse_equip_match(equip_id, equip_key, session, level=0, isekai=False):
 	# inits
 	CONFIG= utils.load_yaml(utils.PREVIEW_CONFIG)['equip']
 	parser= EquipParser()
 
 	# get stats
-	equip_link= f"https://hentaiverse.org/equip/{equip_id}/{equip_key}"
+	equip_link= f"https://hentaiverse.org/"
+	if isekai: equip_link+= "isekai/"
+	equip_link+= f"equip/{equip_id}/{equip_key}"
+
 	result= await EquipScraper.scrape_equip(equip_link, session=session)
 
 	title= _get_title(result)
 	subtitle= _get_subtitle(result)
 	prefix= f"{title}\n{subtitle}"
 
-	try: percentiles= parser.raw_stat_to_percentile(result['name'], result['base_stats'])
+	try: percentiles= parser.raw_stat_to_percentile(result['name'], result['base_stats'], only_legendary=CONFIG['only_legendary_ranges'])
 	except ValueError as e:
 		sys.stderr.write("WARNING: " + str(e))
 		return f"{prefix}\n(no percentile data)\n"

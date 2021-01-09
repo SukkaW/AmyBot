@@ -4,5 +4,6 @@
   "prefix": "!",
   "eh_username": "USERNAME",
   "eh_password": "PASSWORD",
-  "market_check_frequency_hours": 48
+  "market_check_frequency_hours": 48,
+  "equip_range_check_frequency_hours": 168,
 }

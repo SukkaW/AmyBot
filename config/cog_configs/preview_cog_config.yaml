@@ -45,6 +45,8 @@ bounty_body_template: |-
 #  spell damage is suffixed with EDB
 #  proficiency is suffixed with PROF
 equip:
+  only_legendary_ranges: True
+
   min_percentile: 75 # show non-mandatory stats above this percentile
 
   melee_weps: &m_wep [attack damage] # helper node

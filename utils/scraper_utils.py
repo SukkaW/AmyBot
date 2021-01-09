@@ -5,7 +5,8 @@ async def get_html(link, session):
 	if not resp.status == 200:
 		raise TemplatedError("bad_response", link=link, response=resp)
 	else:
-		return await resp.text(encoding='utf-8', errors='ignore')
+		text= await resp.text(encoding='utf-8', errors='ignore')
+		return text
 
 def get_session():
 	import aiohttp

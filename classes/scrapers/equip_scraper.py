@@ -16,7 +16,11 @@ class EquipScraper:
 	async def scrape_ranges(cls):
 		async with aiohttp.ClientSession() as session:
 			html= await get_html(cls.DATA_LINK, session)
-			data= json.loads(html)
+
+			soup= BeautifulSoup(html, 'html.parser')
+			json_string= soup.find(lambda x: 'data-itemranges' in x.attrs)['data-itemranges']
+
+			data= json.loads(json_string)
 			utils.dump_json(data, utils.RANGES_FILE)
 			return data
 
@@ -108,15 +112,37 @@ class EquipScraper:
 	# get real equip name and custom name (if exists)
 	@staticmethod
 	def _get_names(soup):
-		name= None
+		name= ""
 		alt_name= None
 
-		divs= soup.find(id="showequip").find_all("div", recursive=False)
-		if "id" in divs[1].attrs: # no custom name
-			name= " ".join(x.get_text() for x in soup.find_all("div", class_="fc4 fac fcb"))
+		if soup.find("div", class_="fc4 fac fcb"):
+			divs= soup.find(id="showequip").find_all("div", recursive=False)
+			if "id" in divs[1].attrs: # no custom name
+				name= " ".join(x.get_text() for x in soup.find_all("div", class_="fc4 fac fcb"))
+			else:
+				alt_name= " ".join(x.get_text() for x in soup.find_all("div", class_="fc4 fac fcb"))
+				name= " ".join(x.get_text() for x in soup.find_all("div", class_="fc2 fac fcb"))
 		else:
-			alt_name= " ".join(x.get_text() for x in soup.find_all("div", class_="fc4 fac fcb"))
-			name= " ".join(x.get_text() for x in soup.find_all("div", class_="fc2 fac fcb"))
+			# get name from classnames
+			lines= soup.find_all(class_="fc f4b")
+			for x in lines:
+				tmp= x.find_all("div")[1:]
+				name+= "".join( x['class'][0][-1] for x in reversed(tmp) ).replace("9", " ")
+
+				if x != lines[-1]:
+					name+= " "
+
+			# capitalize
+			ignore= ["of", "the"]
+			split= name.split()
+			name= []
+			for x in split:
+				if x not in ignore:
+					x= x.capitalize()
+				name.append(x)
+
+			name= " ".join(name)
+
 
 		return name,alt_name
 

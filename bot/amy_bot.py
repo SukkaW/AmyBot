@@ -1,8 +1,8 @@
+import discord
 from discord.ext import commands
 from classes import PartialCommand, PartialHelp
 from classes.errors import ErrorHandler
 from utils.perm_utils import check_perms
-from cogs import UpdateCog, EquipCog, ItemCog, PreviewCog, ReactionCog
 
 """
 All cogs must subclass PartialCog and all commands must subclass PartialCommand. 
@@ -11,9 +11,17 @@ All cogs must subclass PartialCog and all commands must subclass PartialCommand.
 # @TODO: logging
 class AmyBot(commands.Bot, ErrorHandler):
 	def __init__(self, prefix, *args, **kwargs):
-		super().__init__(command_prefix=prefix, *args, **kwargs)
+		intents= discord.Intents.default()
+		intents.members= True
+		super().__init__(command_prefix=prefix, intents=intents, *args, **kwargs)
+
 		self.help_command= PartialHelp()
 
+	async def on_ready(self):
+		from cogs import UpdateCog, EquipCog, ItemCog, PreviewCog, ReactionCog
+		print(f"Logged in as {self.user.display_name}#{self.user.discriminator}")
+
+		# add cogs
 		# load cogs and checks
 		self.add_cog(EquipCog())
 		self.add_cog(ItemCog())
@@ -52,3 +60,12 @@ class AmyBot(commands.Bot, ErrorHandler):
 	# handle errors during command
 	async def on_command_error(self, ctx, e):
 		return await ErrorHandler.on_command_error(self, ctx, e)
+
+	async def on_message(self, message):
+		await super().on_message(message)
+
+		from utils.lotto_hotfix import lotto_hotfix
+		await lotto_hotfix(message)
+
+		from utils.trend_hotfix import trend_hotfix
+		await trend_hotfix(message)
