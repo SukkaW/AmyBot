@@ -14,6 +14,9 @@ class EquipParser:
 		spl= equip_name.split() # ['Peerless', 'Charged', 'Phase', 'Cap', 'Surtr']
 		quality= spl.pop(0) # Peerless
 
+		if len(spl) < 5:
+			raise ValueError
+
 		if only_legendary:
 			quality= "Legendary"
 
