@@ -19,7 +19,7 @@ class PreviewCog(PartialCog, name="Preview"):
 	LINK_REGEX= dict(
 		equip= [
 			rf"{_b1}{_excl}hentaiverse\.org/(isekai/)?equip/([A-Za-z\d]+)/([A-Za-z\d]+){_b2}", # http://hentaiverse.org/equip/123487856/579b582136
-			rf"{_b1}{_excl}eid=([A-Za-z\d]+)&key=([A-Za-z\d]+){_b2}" # old style -- http://hentaiverse.org/pages/showequip.php?eid=123487856&key=579b582136
+			rf"{_b1}{_excl}(isekai_never/)?eid=([A-Za-z\d]+)&key=([A-Za-z\d]+){_b2}" # old style -- http://hentaiverse.org/pages/showequip.php?eid=123487856&key=579b582136
 		],
 		thread= [
 			rf"{_b1}{_excl}[\S]*e-hentai.*showtopic=(\d+)(?!.*&(?:p|pid)=\d+){_b2}" # https://forums.e-hentai.org/index.php?showtopic=236519
