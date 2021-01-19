@@ -14,11 +14,8 @@ class EquipParser:
 		spl= equip_name.split() # ['Peerless', 'Charged', 'Phase', 'Cap', 'Surtr']
 		quality= spl.pop(0) # Peerless
 
-		if len(spl) < 3:
+		if len(spl) < 2:
 			raise ValueError
-
-		if only_legendary:
-			quality= "Legendary"
 
 		types= ["oak", "redwood", "willow", "katalox",
 				"axe", "club", "rapier", "shortsword", "wakizashi", "estoc", "longsword", "mace", "katana",
@@ -33,6 +30,10 @@ class EquipParser:
 				prefix= spl.pop(0) # Charged
 		else:
 			prefix= spl.pop(0) # Charged
+
+
+		if only_legendary:
+			quality= "Legendary"
 
 		suffix= spl.pop(-1) # Surtr
 
