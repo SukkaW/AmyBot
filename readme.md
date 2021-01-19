@@ -8,13 +8,13 @@
 
 Discord bot for indexing, searching, and filtering various statistics for the online HV game. Specifically:
 <details><summary>Auction history</summary>
-![](https://github.com/LiteralGenie/AmyBot/blob/master/readme_files/ex1.png)
+<img src=https://github.com/LiteralGenie/AmyBot/blob/master/readme_files/ex1.png>
 </details>
 <details><summary>Previews for equipment stats and percentiles.</summary>
-![](https://github.com/LiteralGenie/AmyBot/blob/master/readme_files/ex2.png)
+<img src=https://github.com/LiteralGenie/AmyBot/blob/master/readme_files/ex2.png>
 </details>
 <details><summary>Link previews</summary>
-![](https://github.com/LiteralGenie/AmyBot/blob/master/readme_files/ex3.png)
+<img src=https://github.com/LiteralGenie/AmyBot/blob/master/readme_files/ex3.png>
 </details>
 
 Addtionally, for nearly every command, the bot supports:
