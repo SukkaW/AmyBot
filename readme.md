@@ -14,7 +14,7 @@ Discord bot for indexing, searching, and filtering various statistics for the on
 <img src=https://github.com/LiteralGenie/AmyBot/blob/master/readme_files/ex2.png>
 </details>
 <details><summary>Link previews</summary>
-<img src=https://github.com/LiteralGenie/AmyBot/blob/master/readme_files/ex3.png>
+<img src=https://github.com/LiteralGenie/AmyBot/blob/master/readme_files/ex4.png>
 </details>
 
 Addtionally, for nearly every command, the bot supports:
