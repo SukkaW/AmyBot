@@ -11,10 +11,10 @@ class UpdateCog(PartialCog):
 		super().__init__(hidden=True)
 		self.bot= bot
 
-		# self.check_market.start()
-		# self.check_super.start()
+		self.check_market.start()
+		self.check_super.start()
 		self.update_ranges.start()
-		# self.purge_rr.start()
+		self.purge_rr.start()
 
 	# check super every sunday for equips + items
 	@tasks.loop(hours=6)

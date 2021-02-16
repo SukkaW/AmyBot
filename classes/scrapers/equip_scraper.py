@@ -1,6 +1,7 @@
 from utils.scraper_utils import get_html, get_session
 from bs4 import BeautifulSoup
 import aiohttp, json, utils, asyncio, re, math, copy
+from utils.scraper_utils import get_session
 
 """
 For pulling the equip-stat ranges from https://reasoningtheory.net/viewranges \
@@ -14,7 +15,7 @@ class EquipScraper:
 	# get equip ranges and save as json
 	@classmethod
 	async def scrape_ranges(cls):
-		async with aiohttp.ClientSession() as session:
+		async with get_session() as session:
 			html= await get_html(cls.DATA_LINK, session)
 
 			soup= BeautifulSoup(html, 'html.parser')
