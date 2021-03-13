@@ -11,14 +11,6 @@ equip:
       name: equip
       short: eq
 
-    bought: # moved to equip subcommand -- will wholly remove later
-      name: bought
-      short: bou
-
-    sold: # moved to equip subcommand -- will wholly remove later
-      name: sold
-      short: sol
-
     auction: # renamed to equip
       name: auction
       short: auct
