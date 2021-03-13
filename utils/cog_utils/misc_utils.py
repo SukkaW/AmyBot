@@ -25,7 +25,6 @@ async def pageify_and_send(ctx, strings,
 	if suffix:
 		strings[-1]+= suffix
 	pages= Pprint.get_pages(strings, max_len=max_len)
-	print([len(x) for x in pages])
 
 	# send pages
 	await send_pages(ctx, pages, has_link=has_link, code=_code,
