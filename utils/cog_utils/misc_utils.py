@@ -1,21 +1,45 @@
 from utils.parse_utils import contains, int_to_price
+from ..gist_utils import update_data_gist, get_gist_link
 from classes import Column
 from classes.errors import TemplatedError
 import utils.pprint_utils as Pprint
 import utils
 
+async def pageify_and_send(ctx, strings,
+						   cog_config=None, has_link=False,
+						   max_len=1900, page_limit_dm=99, page_limit_server=2, code="py",
+						   prefix="", suffix="",):
 
-async def pageify_and_send(ctx, strings, CONFIG=None, has_link=False, max_len=1900, page_limit_dm=99, page_limit_server=2, code="py"):
+	# inits
+	bot_config= utils.load_bot_config()
+	gist_link= get_gist_link(bot_config)
+
+	if has_link:
+		_code=None
+	else:
+		_code=code
+
 	# group strings into pages
+	if prefix:
+		strings[0]= prefix + strings[0]
+	if suffix:
+		strings[-1]+= suffix
 	pages= Pprint.get_pages(strings, max_len=max_len)
-
-	if has_link: _code=None
-	else: _code=code
+	print([len(x) for x in pages])
 
 	# send pages
 	await send_pages(ctx, pages, has_link=has_link, code=_code,
-					 page_limit_dm=CONFIG['page_limit_dm'] if CONFIG else page_limit_dm,
-					 page_limit_server=CONFIG['page_limit_server'] if CONFIG else page_limit_server)
+					 page_limit_dm=cog_config['page_limit_dm'] if cog_config else page_limit_dm,
+					 page_limit_server=cog_config['page_limit_server'] if cog_config else page_limit_server,
+					 gist_link=gist_link)
+
+	# update gist
+	if gist_link:
+		dump= "\n".join(strings)
+		if _code:
+			dump= f"```{code}\n{dump}\n```"
+
+		await update_data_gist(dump, bot_config)
 
 def check_for_key(key, keywords, col_names):
 		return keywords[key] or 'key' in col_names
@@ -46,7 +70,10 @@ def stringify_tables(tables, has_link=False, header_func=None, trailer_func=None
 
 # @ todo: check max length (2000)
 # send to discord, enforcing a page limit and optionally wrapping in code blocks
-async def send_pages(ctx, pages, code=None, page_limit_server=2, page_limit_dm=None, has_link=False, prefix="", suffix=""):
+async def send_pages(ctx, pages,
+					 code=None, page_limit_server=2, page_limit_dm=None, has_link=False,
+					 gist_link=None):
+
 	# code blocks
 	if code:
 		pages= [f"```{code}\n{x}\n```" for x in pages]
@@ -58,14 +85,17 @@ async def send_pages(ctx, pages, code=None, page_limit_server=2, page_limit_dm=N
 		dct= {
 			"PAGES": pages,
 			"PAGE_LIMIT": limit,
-			"HAS_LINK": has_link
+			"HAS_LINK": has_link,
+			"GIST_LINK": gist_link,
 		}
 		omit_string= utils.render(STRINGS['omit_template'], dct)
-		pages[limit-1]+= omit_string
 
-	# prefix / suffix
-	pages[0]= prefix + pages[0]
-	pages[-1]= pages[-1] + suffix
+		last_page= pages[limit-1]
+		if len(last_page + omit_string) >= 2000:
+			pages.insert(limit, omit_string)
+			limit+=1
+		else:
+			pages[limit-1]+= omit_string
 
 	# send
 	for x in pages[:limit]:
