@@ -27,72 +27,40 @@ help_string: &help |-
   the reason (eg exception entry) will also be printed.
 
 # admins should be { memorable_name: user_id, ... }
-admins: {genie: 113843036965830657}
 
-flags: &flags
+flags:
   ALLOW: &allow 1
   PASS: 0
   FAIL: &fail -1
 
-dm:
-  vocal_fail: true
-  details: true
 
-  everyone: *allow
-  exceptions: []
-  none:
-    everyone: 0
-    exceptions: []
+vocal_fail: true
+details: true
 
-    help:
-      everyone: 0
-      exceptions: []
-  Equip:
-    everyone: 0
-    exceptions: []
-    auction:
-      everyone: 0
-      exceptions: []
-    bought:
-      everyone: 0
-      exceptions: []
-    sold:
-      everyone: 0
-      exceptions: []
-    equip:
-      everyone: 0
-      exceptions: []
-  Item:
-    everyone: 0
-    exceptions: []
-    item:
-      everyone: 0
-      exceptions: []
-  Preview:
-    everyone: 0
-    exceptions: []
-    preview:
-      everyone: 0
-      exceptions: []
-  Reaction:
-    everyone: 0
-    exceptions: []
-    reaction_delete:
-      everyone: 0
-      exceptions: []
+everyone: 1
+exceptions: []
 
-
-default_perms:
-  help_string: *help
-
-  flags: *flags
-
-  vocal_fail: true
-  details: false
-
+none:
   everyone: 0
   exceptions: []
-
-  none:
+Preview:
+  everyone: 0
+  exceptions: []
+  preview:
+    everyone: 0
+    exceptions: []
+Reaction:
+  everyone: 0
+  exceptions: []
+  addrr:
+    everyone: 0
+    exceptions: []
+  editrr:
+    everyone: 0
+    exceptions: []
+  reaction_delete:
+    everyone: 0
+    exceptions: []
+  reaction_role:
     everyone: 0
     exceptions: []
