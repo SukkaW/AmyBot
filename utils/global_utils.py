@@ -8,7 +8,7 @@ STRING_DIR= CONFIG_DIR + "strings/"
 PERMS_DIR= CONFIG_DIR + "perms/"
 COG_CONFIG_DIR= CONFIG_DIR + "cog_configs/"
 
-BOT_CONFIG_FILE= CONFIG_DIR + "bot_config.json"
+BOT_CONFIG_FILE= CONFIG_DIR + "bot_config.yaml"
 
 HELP_STRING_FILE= STRING_DIR + "help.yaml"
 ERROR_STRING_FILE= STRING_DIR + "errors.yaml"

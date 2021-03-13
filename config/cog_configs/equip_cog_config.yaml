@@ -51,15 +51,15 @@ equip:
   stat_col_width: 20
   page_limit_server: 2
   page_limit_dm: 999
+  min_search_length: 3
 
-
-buyer: # special subcommand for auction
+buyer: # special subcommand for !equip
   default_cols: [name, price, stats, level, date]
   stat_col_width: 30
   page_limit_server: 2
   page_limit_dm: 999
 
-seller: # special subcommand for auction
+seller: # special subcommand for !equip
   default_cols: [name, price, stats, level, date]
   stat_col_width: 20
   page_limit_server: 2

@@ -95,7 +95,7 @@ class EquipCog(PartialCog, name=COG_NAMES['cog_name']):
 		table_strings= Cgu.stringify_tables(tables=tables, has_link=has_link, header_func=lambda x: x.name)
 
 		# group into pages and send
-		return await Cgu.pageify_and_send(ctx, strings=table_strings, CONFIG=CONFIG, has_link=has_link)
+		return await Cgu.pageify_and_send(ctx, strings=table_strings, cog_config=CONFIG, has_link=has_link)
 
 
 	# type should be "buyer" or "seller"
@@ -130,7 +130,7 @@ class EquipCog(PartialCog, name=COG_NAMES['cog_name']):
 		table_strings= summary_strings + main_strings
 
 		# group into pages and send
-		return await Cgu.pageify_and_send(ctx, strings=table_strings, CONFIG=CONFIG[type_], has_link=has_link)
+		return await Cgu.pageify_and_send(ctx, strings=table_strings, cog_config=CONFIG[type_], has_link=has_link)
 
 
 	@classmethod

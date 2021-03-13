@@ -23,10 +23,10 @@ class AmyBot(commands.Bot, ErrorHandler):
 
 		# add cogs
 		# load cogs and checks
-		self.add_cog(EquipCog())
-		self.add_cog(ItemCog())
+		self.add_cog(EquipCog(self))
+		self.add_cog(ItemCog(self))
 
-		# self.add_cog(UpdateCog(self))
+		self.add_cog(UpdateCog(self))
 		self.add_cog(PreviewCog(self))
 		self.add_cog(ReactionCog(self))
 
