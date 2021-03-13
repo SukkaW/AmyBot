@@ -27,7 +27,7 @@ class EquipScraper:
 
 	@staticmethod
 	async def do_hv_login(session=None):
-		CONFIG= utils.load_json_with_default(utils.BOT_CONFIG_FILE,default=False)
+		CONFIG= utils.load_yaml(utils.BOT_CONFIG_FILE)
 		if session is None:
 			session= get_session()
 		await session.get(CONFIG['hv_login_link'])

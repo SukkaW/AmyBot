@@ -2,8 +2,12 @@ import os, json
 from .global_utils import *
 from ruamel.yaml import YAML
 
-def load_yaml(path):
-	return YAML(typ='safe', pure=True).load(open(path, encoding='utf-8'))
+def load_yaml(path, as_dict=False):
+	if as_dict:
+		y= YAML(typ='safe', pure=True)
+	else:
+		y= YAML()
+	return y.load(open(path, encoding='utf-8'))
 
 def dump_yaml(data, path):
 	return YAML().dump(data, open(path, "w", encoding='utf-8'))
