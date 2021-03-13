@@ -1,6 +1,7 @@
 from discord.ext import commands
 from utils.cog_utils import categorize, item_utils
 from classes import PartialCommand, PartialCog, KeywordList, Keyword
+from classes.errors import TemplatedError
 from utils import cog_utils
 
 import utils, copy
@@ -29,6 +30,10 @@ class ItemCog(PartialCog, name=COG_NAMES['cog_name']):
 		CONFIG= utils.load_yaml(utils.ITEM_CONFIG)['item']
 		clean_query,keywords= Parse.parse_keywords(ctx.query, copy.deepcopy(base_keys))
 		keywords['name'].value= clean_query
+
+		# enforce minimum query length
+		if not cog_utils.check_query_length(keywords, min_length=CONFIG['min_search_length']):
+			raise TemplatedError("short_query")
 
 		# search and group
 		item_list= item_utils.find_items(keywords)

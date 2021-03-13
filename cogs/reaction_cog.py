@@ -11,10 +11,9 @@ import utils, discord, os, json
 For various reaction-related functions.
 """
 class ReactionCog(PartialCog, name="Reaction"):
-	def __init__(self, bot, **kwargs):
-		super().__init__(**kwargs)
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
 		self.hidden=False
-		self.bot= bot
 
 
 	@commands.Cog.listener()

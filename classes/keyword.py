@@ -1,5 +1,6 @@
 from classes.errors import ParseError
 
+# todo: properties
 class Keyword:
 	def __init__(self, name, parsing_function=None, aliases=None):
 		self.name= name

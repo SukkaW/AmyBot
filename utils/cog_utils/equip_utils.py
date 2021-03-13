@@ -78,7 +78,6 @@ def to_table(command, eq_list, keyword_list, prop_dct=None):
 	return ret
 
 
-
 # Potentially valuable suffix / prefixes
 def is_rare(name):
 	rares= ["Savage", "Mystic", "Shielding", "Charged", "Frugal", "Radiant"]

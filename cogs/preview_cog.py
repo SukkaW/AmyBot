@@ -33,9 +33,8 @@ class PreviewCog(PartialCog, name="Preview"):
 	)
 
 
-	def __init__(self, bot, *args, **kwargs):
+	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
-		self.bot= bot
 		self.session= get_session()
 		self.last_sent= 0
 

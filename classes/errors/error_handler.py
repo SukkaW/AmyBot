@@ -24,6 +24,7 @@ class ErrorHandler:
 		else:
 			return await self.handle_other_error(ctx, e)
 
+	# todo: replace jinja templates with mako
 	# Unexpected errors
 	async def handle_other_error(self, ctx, e):
 		# get the actual stack trace if available

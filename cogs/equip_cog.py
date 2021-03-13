@@ -4,6 +4,7 @@ import utils.cog_utils.equip_utils as Auct
 
 from discord.ext import commands
 from classes import PartialCommand, PartialCog, KeywordList, Keyword
+from classes.errors import TemplatedError
 
 import utils, copy
 
@@ -30,12 +31,19 @@ class EquipCog(PartialCog, name=COG_NAMES['cog_name']):
 
 	@commands.command(**COG_NAMES['commands']['equip'], cls=PartialCommand)
 	async def equip(self, ctx):
+		# inits
+		CONFIG= utils.load_yaml(utils.AUCTION_CONFIG)[COG_ID]
+
 		# get search parameters
 		clean_query,keywords= Parse.parse_keywords(query=ctx.query, keywords=copy.deepcopy(base_keys))
 		keywords['name'].value= clean_query
 
 		buy= keywords['buyer']
 		sell= keywords['seller']
+
+		# enforce minimum query length
+		if not Cgu.check_query_length(keywords, min_length=CONFIG['min_search_length']):
+			raise TemplatedError("short_query")
 
 		# check for buyer and seller keywords while ignoring bools
 		# (which signal the appearance of a column, but do not affect filtering)
@@ -87,7 +95,7 @@ class EquipCog(PartialCog, name=COG_NAMES['cog_name']):
 		table_strings= Cgu.stringify_tables(tables=tables, has_link=has_link, header_func=lambda x: x.name)
 
 		# group into pages and send
-		return await Cgu.pageify_and_send(ctx, strings=table_strings, CONFIG=CONFIG, has_link=has_link)
+		return await Cgu.pageify_and_send(ctx, strings=table_strings, cog_config=CONFIG, has_link=has_link)
 
 
 	# type should be "buyer" or "seller"
@@ -122,7 +130,7 @@ class EquipCog(PartialCog, name=COG_NAMES['cog_name']):
 		table_strings= summary_strings + main_strings
 
 		# group into pages and send
-		return await Cgu.pageify_and_send(ctx, strings=table_strings, CONFIG=CONFIG[type_], has_link=has_link)
+		return await Cgu.pageify_and_send(ctx, strings=table_strings, cog_config=CONFIG[type_], has_link=has_link)
 
 
 	@classmethod
@@ -139,24 +147,3 @@ class EquipCog(PartialCog, name=COG_NAMES['cog_name']):
 
 		# return
 		return dict(cats=cats, keywords=keywords, clean_query=clean_query)
-
-
-	# Warnings for past commands
-
-	@commands.command(**COG_NAMES['commands']['bought'], cls=PartialCommand)
-	async def bought(self, ctx):
-		clean_query,keyword_list= Parse.parse_keywords(query=ctx.query, keywords=copy.deepcopy(base_keys))
-		return await ctx.send(f"This command has been moved to `{ctx.prefix}equip`. Instead, please try\n```fix\n{ctx.prefix}equip buy{clean_query.upper()} {keyword_list.to_query()}```")
-		# return await self.buy_sell_search(ctx, "buyer")
-
-	@commands.command(**COG_NAMES['commands']['sold'], cls=PartialCommand)
-	async def sold(self, ctx):
-		clean_query,keyword_list= Parse.parse_keywords(query=ctx.query, keywords=copy.deepcopy(base_keys))
-		return await ctx.send(f"This command has been moved to `{ctx.prefix}equip`. Instead, please try\n```fix\n{ctx.prefix}equip sell{clean_query.upper()} {keyword_list.to_query()}```")
-		# return await self.buy_sell_search(ctx, "seller")
-
-	@commands.command(**COG_NAMES['commands']['auction'], cls=PartialCommand)
-	async def auction(self, ctx):
-		clean_query,keyword_list= Parse.parse_keywords(query=ctx.query, keywords=copy.deepcopy(base_keys))
-		return await ctx.send(f"This command has been moved to `{ctx.prefix}equip`. Instead, please try\n```fix\n{ctx.prefix}equip {clean_query.upper()} {keyword_list.to_query()}```")
-		# return await self.buy_sell_search(ctx, "seller")

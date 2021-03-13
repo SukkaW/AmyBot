@@ -7,9 +7,8 @@ import utils, os, glob, discord
 
 
 class UpdateCog(PartialCog):
-	def __init__(self, bot):
-		super().__init__(hidden=True)
-		self.bot= bot
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, hidden=True, **kwargs)
 
 		self.check_market.start()
 		self.check_super.start()
@@ -30,7 +29,7 @@ class UpdateCog(PartialCog):
 	# check hvmarket for items
 	@tasks.loop(hours=1)
 	async def check_market(self):
-		CONFIG= utils.load_json_with_default(utils.BOT_CONFIG_FILE, default=False)
+		CONFIG= utils.load_bot_config()
 		hvm_check= check_update_log("hvmarket", 3600*CONFIG['market_check_frequency_hours'])
 
 		if hvm_check or not os.path.exists(utils.ITEM_FILE):
@@ -49,7 +48,7 @@ class UpdateCog(PartialCog):
 	# update min/max ranges for equip stats
 	@tasks.loop(hours=6)
 	async def update_ranges(self):
-		CONFIG= utils.load_json_with_default(utils.BOT_CONFIG_FILE, default=False)
+		CONFIG= utils.load_bot_config()
 		range_check= check_update_log("equip_ranges", 3600*CONFIG['equip_range_check_frequency_hours'])
 
 		if range_check or not os.path.exists(utils.RANGES_FILE):

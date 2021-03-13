@@ -1,8 +1,9 @@
 import os, json
+from .global_utils import *
 from ruamel.yaml import YAML
 
 def load_yaml(path):
-	return YAML().load(open(path, encoding='utf-8'))
+	return YAML(typ='safe', pure=True).load(open(path, encoding='utf-8'))
 
 def dump_yaml(data, path):
 	return YAML().dump(data, open(path, "w", encoding='utf-8'))
@@ -34,3 +35,6 @@ def dump_json(data, path):
 
 	# dont use \u characters
 	json.dump(data, open(path,"w",encoding='utf-8'), ensure_ascii=False, indent=2)
+
+def load_bot_config():
+	return load_yaml(BOT_CONFIG_FILE)

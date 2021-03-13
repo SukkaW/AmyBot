@@ -1,9 +1,0 @@
-{
-  "discord_key": "KEY",
-  "hv_login_link": "https://hentaiverse.org/login?ipb_member_id=ID&ipb_pass_hash=HASH",
-  "prefix": "!",
-  "eh_username": "USERNAME",
-  "eh_password": "PASSWORD",
-  "market_check_frequency_hours": 48,
-  "equip_range_check_frequency_hours": 168,
-}
