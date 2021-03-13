@@ -1,6 +1,7 @@
 import aiohttp, json
 
 # todo: handle github rate limits
+# todo: dump command data as well
 async def update_data_gist(text, config):
 	headers= dict(
 		Authorization=f"token {config['gist_token']}"

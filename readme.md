@@ -29,7 +29,7 @@ Requires Python 3.6+
 
 1. Clone this repo. `git clone https://github.com/LiteralGenie/AmyBot`
 
-2. Create a `config/bot_config.json` file using the example config.
+2. Create a `config/bot_config.yaml` file using the example config.
 
 3. Install requirements. `pip install -r requirements.txt`
 
