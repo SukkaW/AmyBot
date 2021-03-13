@@ -79,7 +79,7 @@ async def lotto_dl(session):
 
 	start=99999
 
-	CONFIG= utils.load_json_with_default(utils.BOT_CONFIG_FILE, default=False)
+	CONFIG= utils.load_bot_config()
 
 
 	# session= get_session()

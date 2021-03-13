@@ -413,7 +413,7 @@ async def _get_avatar_link(session, link):
 	return thumbnail
 
 async def _do_login(session=None):
-	CONFIG= utils.load_json_with_default(utils.BOT_CONFIG_FILE,default=False)
+	CONFIG= utils.load_bot_config()
 	if session is None:
 		session= get_session()
 
