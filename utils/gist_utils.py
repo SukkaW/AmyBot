@@ -15,7 +15,8 @@ async def update_data_gist(text, config):
 	target_url= f"https://api.github.com/gists/{config['gist_id']}"
 
 	session= aiohttp.ClientSession(headers=headers)
-	await session.patch(target_url, data=payload)
+	resp= await session.patch(target_url, data=payload)
+	assert resp.status == 200
 	await session.close()
 
 def get_gist_link(bot_config):
