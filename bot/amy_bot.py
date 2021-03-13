@@ -26,7 +26,7 @@ class AmyBot(commands.Bot, ErrorHandler):
 		self.add_cog(EquipCog())
 		self.add_cog(ItemCog())
 
-		self.add_cog(UpdateCog(self))
+		# self.add_cog(UpdateCog(self))
 		self.add_cog(PreviewCog(self))
 		self.add_cog(ReactionCog(self))
 

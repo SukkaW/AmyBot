@@ -165,3 +165,6 @@ no_add_perms_template: |-
 
 no_remove_perms_template: |-
   Error. I can't remove the `{{ROLE.name}}` role {{MEMBER.mention}} for you. You're either the server owner or more patrician than me on the role list.
+
+short_query_template: |-
+  Error. Too many results. Please enter a longer query.

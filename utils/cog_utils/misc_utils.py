@@ -171,3 +171,33 @@ def categorize(lst, key_name):
 			cats[x[key_name]].append(x)
 
 		return cats
+
+def check_query_length(keywords, min_length=3):
+	# check for non-bool argument
+	def chk(val):
+		if val is None:
+			return False
+		if isinstance(val, bool):
+			return False
+		if isinstance(val, str):
+			return len(val) > min_length
+
+		return True # else, probably an int
+
+	# check if any pass min_length
+	indiv_check= any(chk(x) for x in keywords.values())
+
+	# check for multiple non-bool arguments
+	def chk(val):
+		if val is None:
+			return 0
+		if isinstance(val, bool):
+			return 0
+		return 1
+	multi_check= sum(chk(x) for x in keywords.values()) > 1
+
+	# return
+	return any([
+		indiv_check,
+		multi_check,
+	])

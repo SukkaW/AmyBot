@@ -36,3 +36,6 @@ class KeywordList:
 			ret.append(f"{x.name.lower()}" if isinstance(x,bool) else f"{x.name.lower()}{str(x.value).upper()}")
 
 		return " ".join(ret)
+
+	def values(self):
+		return [x.value for x in self.keywords]
