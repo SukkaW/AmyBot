@@ -49,6 +49,7 @@ item:
   stat_col_width: 40
   page_limit_server: 3
   page_limit_dm: 15
+  min_search_length: 3
 
 
 
