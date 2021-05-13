@@ -90,6 +90,7 @@ class EquipScraper:
 		# get level and tradeable
 		tmp= soup.find("div", class_=["eq", "et"]).find("div").get_text()
 		tradeable= "Tradeable" in tmp
+		soulbound= "Soulbound" in tmp
 
 		m= re.search(r"Level (\d+)", tmp)
 		level= int(m.group(1)) if m else 0
@@ -106,6 +107,7 @@ class EquipScraper:
 			forging=forging,
 			enchants=enchants,
 			tradeable=tradeable,
+			soulbound=soulbound,
 			level=level,
 			owner=owner
 		)

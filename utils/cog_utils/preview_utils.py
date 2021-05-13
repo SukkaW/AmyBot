@@ -119,7 +119,7 @@ def _get_subtitle(result):
 
 	# other info
 	tmp= []
-	tmp+= ["Tradeable" if result['tradeable'] else "Soulbound"]
+	tmp+= ["Tradeable" if result['tradeable'] else ("Soulbound" if result['soulbound'] else "Untradeable")]
 	tmp+= [f"Owned by {result['owner']}"]
 	if result['level']: tmp.insert(0, f"Level {result['level']}")
 
